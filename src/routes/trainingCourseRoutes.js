@@ -19,10 +19,7 @@ const editorRoles = [
 router.use(authenticateToken);
 
 router.get("/", trainingCourseController.getAllCourses);
-router.get(
-  "/sister/:sisterId",
-  trainingCourseController.getCoursesBySister
-);
+router.get("/sister/:sisterId", trainingCourseController.getCoursesBySister);
 
 router.post(
   "/",

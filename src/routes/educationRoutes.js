@@ -19,10 +19,7 @@ const editorRoles = [
 
 router.use(authenticateToken);
 
-router.get(
-  "/sister/:sisterId",
-  educationController.getEducationBySister
-);
+router.get("/sister/:sisterId", educationController.getEducationBySister);
 router.get("/statistics/level", educationController.getStatisticsByLevel);
 
 router.post(

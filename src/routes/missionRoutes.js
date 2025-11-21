@@ -18,17 +18,9 @@ router.get("/", missionController.getAllMissions);
 router.get("/sister/:sisterId", missionController.getMissionsBySister);
 router.get("/field/:field", missionController.getSistersByMissionField);
 
-router.post(
-  "/",
-  authorize(...editorRoles),
-  missionController.createMission
-);
+router.post("/", authorize(...editorRoles), missionController.createMission);
 
-router.put(
-  "/:id",
-  authorize(...editorRoles),
-  missionController.updateMission
-);
+router.put("/:id", authorize(...editorRoles), missionController.updateMission);
 
 router.post(
   "/:id/end",

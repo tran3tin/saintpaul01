@@ -40,10 +40,6 @@ router.post(
   userController.resetPassword
 );
 
-router.post(
-  "/:id/toggle-status",
-  adminOnly,
-  userController.toggleUserStatus
-);
+router.post("/:id/toggle-status", adminOnly, userController.toggleUserStatus);
 
 module.exports = router;
