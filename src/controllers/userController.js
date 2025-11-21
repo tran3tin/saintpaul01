@@ -168,7 +168,13 @@ const updateUser = async (req, res) => {
     }
 
     const updated = await UserModel.update(id, payload);
-    await logAudit(req, "UPDATE", id, sanitizeUser(user), sanitizeUser(updated));
+    await logAudit(
+      req,
+      "UPDATE",
+      id,
+      sanitizeUser(user),
+      sanitizeUser(updated)
+    );
 
     return res.status(200).json({ user: sanitizeUser(updated) });
   } catch (error) {
@@ -190,7 +196,13 @@ const deleteUser = async (req, res) => {
     }
 
     const updated = await UserModel.update(id, { is_active: 0 });
-    await logAudit(req, "DEACTIVATE", id, sanitizeUser(user), sanitizeUser(updated));
+    await logAudit(
+      req,
+      "DEACTIVATE",
+      id,
+      sanitizeUser(user),
+      sanitizeUser(updated)
+    );
 
     return res.status(200).json({ message: "User deactivated" });
   } catch (error) {
@@ -241,14 +253,23 @@ const toggleUserStatus = async (req, res) => {
     }
 
     let nextStatus;
-    if (typeof desiredStatus === "number" || typeof desiredStatus === "boolean") {
+    if (
+      typeof desiredStatus === "number" ||
+      typeof desiredStatus === "boolean"
+    ) {
       nextStatus = desiredStatus ? 1 : 0;
     } else {
       nextStatus = user.is_active ? 0 : 1;
     }
 
     const updated = await UserModel.update(id, { is_active: nextStatus });
-    await logAudit(req, "TOGGLE_STATUS", id, sanitizeUser(user), sanitizeUser(updated));
+    await logAudit(
+      req,
+      "TOGGLE_STATUS",
+      id,
+      sanitizeUser(user),
+      sanitizeUser(updated)
+    );
 
     return res.status(200).json({
       message: nextStatus ? "User activated" : "User deactivated",
