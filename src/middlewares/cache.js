@@ -1,11 +1,18 @@
 const NodeCache = require("node-cache");
 
-const cacheStore = new NodeCache({ stdTTL: 0, checkperiod: 120, useClones: false });
+const cacheStore = new NodeCache({
+  stdTTL: 0,
+  checkperiod: 120,
+  useClones: false,
+});
 
 const buildCacheKey = (req) => `GET:${req.originalUrl}`;
 
 const cacheMiddleware = (durationSeconds = 60) => {
-  const ttl = Number.isInteger(durationSeconds) && durationSeconds > 0 ? durationSeconds : 60;
+  const ttl =
+    Number.isInteger(durationSeconds) && durationSeconds > 0
+      ? durationSeconds
+      : 60;
 
   return (req, res, next) => {
     if (req.method !== "GET") {
@@ -70,7 +77,8 @@ const clearCache = (pattern) => {
   });
 };
 
-const escapeRegex = (value = "") => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegex = (value = "") =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const clearCacheForResource = (resource) => {
   if (!resource) {
