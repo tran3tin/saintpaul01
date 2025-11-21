@@ -436,7 +436,8 @@ const getComprehensiveReport = async (req, res) => {
   }
 };
 
-const getStatisticsByAgeLabel = (group) => `${group.label}: ${group.count} (${group.percentage}%)`;
+const getStatisticsByAgeLabel = (group) =>
+  `${group.label}: ${group.count} (${group.percentage}%)`;
 
 const buildExcelSheet = (worksheet, rows) => {
   worksheet.addRow(rows.headers);
@@ -466,10 +467,19 @@ const exportReportExcel = async (req, res) => {
       { header: "Metric", key: "metric", width: 30 },
       { header: "Value", key: "value", width: 20 },
     ];
-    summarySheet.addRow({ metric: "Tổng số nữ tu", value: report.totals.overall });
-    summarySheet.addRow({ metric: "Đang phục vụ", value: report.totals.active });
+    summarySheet.addRow({
+      metric: "Tổng số nữ tu",
+      value: report.totals.overall,
+    });
+    summarySheet.addRow({
+      metric: "Đang phục vụ",
+      value: report.totals.active,
+    });
     summarySheet.addRow({ metric: "Đã rời", value: report.totals.left });
-    summarySheet.addRow({ metric: "Ngày báo cáo", value: new Date().toISOString() });
+    summarySheet.addRow({
+      metric: "Ngày báo cáo",
+      value: new Date().toISOString(),
+    });
     summarySheet.getRow(1).font = { bold: true };
 
     const ageSheet = workbook.addWorksheet("Age");
@@ -554,7 +564,7 @@ const exportReportExcel = async (req, res) => {
     });
 
     const trendsSheet = workbook.addWorksheet("Trends");
-    trendsSheet.addRow(["Năm", "Gia nhập", "Rời" ]);
+    trendsSheet.addRow(["Năm", "Gia nhập", "Rời"]);
     trendsSheet.getRow(1).font = { bold: true };
     const yearSet = new Set([
       ...report.trends.entries.map((item) => item.year).filter(Boolean),
@@ -563,7 +573,9 @@ const exportReportExcel = async (req, res) => {
     const sortedYears = Array.from(yearSet).sort((a, b) => a - b);
     sortedYears.forEach((year) => {
       const entry = report.trends.entries.find((row) => row.year === year);
-      const departure = report.trends.departures.find((row) => row.year === year);
+      const departure = report.trends.departures.find(
+        (row) => row.year === year
+      );
       trendsSheet.addRow([
         year,
         entry ? entry.total : 0,
@@ -577,9 +589,9 @@ const exportReportExcel = async (req, res) => {
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="osp-report-${new Date()
-        .toISOString()
-        .split("T")[0]}.xlsx"`
+      `attachment; filename="osp-report-${
+        new Date().toISOString().split("T")[0]
+      }.xlsx"`
     );
 
     await workbook.xlsx.write(res);
@@ -609,9 +621,9 @@ const exportReportPDF = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="osp-report-${new Date()
-        .toISOString()
-        .split("T")[0]}.pdf"`
+      `attachment; filename="osp-report-${
+        new Date().toISOString().split("T")[0]
+      }.pdf"`
     );
 
     doc = new PDFDocument({ size: "A4", margin: 40 });
