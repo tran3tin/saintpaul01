@@ -5086,3 +5086,148 @@ ul {
 .text-orange-red {
   color: #ff0000;
 }
+
+/*=============== Fixed Header and Sidebar on Scroll ==================*/
+/* Header Fixed */
+.header-menu-one {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #ffffff;
+}
+
+/* Wrapper adjustment to account for fixed header */
+.wrapper {
+  padding-top: 68px;
+}
+
+/* Sidebar Fixed - ensure it stays visible */
+.sidebar-menu-one {
+  position: fixed !important;
+  top: 68px !important;
+  left: 0;
+  bottom: 0;
+  z-index: 999;
+  overflow-y: auto;
+  background-color: #042954;
+  width: 26rem;
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu-one .sidebar-menu-content {
+  position: relative !important;
+  top: 0 !important;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+  padding-bottom: 50px;
+}
+
+/* Hide scrollbar but allow scrolling */
+.sidebar-menu-one .sidebar-menu-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-menu-one .sidebar-menu-content::-webkit-scrollbar-track {
+  background: #042954;
+}
+
+.sidebar-menu-one .sidebar-menu-content::-webkit-scrollbar-thumb {
+  background: #ffa901;
+  border-radius: 5px;
+}
+
+/* Dashboard content area adjustment */
+.dashboard-content-one {
+  margin-left: 26rem;
+  min-height: calc(100vh - 68px);
+  transition: all 0.3s ease;
+}
+
+/* Sidebar collapsed state */
+.sidebar-collapsed .sidebar-menu-one {
+  width: 6rem;
+}
+
+.sidebar-collapsed .dashboard-content-one {
+  margin-left: 6rem;
+}
+
+.sidebar-collapsed .sidebar-menu-one .sidebar-menu-content .nav-sidebar-menu > .nav-item > .nav-link span {
+  display: none;
+}
+
+.sidebar-collapsed .sidebar-menu-one .sidebar-menu-content .nav-sidebar-menu > .nav-item .sub-group-menu {
+  position: absolute;
+  left: 6rem;
+  top: 0;
+  width: 200px;
+  background-color: #051f3e;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+  z-index: 1001;
+}
+
+/* Mobile responsive */
+@media only screen and (max-width: 991px) {
+  .wrapper {
+    padding-top: 60px;
+  }
+  
+  .sidebar-menu-one {
+    top: 60px !important;
+    left: -26rem;
+    transition: left 0.3s ease;
+  }
+  
+  .sidebar-collapsed-mobile .sidebar-menu-one {
+    left: 0;
+  }
+  
+  .dashboard-content-one {
+    margin-left: 0;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .wrapper {
+    padding-top: 50px;
+  }
+  
+  .sidebar-menu-one {
+    top: 50px !important;
+    width: 100%;
+    left: -100%;
+  }
+  
+  .sidebar-collapsed-mobile .sidebar-menu-one {
+    left: 0;
+  }
+}
+
+/* Ensure dropdowns appear above content */
+.header-menu-one .dropdown-menu {
+  z-index: 1001;
+}
+
+.sidebar-menu-one .sub-group-menu {
+  z-index: 1000;
+}
+
+/* Print styles - hide sidebar and header */
+@media print {
+  .header-menu-one,
+  .sidebar-menu-one,
+  #sidebar-placeholder,
+  #header-placeholder {
+    display: none !important;
+  }
+  
+  .wrapper {
+    padding-top: 0 !important;
+  }
+  
+  .dashboard-content-one {
+    margin-left: 0 !important;
+  }
+}
