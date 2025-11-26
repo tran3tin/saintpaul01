@@ -28,6 +28,213 @@
     <link rel="stylesheet" href="style.css">
     <!-- Modernize js -->
     <script src="js/modernizr-3.6.0.min.js"></script>
+    <style>
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background-color: #f8f9fa;
+        }
+
+        .sidebar-sticky {
+            position: relative;
+            top: 0;
+            height: calc(100vh - 48px);
+            padding-top: .5rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .sidebar .nav-link {
+            font-weight: 500;
+            color: #333;
+            padding: 10px 20px;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #e9ecef;
+        }
+
+        .sidebar .nav-link.active {
+            color: #007bff;
+            background-color: #e7f3ff;
+        }
+
+        main {
+            margin-left: 240px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stage-filter-btn {
+            width: 100%;
+            padding: 20px;
+            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            background: white;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stage-filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stage-filter-btn.active {
+            border-width: 3px;
+        }
+
+        .stage-filter-btn.active.tim-hieu {
+            border-color: #1565c0;
+            background: #e3f2fd;
+        }
+
+        .stage-filter-btn.active.nha {
+            border-color: #6a1b9a;
+            background: #f3e5f5;
+        }
+
+        .stage-filter-btn.active.thinh-sinh {
+            border-color: #e65100;
+            background: #fff3e0;
+        }
+
+        .stage-filter-btn.active.tap-sinh {
+            border-color: #2e7d32;
+            background: #e8f5e9;
+        }
+
+        .stage-filter-btn.active.khan-tam {
+            border-color: #ad1457;
+            background: #fce4ec;
+        }
+
+        .stage-filter-btn.active.khan-trong {
+            border-color: #00695c;
+            background: #e0f2f1;
+        }
+
+        .stage-icon-large {
+            font-size: 36px;
+            margin-right: 20px;
+        }
+
+        .stage-count {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+        }
+
+        .result-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .table thead {
+            background-color: #f8f9fa;
+        }
+
+        .table thead th {
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .stage-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stage-tim-hieu {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .stage-nha {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        .stage-thinh-sinh {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .stage-tap-sinh {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stage-khan-tam {
+            background: #fce4ec;
+            color: #ad1457;
+        }
+
+        .stage-khan-trong {
+            background: #e0f2f1;
+            color: #00695c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+    </style>
 </head>
 
 <body>
@@ -43,784 +250,540 @@
             <!-- Sidebar Area Start Here -->
             <div id="sidebar-placeholder"></div>
             <!-- Sidebar Area End Here -->
-            <div class="dashboard-content-one">
-                <!-- Breadcubs Area Start Here -->
-                <div class="breadcrumbs-area">
-                    <h3>Teacher</h3>
-                    <ul>
-                        <li>
-                            <a href="index.html">Home</a>
-                        </li>
-                        <li>All Teachers</li>
-                    </ul>
-                </div>
-                <!-- Breadcubs Area End Here -->
-                <!-- Teacher Table Area Start Here -->
-                <div class="card height-auto">
-                    <div class="card-body">
-                        <div class="heading-layout1">
-                            <div class="item-title">
-                                <h3>All Teachers Data</h3>
-                            </div>
-                            <div class="dropdown">
-                                <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown"
-                                    aria-expanded="false">...</a>
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mt-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="#">Hành trình Ơn Gọi</a></li>
+                        <li class="breadcrumb-item active">Lọc theo giai đoạn</li>
+                    </ol>
+                </nav>
 
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#"><i
-                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                    <a class="dropdown-item" href="#"><i
-                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                    <a class="dropdown-item" href="#"><i
-                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>
+                        <i class="fas fa-filter"></i> Lọc Theo Giai Đoạn Ơn Gọi
+                    </h1>
+                    <p class="mb-0">Xem danh sách nữ tu đang ở từng giai đoạn ơn gọi</p>
+                </div>
+
+                <!-- Filter Card -->
+                <div class="filter-card">
+                    <h5 class="mb-4">
+                        <i class="fas fa-sliders-h"></i> Chọn giai đoạn để xem
+                    </h5>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <button class="stage-filter-btn tim-hieu" onclick="filterByStage('tim_hieu', this)">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-search stage-icon-large" style="color: #1565c0;"></i>
+                                    <div>
+                                        <div style="font-size: 16px; font-weight: 600;">Tìm Hiểu</div>
+                                        <div style="font-size: 13px; color: #6c757d;">Ơn Gọi</div>
+                                    </div>
+                                </div>
+                                <div class="stage-count" style="color: #1565c0;">8</div>
+                            </button>
+                        </div>
+
+                        <div class="col-md-4">
+                            <button class="stage-filter-btn nha" onclick="filterByStage('nha', this)">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-home stage-icon-large" style="color: #6a1b9a;"></i>
+                                    <div>
+                                        <div style="font-size: 16px; font-weight: 600;">Nhà</div>
+                                        <div style="font-size: 13px; color: #6c757d;">Sống thử</div>
+                                    </div>
+                                </div>
+                                <div class="stage-count" style="color: #6a1b9a;">5</div>
+                            </button>
+                        </div>
+
+                        <div class="col-md-4">
+                            <button class="stage-filter-btn thinh-sinh" onclick="filterByStage('thinh_sinh', this)">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-book-open stage-icon-large" style="color: #e65100;"></i>
+                                    <div>
+                                        <div style="font-size: 16px; font-weight: 600;">Thỉnh Sinh</div>
+                                        <div style="font-size: 13px; color: #6c757d;">Đào tạo</div>
+                                    </div>
+                                </div>
+                                <div class="stage-count" style="color: #e65100;">12</div>
+                            </button>
+                        </div>
+
+                        <div class="col-md-4">
+                            <button class="stage-filter-btn tap-sinh active" onclick="filterByStage('tap_sinh', this)">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-seedling stage-icon-large" style="color: #2e7d32;"></i>
+                                    <div>
+                                        <div style="font-size: 16px; font-weight: 600;">Tập Sinh</div>
+                                        <div style="font-size: 13px; color: #6c757d;">Rèn luyện</div>
+                                    </div>
+                                </div>
+                                <div class="stage-count" style="color: #2e7d32;">15</div>
+                            </button>
+                        </div>
+
+                        <div class="col-md-4">
+                            <button class="stage-filter-btn khan-tam" onclick="filterByStage('khan_tam', this)">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-praying-hands stage-icon-large" style="color: #ad1457;"></i>
+                                    <div>
+                                        <div style="font-size: 16px; font-weight: 600;">Khấn Tạm</div>
+                                        <div style="font-size: 13px; color: #6c757d;">Tạm thời</div>
+                                    </div>
+                                </div>
+                                <div class="stage-count" style="color: #ad1457;">23</div>
+                            </button>
+                        </div>
+
+                        <div class="col-md-4">
+                            <button class="stage-filter-btn khan-trong" onclick="filterByStage('khan_trong', this)">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-crown stage-icon-large" style="color: #00695c;"></i>
+                                    <div>
+                                        <div style="font-size: 16px; font-weight: 600;">Khấn Trọn</div>
+                                        <div style="font-size: 13px; color: #6c757d;">Trọn đời</div>
+                                    </div>
+                                </div>
+                                <div class="stage-count" style="color: #00695c;">87</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button class="btn btn-outline-secondary" onclick="clearFilter()">
+                            <i class="fas fa-redo"></i> Xóa bộ lọc
+                        </button>
+                        <button class="btn btn-success ms-2">
+                            <i class="fas fa-file-excel"></i> Xuất Excel
+                        </button>
+                        <button class="btn btn-danger ms-2">
+                            <i class="fas fa-file-pdf"></i> Xuất PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Result Card -->
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3>
+                                <i class="fas fa-seedling"></i> Danh sách Nữ Tu - Giai đoạn Tập Sinh
+                            </h3>
+                            <span class="badge bg-white text-dark" style="font-size: 16px;">
+                                <strong>15</strong> người
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%">STT</th>
+                                    <th style="width: 20%">Họ tên</th>
+                                    <th style="width: 15%">Tên dòng</th>
+                                    <th style="width: 10%">Giai đoạn</th>
+                                    <th style="width: 12%">Ngày bắt đầu</th>
+                                    <th style="width: 10%">Thời gian</th>
+                                    <th style="width: 18%">Cộng đoàn</th>
+                                    <th style="width: 10%" class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Nguyen+Thi+Lan&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Nguyễn Thị Lan</strong>
+                                        </div>
+                                    </td>
+                                    <td>Maria Theresa</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2023</td>
+                                    <td>5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>2</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Tran+Thi+Mai&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Trần Thị Mai</strong>
+                                        </div>
+                                    </td>
+                                    <td>Anna</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2023</td>
+                                    <td>5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>3</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Le+Thi+Hoa&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Lê Thị Hoa</strong>
+                                        </div>
+                                    </td>
+                                    <td>Cecilia</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2023</td>
+                                    <td>5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>4</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Pham+Thi+Nga&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Phạm Thị Nga</strong>
+                                        </div>
+                                    </td>
+                                    <td>Bernadette</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2023</td>
+                                    <td>5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>5</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Hoang+Thi+Thao&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Hoàng Thị Thảo</strong>
+                                        </div>
+                                    </td>
+                                    <td>Rosa</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2023</td>
+                                    <td>5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>6</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Vu+Thi+Huyen&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Vũ Thị Huyền</strong>
+                                        </div>
+                                    </td>
+                                    <td>Lucia</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2022</td>
+                                    <td>1 năm 5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>7</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Dang+Thi+Linh&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Đặng Thị Linh</strong>
+                                        </div>
+                                    </td>
+                                    <td>Agnes</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2022</td>
+                                    <td>1 năm 5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>8</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Bui+Thi+Phuong&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Bùi Thị Phương</strong>
+                                        </div>
+                                    </td>
+                                    <td>Monica</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2022</td>
+                                    <td>1 năm 5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>9</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Ngo+Thi+Thanh&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Ngô Thị Thanh</strong>
+                                        </div>
+                                    </td>
+                                    <td>Clara</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2022</td>
+                                    <td>1 năm 5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>10</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Do+Thi+Van&background=e8f5e9&color=2e7d32&size=40"
+                                                class="rounded-circle me-2" alt="Avatar">
+                                            <strong>Đỗ Thị Vân</strong>
+                                        </div>
+                                    </td>
+                                    <td>Veronica</td>
+                                    <td>
+                                        <span class="stage-badge stage-tap-sinh">
+                                            <i class="fas fa-seedling"></i> Tập Sinh
+                                        </span>
+                                    </td>
+                                    <td>05/09/2022</td>
+                                    <td>1 năm 5 tháng</td>
+                                    <td>Nhà Tập Sinh Đà Lạt</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-info" title="Timeline">
+                                            <i class="fas fa-route"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="p-3 border-top">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mt-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Tổng số Tập Sinh</h6>
+                                        <h2 class="mb-0" style="color: #2e7d32;">15</h2>
+                                    </div>
+                                    <div style="font-size: 48px; color: #2e7d32; opacity: 0.3;">
+                                        <i class="fas fa-seedling"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <form class="mg-b-20">
-                            <div class="row gutters-8">
-                                <div class="col-3-xxxl col-xl-3 col-lg-3 col-12 form-group">
-                                    <input type="text" placeholder="Search by ID ..." class="form-control">
-                                </div>
-                                <div class="col-4-xxxl col-xl-4 col-lg-3 col-12 form-group">
-                                    <input type="text" placeholder="Search by Name ..." class="form-control">
-                                </div>
-                                <div class="col-4-xxxl col-xl-3 col-lg-3 col-12 form-group">
-                                    <input type="text" placeholder="Search by Phone ..." class="form-control">
-                                </div>
-                                <div class="col-1-xxxl col-xl-2 col-lg-3 col-12 form-group">
-                                    <button type="submit" class="fw-btn-fill btn-gradient-yellow">SEARCH</button>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Thời gian trung bình</h6>
+                                        <h2 class="mb-0" style="color: #f57c00;">1.2 năm</h2>
+                                    </div>
+                                    <div style="font-size: 48px; color: #f57c00; opacity: 0.3;">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
                                 </div>
                             </div>
-                        </form>
-                        <div class="table-responsive">
-                            <table class="table display data-table text-nowrap">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input checkAll">
-                                                <label class="form-check-label">ID</label>
-                                            </div>
-                                        </th>
-                                        <th>Photo</th>
-                                        <th>Name</th>
-                                        <th>Gender</th>
-                                        <th>Class</th>
-                                        <th>Subject</th>
-                                        <th>Section</th>
-                                        <th>Address</th>
-                                        <th>Phone</th>
-                                        <th>E-mail</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0021</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister2.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>English</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0022</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister3.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>Mathematics</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0023</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister4.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>Mathematics</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0024</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister5.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>Mathematics</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0025</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister6.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>English</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0026</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister7.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>English</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0027</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister8.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>Physics</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0028</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister9.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>Physics</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0029</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister10.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>Physics</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0030</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister6.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>Physics</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0021</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister2.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>Physics</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0022</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister3.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>English</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0023</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister4.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>Mathematics</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0024</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister5.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>Mathematics</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0021</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister2.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>English</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0022</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister3.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>Mathematics</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0023</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister4.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>Mathematics</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0024</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister5.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>Mathematics</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0025</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister6.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>English</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0026</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister7.png" alt="Nữ tu"></td>
-                                        <td>Jessia Rose</td>
-                                        <td>Female</td>
-                                        <td>1</td>
-                                        <td>English</td>
-                                        <td>A</td>
-                                        <td>59 Australia, Sydney</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input">
-                                                <label class="form-check-label">#0027</label>
-                                            </div>
-                                        </td>
-                                        <td class="text-center"><img src="img/figure/sister8.png" alt="Nữ tu"></td>
-                                        <td>Mark Willy</td>
-                                        <td>Male</td>
-                                        <td>2</td>
-                                        <td>Physics</td>
-                                        <td>A</td>
-                                        <td>TA-107 Newyork</td>
-                                        <td>+ 123 9988568</td>
-                                        <td>kazifahim93@gmail.com</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <span class="flaticon-more-button-of-three-dots"></span>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-times text-orange-red"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-cogs text-dark-pastel-green"></i>Edit</a>
-                                                    <a class="dropdown-item" href="#"><i
-                                                            class="fas fa-redo-alt text-orange-peel"></i>Refresh</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Cộng đoàn chính</h6>
+                                        <h6 class="mb-0">Nhà Tập Sinh Đà Lạt</h6>
+                                    </div>
+                                    <div style="font-size: 48px; color: #1976d2; opacity: 0.3;">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- Teacher Table Area End Here -->
-                <footer class="footer-wrap-layout1">
-                    <div class="copyright">© Copyrights <a href="http://zalo.me/0336216546">Khoadev</a> 2025. All rights
-                        reserved. Designed by <a href="#">Khoadev</a></div>
-                </footer>
-            </div>
+            </main>
         </div>
-        <!-- Page Area End Here -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Filter by stage function
+        function filterByStage(stage, button) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.stage-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            button.classList.add('active');
+
+            // In real application, this would trigger an AJAX call to fetch filtered data
+            console.log('Filtering by stage:', stage);
+
+            // Simulate loading (in real app, this would be actual data loading)
+            // window.location.href = `?giai_doan=${stage}`;
+        }
+
+        // Clear filter function
+        function clearFilter() {
+            document.querySelectorAll('.stage-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // In real application, this would reload all data
+            // window.location.href = window.location.pathname;
+        }
+    </script>
+    </div>
+    <!-- Page Area End Here -->
     </div>
     <!-- jquery-->
     <script src="js/jquery-3.3.1.min.js"></script>
