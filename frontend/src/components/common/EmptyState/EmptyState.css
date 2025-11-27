@@ -1,0 +1,157 @@
+/* src/components/common/EmptyState/EmptyState.css */
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+}
+
+.empty-state-icon {
+  font-size: 5rem;
+  color: #e9ecef;
+  margin-bottom: 1.5rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.empty-state-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+}
+
+.empty-state-description {
+  font-size: 1rem;
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.empty-state-action {
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.empty-state-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Size Variants */
+.empty-state-small {
+  padding: 2rem 1rem;
+}
+
+.empty-state-small .empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state-small .empty-state-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-small .empty-state-description {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state-medium {
+  padding: 4rem 2rem;
+}
+
+.empty-state-medium .empty-state-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state-large {
+  padding: 6rem 3rem;
+}
+
+.empty-state-large .empty-state-icon {
+  font-size: 7rem;
+  margin-bottom: 2rem;
+}
+
+.empty-state-large .empty-state-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state-large .empty-state-description {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .empty-state {
+    padding: 3rem 1.5rem;
+  }
+
+  .empty-state-icon {
+    font-size: 4rem;
+  }
+
+  .empty-state-title {
+    font-size: 1.25rem;
+  }
+
+  .empty-state-description {
+    font-size: 0.95rem;
+  }
+
+  .empty-state-large {
+    padding: 4rem 2rem;
+  }
+
+  .empty-state-large .empty-state-icon {
+    font-size: 5rem;
+  }
+
+  .empty-state-large .empty-state-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state-title {
+    font-size: 1.1rem;
+  }
+
+  .empty-state-description {
+    font-size: 0.9rem;
+  }
+
+  .empty-state-action {
+    padding: 0.625rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}

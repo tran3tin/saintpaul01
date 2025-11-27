@@ -1,0 +1,190 @@
+/* src/components/tables/DataTable/DataTable.css */
+
+.datatable-wrapper {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.datatable-container {
+  overflow-x: auto;
+}
+
+.datatable {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+/* Header */
+.datatable-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 2px solid #dee2e6;
+}
+
+.datatable-header th {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  color: #495057;
+  padding: 1rem;
+  border: none;
+  vertical-align: middle;
+}
+
+.datatable-header th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.datatable-header th.sortable:hover {
+  background-color: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.datatable-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sort-icon {
+  color: #adb5bd;
+  font-size: 0.75rem;
+  transition: color 0.3s ease;
+}
+
+.sort-icon.active {
+  color: #667eea;
+}
+
+/* Body */
+.datatable-body tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.datatable-body tr:last-child {
+  border-bottom: none;
+}
+
+.datatable-body tr.selected {
+  background-color: rgba(102, 126, 234, 0.1);
+}
+
+.datatable-body tr.hovered {
+  background-color: #f8f9fa;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.datatable-body td {
+  padding: 1rem;
+  vertical-align: middle;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+/* Checkbox Cell */
+.datatable-checkbox-cell {
+  width: 50px;
+  text-align: center;
+}
+
+.datatable-checkbox {
+  cursor: pointer;
+}
+
+.datatable-checkbox .form-check-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  border: 2px solid #dee2e6;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.datatable-checkbox .form-check-input:checked {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.datatable-checkbox .form-check-input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Loading State */
+.datatable-loading {
+  padding: 4rem;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Pagination */
+.datatable-pagination {
+  padding: 1.5rem;
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .datatable-header th,
+  .datatable-body td {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .datatable-header th {
+    font-size: 0.8rem;
+  }
+
+  .datatable-pagination {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .datatable-container {
+    border-radius: 0;
+  }
+
+  .datatable-header th,
+  .datatable-body td {
+    padding: 0.625rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .datatable-checkbox-cell {
+    width: 40px;
+  }
+
+  .datatable-checkbox .form-check-input {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* Scrollbar */
+.datatable-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.datatable-container::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 4px;
+}
+
+.datatable-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.datatable-container::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}

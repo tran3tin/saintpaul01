@@ -1,0 +1,238 @@
+/* src/components/forms/FileUpload/FileUpload.css */
+
+.fileupload-group-custom {
+  margin-bottom: 1.5rem;
+}
+
+.fileupload-label {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.fileupload-dropzone {
+  border: 2px dashed #e9ecef;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  position: relative;
+}
+
+.fileupload-dropzone:hover {
+  border-color: #667eea;
+  background-color: #f0f3ff;
+}
+
+.fileupload-dropzone.dragging {
+  border-color: #667eea;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  );
+  transform: scale(1.02);
+}
+
+.fileupload-dropzone.has-error {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.fileupload-dropzone.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.fileupload-input {
+  display: none;
+}
+
+.fileupload-content {
+  pointer-events: none;
+}
+
+.fileupload-icon {
+  font-size: 3rem;
+  color: #cbd5e0;
+  margin-bottom: 1rem;
+}
+
+.fileupload-dropzone:hover .fileupload-icon,
+.fileupload-dropzone.dragging .fileupload-icon {
+  color: #667eea;
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.fileupload-title {
+  font-size: 1rem;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.fileupload-browse {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0;
+  pointer-events: auto;
+}
+
+.fileupload-browse:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+.fileupload-hint {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* File Previews */
+.fileupload-previews {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.preview-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.preview-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #f8f9fa;
+}
+
+.preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-file-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.preview-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2d3748;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.25rem;
+}
+
+.preview-size {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.preview-remove {
+  background: none;
+  border: none;
+  color: #dc3545;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.preview-remove:hover {
+  background-color: #fff5f5;
+  transform: scale(1.1);
+}
+
+.fileupload-help-text {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fileupload-dropzone {
+    padding: 1.5rem 1rem;
+  }
+
+  .fileupload-icon {
+    font-size: 2.5rem;
+  }
+
+  .fileupload-title {
+    font-size: 0.95rem;
+  }
+
+  .fileupload-previews {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .fileupload-dropzone {
+    padding: 1.25rem 0.875rem;
+  }
+
+  .fileupload-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .fileupload-title {
+    font-size: 0.9rem;
+  }
+
+  .fileupload-hint {
+    font-size: 0.8rem;
+  }
+}

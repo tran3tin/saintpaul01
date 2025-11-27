@@ -1,0 +1,113 @@
+/* src/components/forms/FormGroup/FormGroup.css */
+
+.form-group-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.form-group-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 2px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-group-header.collapsible {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-group-header.collapsible:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.form-group-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.form-group-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.form-group-title-wrapper {
+  flex: 1;
+}
+
+.form-group-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+}
+
+.form-group-subtitle {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+}
+
+.form-group-toggle {
+  color: #6c757d;
+  font-size: 1.25rem;
+  transition: transform 0.3s ease;
+}
+
+.form-group-body {
+  padding: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-group-header {
+    padding: 1.25rem;
+  }
+
+  .form-group-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+
+  .form-group-title {
+    font-size: 1.1rem;
+  }
+
+  .form-group-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .form-group-body {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .form-group-header {
+    padding: 1rem;
+  }
+
+  .form-group-header-content {
+    gap: 0.75rem;
+  }
+
+  .form-group-body {
+    padding: 1rem;
+  }
+}

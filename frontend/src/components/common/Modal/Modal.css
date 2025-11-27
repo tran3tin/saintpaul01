@@ -1,0 +1,184 @@
+/* src/components/common/Modal/Modal.css */
+
+/* ============================================
+   BASE MODAL
+   ============================================ */
+
+.app-modal .modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header-custom {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+  border-bottom: none;
+}
+
+.modal-header-custom .modal-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.modal-header-custom .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+.modal-header-custom .btn-close:hover {
+  opacity: 1;
+}
+
+.modal-body-custom {
+  padding: 2rem;
+}
+
+.modal-footer-custom {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}
+
+/* ============================================
+   CONFIRM MODAL
+   ============================================ */
+
+.confirm-modal .modal-content {
+  border-radius: 16px;
+}
+
+.confirm-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.confirm-icon-danger {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(238, 90, 111, 0.3);
+}
+
+.confirm-icon-warning {
+  background: linear-gradient(135deg, #ffd93d 0%, #f6c23e 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(246, 194, 62, 0.3);
+}
+
+.confirm-icon-success {
+  background: linear-gradient(135deg, #6bcf7f 0%, #4caf50 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.confirm-icon-info {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+}
+
+.confirm-modal h5 {
+  color: #2d3748;
+  font-weight: 700;
+}
+
+.confirm-modal .text-muted {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ============================================
+   FORM MODAL
+   ============================================ */
+
+.form-modal .modal-body-custom {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+}
+
+.form-modal .modal-body-custom::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form-modal .modal-body-custom::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 3px;
+}
+
+.form-modal .modal-body-custom::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.form-modal .modal-body-custom::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* ============================================
+   MODAL ANIMATIONS
+   ============================================ */
+
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out;
+  transform: scale(0.9);
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1);
+}
+
+/* ============================================
+   MODAL SIZES
+   ============================================ */
+
+.modal-xl .modal-content {
+  max-height: 90vh;
+}
+
+.modal-fullscreen .modal-content {
+  border-radius: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 576px) {
+  .modal-header-custom,
+  .modal-body-custom,
+  .modal-footer-custom {
+    padding: 1.25rem;
+  }
+
+  .modal-header-custom .modal-title {
+    font-size: 1.1rem;
+  }
+
+  .confirm-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+
+  .confirm-modal h5 {
+    font-size: 1.1rem;
+  }
+}
+
+/* ============================================
+   MODAL BACKDROP
+   ============================================ */
+
+.modal-backdrop.show {
+  opacity: 0.6;
+  backdrop-filter: blur(2px);
+}

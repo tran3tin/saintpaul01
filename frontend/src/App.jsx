@@ -24,10 +24,11 @@ const App = () => {
       />
       <div className={`main-wrapper ${isCompact ? "sidebar-compact" : ""}`}>
         <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
-        <div className="p-4">
-          <h1>Demo Header & Sidebar</h1>
-          <p>Header và Sidebar đang hiển thị</p>
-        </div>
+        
+        <main className="main-content p-4">
+          <h1>Hệ Thống Quản Lý Hội Dòng</h1>
+          <p>Chào mừng bạn đến với hệ thống</p>
+        </main>
       </div>
     </div>
   );

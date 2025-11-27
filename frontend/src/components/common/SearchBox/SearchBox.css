@@ -1,0 +1,107 @@
+/* src/components/common/SearchBox/SearchBox.css */
+
+.search-box {
+  width: 100%;
+}
+
+.search-input-group {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.search-input-group:focus-within {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.search-icon {
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-right: none;
+  color: #6c757d;
+  padding: 0.75rem 1rem;
+}
+
+.search-input {
+  border: 1px solid #dee2e6;
+  border-left: none;
+  border-right: none;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+}
+
+.search-input:focus {
+  border-color: #667eea;
+  box-shadow: none;
+}
+
+.search-input::placeholder {
+  color: #adb5bd;
+}
+
+.btn-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: none;
+  border: none;
+  color: #6c757d;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-clear:hover {
+  background-color: #f8f9fa;
+  color: #dc3545;
+}
+
+.btn-search {
+  border-radius: 0 10px 10px 0;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Size Variants */
+.search-input-group.input-group-sm .search-icon,
+.search-input-group.input-group-sm .search-input {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.search-input-group.input-group-lg .search-icon,
+.search-input-group.input-group-lg .search-input {
+  padding: 1rem 1.25rem;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .search-input-group {
+    border-radius: 8px;
+  }
+
+  .search-icon,
+  .search-input {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-search {
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+  }
+}

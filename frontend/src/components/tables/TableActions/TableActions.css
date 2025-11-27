@@ -1,0 +1,126 @@
+/* src/components/tables/TableActions/TableActions.css */
+
+.table-actions-group {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.table-action-btn {
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.table-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.table-action-btn i {
+  font-size: 0.875rem;
+}
+
+.table-action-label {
+  font-size: 0.875rem;
+}
+
+/* Dropdown Mode */
+.table-actions-dropdown {
+  display: inline-block;
+}
+
+.table-actions-toggle {
+  border-radius: 6px;
+  padding: 0.375rem 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.table-actions-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.table-actions-toggle::after {
+  display: none;
+}
+
+.table-actions-menu {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e9ecef;
+  padding: 0.5rem;
+  min-width: 150px;
+}
+
+.table-action-item {
+  border-radius: 6px;
+  padding: 0.625rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.table-action-item:hover {
+  transform: translateX(3px);
+}
+
+.table-action-item.table-action-info:hover {
+  background-color: #e3f2fd;
+  color: #0288d1;
+}
+
+.table-action-item.table-action-warning:hover {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.table-action-item.table-action-danger:hover {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.table-action-item.table-action-success:hover {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.table-action-item.table-action-primary:hover {
+  background-color: #e7f3ff;
+  color: #667eea;
+}
+
+.table-action-item i {
+  width: 20px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .table-action-label {
+    display: none !important;
+  }
+
+  .table-action-btn {
+    padding: 0.375rem 0.625rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .table-actions-group {
+    gap: 0.125rem;
+  }
+
+  .table-action-btn {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .table-action-btn i {
+    font-size: 0.8rem;
+  }
+}

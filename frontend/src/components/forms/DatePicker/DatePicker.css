@@ -1,0 +1,96 @@
+/* src/components/forms/DatePicker/DatePicker.css */
+
+.datepicker-group-custom {
+  margin-bottom: 1.5rem;
+}
+
+.datepicker-label {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.datepicker-wrapper {
+  position: relative;
+}
+
+.datepicker-control {
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.datepicker-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+}
+
+.datepicker-wrapper.has-error .datepicker-control {
+  border-color: #dc3545;
+}
+
+.datepicker-wrapper.has-error .datepicker-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+.datepicker-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.datepicker-control:focus ~ .datepicker-icon {
+  color: #667eea;
+}
+
+.datepicker-help-text {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Custom Calendar Icon */
+.datepicker-control::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Disabled State */
+.datepicker-control:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Read Only State */
+.datepicker-control[readonly] {
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+}
+
+/* Size Variants */
+.datepicker-control.form-control-sm {
+  padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+  font-size: 0.875rem;
+}
+
+.datepicker-control.form-control-lg {
+  padding: 1rem 1.25rem 1rem 3.5rem;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .datepicker-control {
+    font-size: 0.9rem;
+    padding: 0.625rem 0.875rem 0.625rem 2.75rem;
+  }
+}

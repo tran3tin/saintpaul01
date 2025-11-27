@@ -1,0 +1,132 @@
+/* src/components/common/Alert/Alert.css */
+
+.app-alert {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.alert-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.alert-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.alert-body {
+  flex: 1;
+}
+
+.alert-body .alert-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.alert-message {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.app-alert .btn-close {
+  padding: 0.75rem;
+  opacity: 0.6;
+}
+
+.app-alert .btn-close:hover {
+  opacity: 1;
+}
+
+/* Variant Colors */
+.app-alert.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.app-alert.alert-success .alert-icon {
+  color: #28a745;
+}
+
+.app-alert.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+.app-alert.alert-danger .alert-icon {
+  color: #dc3545;
+}
+
+.app-alert.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border-left: 4px solid #ffc107;
+}
+
+.app-alert.alert-warning .alert-icon {
+  color: #ffc107;
+}
+
+.app-alert.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
+}
+
+.app-alert.alert-info .alert-icon {
+  color: #17a2b8;
+}
+
+.app-alert.alert-primary {
+  background-color: #e7f3ff;
+  color: #004085;
+  border-left: 4px solid #667eea;
+}
+
+.app-alert.alert-primary .alert-icon {
+  color: #667eea;
+}
+
+/* Animation */
+.app-alert {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .app-alert {
+    padding: 0.875rem 1rem;
+  }
+
+  .alert-icon {
+    font-size: 1.25rem;
+  }
+
+  .alert-body .alert-heading {
+    font-size: 1rem;
+  }
+
+  .alert-message {
+    font-size: 0.9rem;
+  }
+}

@@ -1,0 +1,94 @@
+/* src/components/forms/TextArea/TextArea.css */
+
+.textarea-group-custom {
+  margin-bottom: 1.5rem;
+}
+
+.textarea-label {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.textarea-wrapper {
+  position: relative;
+}
+
+.textarea-control {
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.textarea-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+}
+
+.textarea-wrapper.has-error .textarea-control {
+  border-color: #dc3545;
+}
+
+.textarea-wrapper.has-error .textarea-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+.textarea-control.no-resize {
+  resize: none;
+}
+
+.char-count {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 1rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.char-count .text-danger {
+  color: #dc3545;
+  font-weight: 700;
+}
+
+.textarea-help-text {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Disabled State */
+.textarea-control:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Read Only State */
+.textarea-control[readonly] {
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .textarea-control {
+    font-size: 0.9rem;
+    padding: 0.625rem 0.875rem;
+  }
+
+  .char-count {
+    font-size: 0.75rem;
+    bottom: 0.625rem;
+    right: 0.875rem;
+  }
+}

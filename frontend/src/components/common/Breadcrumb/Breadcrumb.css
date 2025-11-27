@@ -1,0 +1,120 @@
+/* src/components/common/Breadcrumb/Breadcrumb.css */
+
+.app-breadcrumb {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+}
+
+.breadcrumb-nav {
+  margin: 0;
+  background: transparent;
+  padding: 0;
+  flex: 1;
+}
+
+.breadcrumb-nav .breadcrumb-item {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.breadcrumb-nav .breadcrumb-item a {
+  color: #6c757d;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.breadcrumb-nav .breadcrumb-item a:hover {
+  color: #667eea;
+}
+
+.breadcrumb-nav .breadcrumb-item.active,
+.breadcrumb-nav .breadcrumb-item.active-item {
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.breadcrumb-nav .breadcrumb-item + .breadcrumb-item::before {
+  content: "›";
+  color: #adb5bd;
+  font-size: 1.1rem;
+  padding: 0 0.5rem;
+}
+
+.breadcrumb-nav .breadcrumb-item i {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* Back Button */
+.btn-back {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #495057;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background: #667eea;
+  border-color: #667eea;
+  color: #ffffff;
+  transform: translateX(-3px);
+}
+
+.btn-back i {
+  font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-breadcrumb {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .breadcrumb-nav {
+    width: 100%;
+    order: 1;
+  }
+
+  .btn-back {
+    order: 2;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .breadcrumb-nav .breadcrumb-item {
+    font-size: 0.85rem;
+  }
+
+  .breadcrumb-nav .breadcrumb-item + .breadcrumb-item::before {
+    padding: 0 0.35rem;
+  }
+
+  .btn-back span {
+    display: none;
+  }
+
+  .btn-back {
+    padding: 0.4rem 0.6rem;
+  }
+}
