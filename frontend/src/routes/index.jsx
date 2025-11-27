@@ -1,37 +1,40 @@
 // src/routes/index.jsx
 
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import PrivateRoute from './PrivateRoute';
-import PublicRoute from './PublicRoute';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import PrivateRoute from "./PrivateRoute";
+import PublicRoute from "./PublicRoute";
 
 // Layouts
-import MainLayout from '@layouts/MainLayout';
-import AuthLayout from '@layouts/AuthLayout';
+import MainLayout from "@layouts/MainLayout";
+import AuthLayout from "@layouts/AuthLayout";
 
 // Auth Pages
-import LoginPage from '@features/auth/pages/LoginPage';
-import ForgotPasswordPage from '@features/auth/pages/ForgotPasswordPage';
+import LoginPage from "@features/auth/pages/LoginPage";
+import ForgotPasswordPage from "@features/auth/pages/ForgotPasswordPage";
 
 // Dashboard
-import DashboardPage from '@features/dashboard/pages/DashboardPage';
+import DashboardPage from "@features/dashboard/pages/DashboardPage";
 
 // Nu Tu
-import SisterListPage from '@features/nu-tu/pages/SisterListPage';
-import SisterDetailPage from '@features/nu-tu/pages/SisterDetailPage';
-import SisterFormPage from '@features/nu-tu/pages/SisterFormPage';
+import SisterListPage from "@features/nu-tu/pages/SisterListPage";
+import SisterDetailPage from "@features/nu-tu/pages/SisterDetailPage";
+import SisterFormPage from "@features/nu-tu/pages/SisterFormPage";
 
 // Hanh Trinh
-import TimelinePage from '@features/hanh-trinh/pages/TimelinePage';
+import TimelinePage from "@features/hanh-trinh/pages/TimelinePage";
+import VocationJourneyListPage from "@features/hanh-trinh/pages/VocationJourneyListPage";
+import VocationJourneyDetailPage from "@features/hanh-trinh/pages/VocationJourneyDetailPage";
+import VocationJourneyFormPage from "@features/hanh-trinh/pages/VocationJourneyFormPage";
 
 // Cong Doan
-import CongDoanListPage from '@features/cong-doan/pages/CongDoanListPage';
-import CommunityDetailPage from '@features/cong-doan/pages/CommunityDetailPage';
-import CommunityFormPage from '@features/cong-doan/pages/CommunityFormPage';
-import AssignmentPage from '@features/cong-doan/pages/AssignmentPage';
+import CongDoanListPage from "@features/cong-doan/pages/CongDoanListPage";
+import CommunityDetailPage from "@features/cong-doan/pages/CommunityDetailPage";
+import CommunityFormPage from "@features/cong-doan/pages/CommunityFormPage";
+import AssignmentPage from "@features/cong-doan/pages/AssignmentPage";
 
 // Not Found
-import NotFoundPage from '@pages/NotFound/NotFoundPage';
+import NotFoundPage from "@pages/NotFound/NotFoundPage";
 
 const AppRoutes = () => {
   return (
@@ -56,8 +59,14 @@ const AppRoutes = () => {
           <Route path="/nu-tu/:id" element={<SisterDetailPage />} />
           <Route path="/nu-tu/:id/edit" element={<SisterFormPage />} />
 
-          {/* Hanh Trinh */}
+          {/* Hanh Trinh - Timeline cua Nu Tu */}
           <Route path="/nu-tu/:sisterId/hanh-trinh" element={<TimelinePage />} />
+
+          {/* Hanh Trinh - Quan ly chung */}
+          <Route path="/hanh-trinh" element={<VocationJourneyListPage />} />
+          <Route path="/hanh-trinh/create" element={<VocationJourneyFormPage />} />
+          <Route path="/hanh-trinh/:id" element={<VocationJourneyDetailPage />} />
+          <Route path="/hanh-trinh/:id/edit" element={<VocationJourneyFormPage />} />
 
           {/* Cong Doan */}
           <Route path="/cong-doan" element={<CongDoanListPage />} />

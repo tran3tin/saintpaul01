@@ -162,7 +162,9 @@ const CommunityDetailPage = () => {
                 bg={community.status === "active" ? "success" : "secondary"}
                 className="mb-3"
               >
-                {community.status === "active" ? "Dang hoat dong" : "Khong hoat dong"}
+                {community.status === "active"
+                  ? "Dang hoat dong"
+                  : "Khong hoat dong"}
               </Badge>
 
               <div className="quick-stats mt-3">
@@ -213,7 +215,10 @@ const CommunityDetailPage = () => {
                     <h5 className="mb-3">Thong tin co ban</h5>
                     <Row className="g-3">
                       <Col md={6}>
-                        <InfoItem label="Ten cong doan" value={community.name} />
+                        <InfoItem
+                          label="Ten cong doan"
+                          value={community.name}
+                        />
                       </Col>
                       <Col md={6}>
                         <InfoItem label="Ma so" value={community.code} />
@@ -227,7 +232,11 @@ const CommunityDetailPage = () => {
                       <Col md={6}>
                         <InfoItem
                           label="Trang thai"
-                          value={community.status === "active" ? "Dang hoat dong" : "Khong hoat dong"}
+                          value={
+                            community.status === "active"
+                              ? "Dang hoat dong"
+                              : "Khong hoat dong"
+                          }
                         />
                       </Col>
                       <Col md={12}>
@@ -245,7 +254,11 @@ const CommunityDetailPage = () => {
                   <Tab.Pane eventKey="members">
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <h5 className="mb-0">Danh sach thanh vien</h5>
-                      <Button variant="primary" size="sm" onClick={handleAssignMembers}>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={handleAssignMembers}
+                      >
                         Them thanh vien
                       </Button>
                     </div>

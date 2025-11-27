@@ -1,5 +1,3 @@
-// src/features/cong-doan/pages/AssignmentPage.jsx
-
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -40,20 +38,14 @@ const AssignmentPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-
-      // Fetch community info
       const communityRes = await communityService.getDetail(id);
       if (communityRes) {
         setCommunity(communityRes);
       }
-
-      // Fetch current members
       const membersRes = await communityService.getMembers(id);
       if (membersRes) {
         setCurrentMembers(membersRes);
       }
-
-      // Fetch available sisters (not in this community)
       const sistersRes = await sisterService.getList({
         page_size: 1000,
         exclude_community_id: id,
@@ -63,7 +55,7 @@ const AssignmentPage = () => {
       }
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError("Không thể tải dữ liệu");
+      setError("Khong the tai du lieu");
     } finally {
       setLoading(false);
     }
@@ -77,6 +69,14 @@ const AssignmentPage = () => {
     }
   };
 
+  const filteredSisters = availableSisters.filter(
+    (sister) =>
+      sister.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sister.sister_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (sister.religious_name &&
+        sister.religious_name.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   const handleSelectAll = () => {
     if (selectedSisters.length === filteredSisters.length) {
       setSelectedSisters([]);
@@ -87,42 +87,37 @@ const AssignmentPage = () => {
 
   const handleAssign = async () => {
     if (selectedSisters.length === 0) {
-      setError("Vui lòng chọn ít nhất một nữ tu");
+      setError("Vui long chon it nhat mot nu tu");
       return;
     }
-
     try {
       setSubmitting(true);
       setError("");
-
       await communityService.addMember(id, {
         sister_ids: selectedSisters,
         role: "member",
         joined_date: new Date().toISOString().split("T")[0],
       });
-
-      setSuccess(`Đã phân công ${selectedSisters.length} nữ tu thành công`);
+      setSuccess("Da phan cong " + selectedSisters.length + " nu tu thanh cong");
       setSelectedSisters([]);
       fetchData();
     } catch (err) {
       console.error("Error assigning members:", err);
-      setError("Có lỗi xảy ra khi phân công thành viên");
+      setError("Co loi xay ra khi phan cong thanh vien");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleRemoveMember = async (memberId) => {
-    if (
-      window.confirm("Bạn có chắc chắn muốn xóa thành viên này khỏi cộng đoàn?")
-    ) {
+    if (window.confirm("Ban co chac chan muon xoa thanh vien nay khoi cong doan?")) {
       try {
         await communityService.removeMember(id, memberId);
-        setSuccess("Đã xóa thành viên khỏi cộng đoàn");
+        setSuccess("Da xoa thanh vien khoi cong doan");
         fetchData();
       } catch (err) {
         console.error("Error removing member:", err);
-        setError("Có lỗi xảy ra khi xóa thành viên");
+        setError("Co loi xay ra khi xoa thanh vien");
       }
     }
   };
@@ -132,21 +127,13 @@ const AssignmentPage = () => {
       await communityService.updateMemberRole(id, memberId, {
         role: newRole,
       });
-      setSuccess("Đã cập nhật vai trò thành công");
+      setSuccess("Da cap nhat vai tro thanh cong");
       fetchData();
     } catch (err) {
       console.error("Error updating role:", err);
-      setError("Có lỗi xảy ra khi cập nhật vai trò");
+      setError("Co loi xay ra khi cap nhat vai tro");
     }
   };
-
-  const filteredSisters = availableSisters.filter(
-    (sister) =>
-      sister.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sister.sister_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (sister.religious_name &&
-        sister.religious_name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
 
   if (loading) {
     return (
@@ -161,33 +148,27 @@ const AssignmentPage = () => {
 
   return (
     <Container fluid className="py-4">
-      {/* Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: "Trang chủ", link: "/dashboard" },
-          { label: "Quản lý Cộng Đoàn", link: "/cong-doan" },
-          { label: community?.name, link: `/cong-doan/${id}` },
-          { label: "Phân công thành viên" },
+          { label: "Trang chu", link: "/dashboard" },
+          { label: "Quan ly Cong Doan", link: "/cong-doan" },
+          { label: community?.name, link: "/cong-doan/" + id },
+          { label: "Phan cong thanh vien" },
         ]}
       />
 
-      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 className="mb-1">Phân công Thành viên</h2>
+          <h2 className="mb-1">Phan cong Thanh vien</h2>
           <p className="text-muted mb-0">
-            Cộng đoàn: <strong>{community?.name}</strong>
+            Cong doan: <strong>{community?.name}</strong>
           </p>
         </div>
-        <Button
-          variant="secondary"
-          onClick={() => navigate(`/cong-doan/${id}`)}
-        >
-          Quay lại
+        <Button variant="secondary" onClick={() => navigate("/cong-doan/" + id)}>
+          Quay lai
         </Button>
       </div>
 
-      {/* Alerts */}
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError("")}>
           {error}
@@ -200,13 +181,12 @@ const AssignmentPage = () => {
       )}
 
       <Row className="g-4">
-        {/* Left - Available Sisters */}
         <Col lg={7}>
           <Card>
             <Card.Header className="bg-white border-bottom">
               <div className="d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">
-                  Nữ tu có sẵn ({filteredSisters.length})
+                  Nu tu co san ({filteredSisters.length})
                 </h5>
                 {selectedSisters.length > 0 && (
                   <Button
@@ -214,7 +194,9 @@ const AssignmentPage = () => {
                     onClick={handleAssign}
                     disabled={submitting}
                   >
-                    {submitting ? "Đang phân công..." : `Phân công (${selectedSisters.length})`}
+                    {submitting
+                      ? "Dang phan cong..."
+                      : "Phan cong (" + selectedSisters.length + ")"}
                   </Button>
                 )}
               </div>
@@ -223,7 +205,7 @@ const AssignmentPage = () => {
               <SearchBox
                 value={searchTerm}
                 onChange={setSearchTerm}
-                placeholder="Tìm kiếm nữ tu..."
+                placeholder="Tim kiem nu tu..."
                 className="mb-3"
               />
 
@@ -241,10 +223,10 @@ const AssignmentPage = () => {
                           onChange={handleSelectAll}
                         />
                       </th>
-                      <th>Mã số</th>
-                      <th>Họ tên</th>
-                      <th>Tên thánh</th>
-                      <th>Ngày sinh</th>
+                      <th>Ma so</th>
+                      <th>Ho ten</th>
+                      <th>Ten thanh</th>
+                      <th>Ngay sinh</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -267,7 +249,7 @@ const AssignmentPage = () => {
                     ) : (
                       <tr>
                         <td colSpan="5" className="text-center text-muted py-4">
-                          Không tìm thấy nữ tu nào
+                          Khong tim thay nu tu nao
                         </td>
                       </tr>
                     )}
@@ -278,12 +260,11 @@ const AssignmentPage = () => {
           </Card>
         </Col>
 
-        {/* Right - Current Members */}
         <Col lg={5}>
           <Card>
             <Card.Header className="bg-white border-bottom">
               <h5 className="mb-0">
-                Thành viên hiện tại ({currentMembers.length})
+                Thanh vien hien tai ({currentMembers.length})
               </h5>
             </Card.Header>
             <Card.Body>
@@ -314,11 +295,11 @@ const AssignmentPage = () => {
                               }
                               className="mb-2"
                             >
-                              <option value="member">Thành viên</option>
-                              <option value="superior">Bề trên</option>
-                              <option value="assistant">Phó bề trên</option>
-                              <option value="treasurer">Thủ quỹ</option>
-                              <option value="secretary">Thư ký</option>
+                              <option value="member">Thanh vien</option>
+                              <option value="superior">Be tren</option>
+                              <option value="assistant">Pho be tren</option>
+                              <option value="treasurer">Thu quy</option>
+                              <option value="secretary">Thu ky</option>
                             </Form.Select>
 
                             <small className="text-muted">
@@ -340,7 +321,7 @@ const AssignmentPage = () => {
                 </div>
               ) : (
                 <div className="text-center py-5">
-                  <p className="text-muted">Chưa có thành viên nào</p>
+                  <p className="text-muted">Chua co thanh vien nao</p>
                 </div>
               )}
             </Card.Body>

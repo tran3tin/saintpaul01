@@ -172,7 +172,9 @@ const CongDoanListPage = () => {
                     <td>
                       <Badge
                         bg={
-                          community.status === "active" ? "success" : "secondary"
+                          community.status === "active"
+                            ? "success"
+                            : "secondary"
                         }
                       >
                         {community.status === "active"

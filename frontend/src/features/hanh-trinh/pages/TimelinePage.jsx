@@ -1,14 +1,7 @@
 // src/features/hanh-trinh/pages/TimelinePage.jsx
 
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  Badge,
-} from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { missionService, sisterService } from "@services";
 import { formatDate } from "@utils";
@@ -104,7 +97,10 @@ const TimelinePage = () => {
             {sister?.full_name}
           </p>
         </div>
-        <Button variant="secondary" onClick={() => navigate(`/nu-tu/${sisterId}`)}>
+        <Button
+          variant="secondary"
+          onClick={() => navigate(`/nu-tu/${sisterId}`)}
+        >
           Quay lai
         </Button>
       </div>
@@ -135,7 +131,8 @@ const TimelinePage = () => {
                                 </h6>
                                 <small className="text-muted">
                                   {formatDate(journey.start_date)}
-                                  {journey.end_date && ` - ${formatDate(journey.end_date)}`}
+                                  {journey.end_date &&
+                                    ` - ${formatDate(journey.end_date)}`}
                                 </small>
                               </div>
                               <Badge bg={getStageBadgeColor(journey.stage)}>
@@ -173,8 +170,13 @@ const TimelinePage = () => {
               {sister && (
                 <>
                   <div className="mb-3">
-                    <small className="text-muted d-block">Giai doan hien tai</small>
-                    <Badge bg={getStageBadgeColor(sister.current_stage)} className="mt-1">
+                    <small className="text-muted d-block">
+                      Giai doan hien tai
+                    </small>
+                    <Badge
+                      bg={getStageBadgeColor(sister.current_stage)}
+                      className="mt-1"
+                    >
                       {getStageLabel(sister.current_stage)}
                     </Badge>
                   </div>
@@ -184,11 +186,15 @@ const TimelinePage = () => {
                   </div>
                   <div className="mb-3">
                     <small className="text-muted d-block">Ngay sinh</small>
-                    <div className="fw-semibold">{formatDate(sister.birth_date)}</div>
+                    <div className="fw-semibold">
+                      {formatDate(sister.birth_date)}
+                    </div>
                   </div>
                   <div className="mb-3">
                     <small className="text-muted d-block">Ngay gia nhap</small>
-                    <div className="fw-semibold">{formatDate(sister.join_date)}</div>
+                    <div className="fw-semibold">
+                      {formatDate(sister.join_date)}
+                    </div>
                   </div>
                 </>
               )}

@@ -1,9 +1,9 @@
 // src/pages/NotFound/NotFoundPage.jsx
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Container, Row, Col, Button } from 'react-bootstrap';
-import './NotFoundPage.css';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import "./NotFoundPage.css";
 
 const NotFoundPage = () => {
   return (
@@ -16,7 +16,8 @@ const NotFoundPage = () => {
               <h1 className="not-found-code">404</h1>
               <h2 className="not-found-title">Không tìm thấy trang</h2>
               <p className="not-found-message">
-                Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.
+                Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã được di
+                chuyển.
               </p>
               <Link to="/dashboard">
                 <Button variant="primary" size="lg" className="not-found-btn">

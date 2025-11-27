@@ -12,12 +12,21 @@ export const menuConfig = [
     id: "nu-tu",
     label: "Quản lý Nữ Tu",
     icon: "fas fa-users",
-    path: "/nu-tu",
     roles: [],
-    badge: {
-      text: "150",
-      color: "primary",
-    },
+    children: [
+      {
+        id: "nu-tu-list",
+        label: "Danh sách Nữ Tu",
+        icon: "fas fa-list",
+        path: "/nu-tu",
+      },
+      {
+        id: "nu-tu-create",
+        label: "Thêm Nữ Tu mới",
+        icon: "fas fa-user-plus",
+        path: "/nu-tu/create",
+      },
+    ],
   },
   {
     id: "hanh-trinh",
@@ -26,14 +35,20 @@ export const menuConfig = [
     roles: [],
     children: [
       {
-        id: "hanh-trinh-filter",
-        label: "Lọc theo giai đoạn",
-        icon: "fas fa-filter",
-        path: "/hanh-trinh/filter",
+        id: "hanh-trinh-list",
+        label: "Danh sách hành trình",
+        icon: "fas fa-list",
+        path: "/hanh-trinh",
+      },
+      {
+        id: "hanh-trinh-create",
+        label: "Thêm hành trình mới",
+        icon: "fas fa-plus-circle",
+        path: "/hanh-trinh/create",
       },
       {
         id: "hanh-trinh-stats",
-        label: "Thống kê",
+        label: "Thống kê hành trình",
         icon: "fas fa-chart-pie",
         path: "/hanh-trinh/stats",
       },
@@ -41,10 +56,23 @@ export const menuConfig = [
   },
   {
     id: "cong-doan",
-    label: "Cộng Đoàn",
+    label: "Quản lý Cộng Đoàn",
     icon: "fas fa-building",
-    path: "/cong-doan",
     roles: [],
+    children: [
+      {
+        id: "cong-doan-list",
+        label: "Danh sách Cộng Đoàn",
+        icon: "fas fa-list",
+        path: "/cong-doan",
+      },
+      {
+        id: "cong-doan-create",
+        label: "Thêm Cộng Đoàn mới",
+        icon: "fas fa-plus-circle",
+        path: "/cong-doan/create",
+      },
+    ],
   },
   {
     id: "hoc-van",

@@ -1,5 +1,3 @@
-// src/features/cong-doan/pages/CommunityFormPage.jsx
-
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -58,7 +56,7 @@ const CommunityFormPage = () => {
       }
     } catch (err) {
       console.error("Error fetching community:", err);
-      setError("Khong the tai thong tin cong doan");
+      setError("Không thể tải thông tin cộng đoàn");
     } finally {
       setLoading(false);
     }
@@ -77,12 +75,12 @@ const CommunityFormPage = () => {
     setError("");
 
     if (!formData.name.trim()) {
-      setError("Vui long nhap ten cong doan");
+      setError("Vui lòng nhập tên cộng đoàn");
       return;
     }
 
     if (!formData.code.trim()) {
-      setError("Vui long nhap ma cong doan");
+      setError("Vui lòng nhập mã cộng đoàn");
       return;
     }
 
@@ -98,7 +96,7 @@ const CommunityFormPage = () => {
       navigate("/cong-doan");
     } catch (err) {
       console.error("Error saving community:", err);
-      setError("Co loi xay ra khi luu thong tin");
+      setError("Có lỗi xảy ra khi lưu thông tin");
     } finally {
       setSubmitting(false);
     }
@@ -119,86 +117,104 @@ const CommunityFormPage = () => {
     <Container fluid className="py-4">
       <Breadcrumb
         items={[
-          { label: "Trang chu", link: "/dashboard" },
-          { label: "Quan ly Cong Doan", link: "/cong-doan" },
-          { label: isEdit ? "Chinh sua" : "Them moi" },
+          { label: "Trang chủ", link: "/dashboard" },
+          { label: "Quản lý Cộng Đoàn", link: "/cong-doan" },
+          { label: isEdit ? "Chỉnh sửa" : "Thêm mới" },
         ]}
       />
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1">
-            {isEdit ? "Chinh sua Cong Doan" : "Them Cong Doan moi"}
+            {isEdit ? "Chỉnh sửa Cộng Đoàn" : "Thêm Cộng Đoàn Mới"}
           </h2>
           <p className="text-muted mb-0">
-            {isEdit ? "Cap nhat thong tin cong doan" : "Tao cong doan moi"}
+            {isEdit ? "Cập nhật thông tin cộng đoàn" : "Tạo cộng đoàn mới trong hệ thống"}
           </p>
         </div>
         <Button variant="secondary" onClick={() => navigate("/cong-doan")}>
-          Quay lai
+          <i className="fas fa-arrow-left me-2"></i>
+          Quay lại
         </Button>
       </div>
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError("")}>
+          <i className="fas fa-exclamation-circle me-2"></i>
           {error}
         </Alert>
       )}
 
       <Card>
+        <Card.Header className="bg-white border-bottom">
+          <h5 className="mb-0">
+            <i className="fas fa-building me-2 text-primary"></i>
+            Thông tin Cộng Đoàn
+          </h5>
+        </Card.Header>
         <Card.Body>
           <Form onSubmit={handleSubmit}>
             <Row className="g-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Ten cong doan *</Form.Label>
+                  <Form.Label>
+                    Tên cộng đoàn <span className="text-danger">*</span>
+                  </Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Nhap ten cong doan"
+                    placeholder="Nhập tên cộng đoàn"
                     required
                   />
+                  <Form.Text className="text-muted">
+                    Tên đầy đủ của cộng đoàn
+                  </Form.Text>
                 </Form.Group>
               </Col>
 
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Ma cong doan *</Form.Label>
+                  <Form.Label>
+                    Mã cộng đoàn <span className="text-danger">*</span>
+                  </Form.Label>
                   <Form.Control
                     type="text"
                     name="code"
                     value={formData.code}
                     onChange={handleChange}
-                    placeholder="Nhap ma cong doan"
+                    placeholder="Nhập mã cộng đoàn (VD: CD001)"
                     required
                   />
+                  <Form.Text className="text-muted">
+                    Mã định danh duy nhất cho cộng đoàn
+                  </Form.Text>
                 </Form.Group>
               </Col>
 
               <Col md={12}>
                 <Form.Group>
-                  <Form.Label>Dia chi</Form.Label>
+                  <Form.Label>Địa chỉ</Form.Label>
                   <Form.Control
                     type="text"
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    placeholder="Nhap dia chi"
+                    placeholder="Nhập địa chỉ cộng đoàn"
                   />
                 </Form.Group>
               </Col>
 
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Dien thoai</Form.Label>
+                  <Form.Label>Số điện thoại</Form.Label>
                   <Form.Control
                     type="text"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="Nhap so dien thoai"
+                    placeholder="Nhập số điện thoại liên hệ"
                   />
                 </Form.Group>
               </Col>
@@ -211,14 +227,14 @@ const CommunityFormPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="Nhap email"
+                    placeholder="Nhập địa chỉ email"
                   />
                 </Form.Group>
               </Col>
 
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Ngay thanh lap</Form.Label>
+                  <Form.Label>Ngày thành lập</Form.Label>
                   <Form.Control
                     type="date"
                     name="established_date"
@@ -230,43 +246,56 @@ const CommunityFormPage = () => {
 
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Trang thai</Form.Label>
+                  <Form.Label>Trạng thái</Form.Label>
                   <Form.Select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
                   >
-                    <option value="active">Dang hoat dong</option>
-                    <option value="inactive">Khong hoat dong</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="inactive">Ngừng hoạt động</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
 
               <Col md={12}>
                 <Form.Group>
-                  <Form.Label>Mo ta</Form.Label>
+                  <Form.Label>Mô tả</Form.Label>
                   <Form.Control
                     as="textarea"
-                    rows={3}
+                    rows={4}
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
-                    placeholder="Nhap mo ta"
+                    placeholder="Nhập mô tả về cộng đoàn (lịch sử, đặc điểm, sứ mạng...)"
                   />
                 </Form.Group>
               </Col>
             </Row>
 
-            <div className="d-flex justify-content-end gap-2 mt-4">
+            <hr className="my-4" />
+
+            <div className="d-flex justify-content-end gap-2">
               <Button
-                variant="secondary"
+                variant="outline-secondary"
                 onClick={() => navigate("/cong-doan")}
                 disabled={submitting}
               >
-                Huy
+                <i className="fas fa-times me-2"></i>
+                Hủy bỏ
               </Button>
               <Button type="submit" variant="primary" disabled={submitting}>
-                {submitting ? "Dang luu..." : isEdit ? "Cap nhat" : "Tao moi"}
+                {submitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    Đang lưu...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save me-2"></i>
+                    {isEdit ? "Cập nhật" : "Tạo mới"}
+                  </>
+                )}
               </Button>
             </div>
           </Form>

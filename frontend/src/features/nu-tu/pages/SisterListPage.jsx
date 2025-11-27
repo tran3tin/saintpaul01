@@ -111,7 +111,8 @@ const SisterListPage = () => {
     return age;
   };
 
-  const getStageInfo = (stage) => stageLabels[stage] || { label: stage, color: "secondary" };
+  const getStageInfo = (stage) =>
+    stageLabels[stage] || { label: stage, color: "secondary" };
 
   return (
     <Container fluid className="py-4">
@@ -119,7 +120,9 @@ const SisterListPage = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1">Quản lý Nữ Tu</h2>
-          <p className="text-muted mb-0">Danh sách tất cả nữ tu trong hệ thống</p>
+          <p className="text-muted mb-0">
+            Danh sách tất cả nữ tu trong hệ thống
+          </p>
         </div>
         <Button variant="primary" onClick={handleCreate}>
           <i className="fas fa-plus me-2"></i>
@@ -253,7 +256,10 @@ const SisterListPage = () => {
                   </div>
                   <h5 className="mb-1">{sister.religious_name}</h5>
                   <p className="text-muted mb-2">{sister.full_name}</p>
-                  <Badge bg={getStageInfo(sister.current_stage).color} className="mb-3">
+                  <Badge
+                    bg={getStageInfo(sister.current_stage).color}
+                    className="mb-3"
+                  >
                     {getStageInfo(sister.current_stage).label}
                   </Badge>
                   <p className="small text-muted mb-0">{sister.community}</p>

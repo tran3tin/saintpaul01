@@ -233,3 +233,46 @@ export const formatRelativeTime = (date) => {
   if (diffDays < 365) return `${Math.floor(diffDays / 30)} tháng trước`;
   return `${Math.floor(diffDays / 365)} năm trước`;
 };
+
+/**
+ * Calculate duration between two dates
+ * @param {string|Date} startDate
+ * @param {string|Date} endDate - if null, uses current date
+ * @returns {string}
+ */
+export const calculateDuration = (startDate, endDate = null) => {
+  if (!startDate) return "";
+
+  const start = new Date(startDate);
+  const end = endDate ? new Date(endDate) : new Date();
+
+  if (isNaN(start.getTime())) return "";
+  if (endDate && isNaN(end.getTime())) return "";
+
+  const diffMs = end - start;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
+
+  if (diffYears > 0) {
+    const remainingMonths = diffMonths % 12;
+    if (remainingMonths > 0) {
+      return `${diffYears} nam ${remainingMonths} thang`;
+    }
+    return `${diffYears} nam`;
+  }
+
+  if (diffMonths > 0) {
+    const remainingDays = diffDays % 30;
+    if (remainingDays > 0) {
+      return `${diffMonths} thang ${remainingDays} ngay`;
+    }
+    return `${diffMonths} thang`;
+  }
+
+  if (diffDays > 0) {
+    return `${diffDays} ngay`;
+  }
+
+  return "Hom nay";
+};

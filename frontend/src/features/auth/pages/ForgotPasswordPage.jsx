@@ -1,7 +1,15 @@
 // src/features/auth/pages/ForgotPasswordPage.jsx
 
 import React, { useState } from "react";
-import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Alert,
+} from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { authService } from "@services";
 
@@ -72,7 +80,11 @@ const ForgotPasswordPage = () => {
               </div>
 
               {error && (
-                <Alert variant="danger" dismissible onClose={() => setError("")}>
+                <Alert
+                  variant="danger"
+                  dismissible
+                  onClose={() => setError("")}
+                >
                   {error}
                 </Alert>
               )}
