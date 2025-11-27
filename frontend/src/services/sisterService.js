@@ -152,6 +152,32 @@ const sisterService = {
       throw error;
     }
   },
+
+  /**
+   * Upload avatar for sister
+   * @param {string} id - Sister ID
+   * @param {File} file - Image file
+   * @returns {Promise}
+   */
+  uploadAvatar: async (id, file) => {
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const response = await api.post(
+        API_ENDPOINTS.SISTER.UPLOAD_AVATAR(id),
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default sisterService;

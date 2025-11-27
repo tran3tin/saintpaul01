@@ -183,11 +183,11 @@ export const menuConfig = [
     ],
   },
   {
-    id: "divider-1",
+    id: "divider-3",
     type: "divider",
   },
   {
-    id: "label-admin",
+    id: "label-system",
     type: "label",
     label: "Quản trị hệ thống",
     roles: ["admin"],

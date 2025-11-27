@@ -1,0 +1,123 @@
+/* src/features/hanh-trinh/components/TimelineItem/TimelineItem.css */
+
+.timeline-item {
+  position: relative;
+  padding-left: 5rem;
+  padding-bottom: 3rem;
+}
+
+.timeline-item.last {
+  padding-bottom: 0;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 1.25rem;
+  top: 0.5rem;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.5rem;
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 3px #e9ecef;
+  z-index: 1;
+}
+
+.timeline-item.first .timeline-marker {
+  width: 32px;
+  height: 32px;
+  font-size: 0.75rem;
+}
+
+.timeline-content {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateX(5px);
+}
+
+.timeline-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timeline-details {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #4a5568;
+}
+
+.timeline-notes {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #fffbeb;
+  border-left: 3px solid #f59e0b;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #78350f;
+}
+
+.timeline-documents {
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.document-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.document-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #2d3748;
+  transition: all 0.3s ease;
+}
+
+.document-item:hover {
+  background-color: #e9ecef;
+  color: #667eea;
+}
+
+@media (max-width: 768px) {
+  .timeline-item {
+    padding-left: 3.5rem;
+  }
+
+  .timeline-marker {
+    left: 0.5rem;
+  }
+
+  .timeline-content {
+    padding: 1rem;
+  }
+
+  .timeline-actions {
+    flex-direction: column;
+  }
+}

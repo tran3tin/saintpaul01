@@ -27,6 +27,7 @@ export const API_ENDPOINTS = {
     EXPORT: "/sisters/export",
     IMPORT: "/sisters/import",
     STATISTICS: "/sisters/statistics",
+    UPLOAD_AVATAR: (id) => `/sisters/${id}/avatar`,
   },
 
   // ============================================
@@ -70,6 +71,7 @@ export const API_ENDPOINTS = {
     MEMBERS: (id) => `/communities/${id}/members`,
     ADD_MEMBER: (id) => `/communities/${id}/members`,
     REMOVE_MEMBER: (id, memberId) => `/communities/${id}/members/${memberId}`,
+    UPDATE_MEMBER_ROLE: (id, memberId) => `/communities/${id}/members/${memberId}`,
     STATISTICS: "/communities/statistics",
   },
 

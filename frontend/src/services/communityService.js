@@ -125,6 +125,25 @@ const communityService = {
   },
 
   /**
+   * Update member role in community
+   * @param {string} id - Community ID
+   * @param {string} memberId - Member ID
+   * @param {Object} data - { role }
+   * @returns {Promise}
+   */
+  updateMemberRole: async (id, memberId, data) => {
+    try {
+      const response = await api.put(
+        API_ENDPOINTS.COMMUNITY.UPDATE_MEMBER_ROLE(id, memberId),
+        data
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  /**
    * Get statistics
    * @returns {Promise}
    */

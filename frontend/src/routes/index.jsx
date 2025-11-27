@@ -1,37 +1,78 @@
 // src/routes/index.jsx
 
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import PrivateRoute from './PrivateRoute';
+import PublicRoute from './PublicRoute';
 
 // Layouts
-import MainLayout from "@layouts/MainLayout";
+import MainLayout from '@layouts/MainLayout';
+import AuthLayout from '@layouts/AuthLayout';
 
-// Pages
-import { DashboardPage } from "@features/dashboard";
-import Login from "@pages/auth/Login";
+// Auth Pages
+import LoginPage from '@features/auth/pages/LoginPage';
+import ForgotPasswordPage from '@features/auth/pages/ForgotPasswordPage';
 
-// Route Components
-import PrivateRoute from "./PrivateRoute";
-import PublicRoute from "./PublicRoute";
+// Dashboard
+import DashboardPage from '@features/dashboard/pages/DashboardPage';
+
+// Nu Tu
+import SisterListPage from '@features/nu-tu/pages/SisterListPage';
+import SisterDetailPage from '@features/nu-tu/pages/SisterDetailPage';
+import SisterFormPage from '@features/nu-tu/pages/SisterFormPage';
+
+// Hanh Trinh
+import TimelinePage from '@features/hanh-trinh/pages/TimelinePage';
+
+// Cong Doan
+import CongDoanListPage from '@features/cong-doan/pages/CongDoanListPage';
+import CommunityDetailPage from '@features/cong-doan/pages/CommunityDetailPage';
+import CommunityFormPage from '@features/cong-doan/pages/CommunityFormPage';
+import AssignmentPage from '@features/cong-doan/pages/AssignmentPage';
+
+// Not Found
+import NotFoundPage from '@pages/NotFound/NotFoundPage';
 
 const AppRoutes = () => {
   return (
     <Routes>
       {/* Public Routes */}
       <Route element={<PublicRoute />}>
-        <Route path="/login" element={<Login />} />
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        </Route>
       </Route>
 
       {/* Private Routes */}
       <Route element={<PrivateRoute />}>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Dashboard */}
           <Route path="/dashboard" element={<DashboardPage />} />
+
+          {/* Nu Tu */}
+          <Route path="/nu-tu" element={<SisterListPage />} />
+          <Route path="/nu-tu/create" element={<SisterFormPage />} />
+          <Route path="/nu-tu/:id" element={<SisterDetailPage />} />
+          <Route path="/nu-tu/:id/edit" element={<SisterFormPage />} />
+
+          {/* Hanh Trinh */}
+          <Route path="/nu-tu/:sisterId/hanh-trinh" element={<TimelinePage />} />
+
+          {/* Cong Doan */}
+          <Route path="/cong-doan" element={<CongDoanListPage />} />
+          <Route path="/cong-doan/create" element={<CommunityFormPage />} />
+          <Route path="/cong-doan/:id" element={<CommunityDetailPage />} />
+          <Route path="/cong-doan/:id/edit" element={<CommunityFormPage />} />
+          <Route path="/cong-doan/:id/assign" element={<AssignmentPage />} />
+
+          {/* Redirect */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Route>
 
       {/* 404 */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

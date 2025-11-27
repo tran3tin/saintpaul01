@@ -169,7 +169,7 @@ const useForm = (initialValues = {}, validationSchema = null) => {
   /**
    * Set multiple values
    */
-  const setValues = useCallback((newValues) => {
+  const updateValues = useCallback((newValues) => {
     setValues((prev) => ({
       ...prev,
       ...newValues,
@@ -187,7 +187,7 @@ const useForm = (initialValues = {}, validationSchema = null) => {
     setFieldValue,
     setFieldError,
     setFieldTouched,
-    setValues,
+    updateValues,
     resetForm,
     validateField,
     validateForm,

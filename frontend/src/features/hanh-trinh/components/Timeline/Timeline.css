@@ -1,0 +1,28 @@
+/* src/features/hanh-trinh/components/Timeline/Timeline.css */
+
+.timeline-card {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.journey-timeline {
+  position: relative;
+  padding: 2rem 0;
+}
+
+.journey-timeline::before {
+  content: "";
+  position: absolute;
+  left: 2rem;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+}
+
+@media (max-width: 768px) {
+  .journey-timeline::before {
+    left: 1rem;
+  }
+}
