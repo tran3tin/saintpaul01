@@ -25,7 +25,8 @@ const departureService = {
       console.error("Error fetching departures:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Không thể tải danh sách đi vắng",
+        error:
+          error.response?.data?.message || "Không thể tải danh sách đi vắng",
         data: { items: [], total: 0 },
       };
     }
@@ -43,7 +44,8 @@ const departureService = {
       console.error("Error fetching departure detail:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Không thể tải chi tiết đi vắng",
+        error:
+          error.response?.data?.message || "Không thể tải chi tiết đi vắng",
       };
     }
   },
@@ -51,7 +53,9 @@ const departureService = {
   // Get departures by sister ID
   getBySister: async (sisterId, params = {}) => {
     try {
-      const response = await api.get(DEPARTURE_ENDPOINTS.BY_SISTER(sisterId), { params });
+      const response = await api.get(DEPARTURE_ENDPOINTS.BY_SISTER(sisterId), {
+        params,
+      });
       return {
         success: true,
         data: response.data,
@@ -60,7 +64,9 @@ const departureService = {
       console.error("Error fetching sister departures:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Không thể tải danh sách đi vắng của nữ tu",
+        error:
+          error.response?.data?.message ||
+          "Không thể tải danh sách đi vắng của nữ tu",
         data: [],
       };
     }
@@ -78,7 +84,8 @@ const departureService = {
       console.error("Error creating departure:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Không thể tạo phiếu đi vắng mới",
+        error:
+          error.response?.data?.message || "Không thể tạo phiếu đi vắng mới",
       };
     }
   },
@@ -95,7 +102,8 @@ const departureService = {
       console.error("Error updating departure:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Không thể cập nhật phiếu đi vắng",
+        error:
+          error.response?.data?.message || "Không thể cập nhật phiếu đi vắng",
       };
     }
   },
@@ -128,7 +136,8 @@ const departureService = {
       console.error("Error fetching departure statistics:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Không thể tải thống kê đi vắng",
+        error:
+          error.response?.data?.message || "Không thể tải thống kê đi vắng",
       };
     }
   },

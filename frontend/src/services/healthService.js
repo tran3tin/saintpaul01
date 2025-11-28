@@ -27,7 +27,9 @@ const healthService = {
       console.error("Error fetching health records:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tai danh sach ho so suc khoe",
+        error:
+          error.response?.data?.message ||
+          "Khong the tai danh sach ho so suc khoe",
         data: { items: [], total: 0 },
       };
     }
@@ -45,7 +47,9 @@ const healthService = {
       console.error("Error fetching health record detail:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tai chi tiet ho so suc khoe",
+        error:
+          error.response?.data?.message ||
+          "Khong the tai chi tiet ho so suc khoe",
       };
     }
   },
@@ -53,7 +57,9 @@ const healthService = {
   // Get health records by sister ID
   getBySister: async (sisterId, params = {}) => {
     try {
-      const response = await api.get(HEALTH_ENDPOINTS.BY_SISTER(sisterId), { params });
+      const response = await api.get(HEALTH_ENDPOINTS.BY_SISTER(sisterId), {
+        params,
+      });
       return {
         success: true,
         data: response.data,
@@ -62,7 +68,9 @@ const healthService = {
       console.error("Error fetching sister health records:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tai ho so suc khoe cua nu tu",
+        error:
+          error.response?.data?.message ||
+          "Khong the tai ho so suc khoe cua nu tu",
         data: [],
       };
     }
@@ -80,7 +88,8 @@ const healthService = {
       console.error("Error creating health record:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tao ho so suc khoe moi",
+        error:
+          error.response?.data?.message || "Khong the tao ho so suc khoe moi",
       };
     }
   },
@@ -97,7 +106,8 @@ const healthService = {
       console.error("Error updating health record:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the cap nhat ho so suc khoe",
+        error:
+          error.response?.data?.message || "Khong the cap nhat ho so suc khoe",
       };
     }
   },
@@ -130,7 +140,9 @@ const healthService = {
       console.error("Error fetching latest health record:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tai ho so suc khoe moi nhat",
+        error:
+          error.response?.data?.message ||
+          "Khong the tai ho so suc khoe moi nhat",
       };
     }
   },
@@ -147,7 +159,8 @@ const healthService = {
       console.error("Error fetching health history:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tai lich su suc khoe",
+        error:
+          error.response?.data?.message || "Khong the tai lich su suc khoe",
       };
     }
   },
@@ -164,7 +177,8 @@ const healthService = {
       console.error("Error fetching health statistics:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tai thong ke suc khoe",
+        error:
+          error.response?.data?.message || "Khong the tai thong ke suc khoe",
       };
     }
   },

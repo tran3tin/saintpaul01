@@ -148,7 +148,9 @@ const HealthRecordFormPage = () => {
             {isEditMode ? "Chỉnh sửa Hồ sơ Sức khỏe" : "Thêm Hồ sơ Sức khỏe"}
           </h2>
           <p className="text-muted mb-0">
-            {isEditMode ? "Cập nhật thông tin khám sức khỏe" : "Tạo hồ sơ khám sức khỏe mới"}
+            {isEditMode
+              ? "Cập nhật thông tin khám sức khỏe"
+              : "Tạo hồ sơ khám sức khỏe mới"}
           </p>
         </div>
         <Button variant="secondary" onClick={handleCancel}>
@@ -178,7 +180,9 @@ const HealthRecordFormPage = () => {
                 <Row className="g-3">
                   <Col md={6}>
                     <Form.Group>
-                      <Form.Label>Nữ tu <span className="text-danger">*</span></Form.Label>
+                      <Form.Label>
+                        Nữ tu <span className="text-danger">*</span>
+                      </Form.Label>
                       <Form.Select
                         name="sister_id"
                         value={formData.sister_id}
@@ -200,7 +204,9 @@ const HealthRecordFormPage = () => {
 
                   <Col md={6}>
                     <Form.Group>
-                      <Form.Label>Ngày khám <span className="text-danger">*</span></Form.Label>
+                      <Form.Label>
+                        Ngày khám <span className="text-danger">*</span>
+                      </Form.Label>
                       <Form.Control
                         type="date"
                         name="check_date"

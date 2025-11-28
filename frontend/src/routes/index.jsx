@@ -41,6 +41,19 @@ import {
   DepartureFormPage,
 } from "@features/suc-khoe";
 
+// Danh Gia (Evaluation)
+import {
+  EvaluationListPage,
+  EvaluationDetailPage,
+  EvaluationFormPage,
+} from "@features/danh-gia";
+
+// Hoc Van (Education)
+import { EducationListPage } from "@features/hoc-van";
+
+// Su Vu (Mission)
+import { MissionListPage, MissionDetailPage } from "@features/su-vu";
+
 // Not Found
 import NotFoundPage from "@pages/NotFound/NotFoundPage";
 
@@ -99,15 +112,55 @@ const AppRoutes = () => {
           <Route path="/suc-khoe" element={<HealthRecordListPage />} />
           <Route path="/suc-khoe/create" element={<HealthRecordFormPage />} />
           <Route path="/suc-khoe/:id/edit" element={<HealthRecordFormPage />} />
-          <Route path="/nu-tu/:sisterId/suc-khoe" element={<HealthRecordListPage />} />
-          <Route path="/nu-tu/:sisterId/suc-khoe/create" element={<HealthRecordFormPage />} />
+          <Route
+            path="/nu-tu/:sisterId/suc-khoe"
+            element={<HealthRecordListPage />}
+          />
+          <Route
+            path="/nu-tu/:sisterId/suc-khoe/create"
+            element={<HealthRecordFormPage />}
+          />
 
           {/* Di Vang */}
           <Route path="/di-vang" element={<DepartureListPage />} />
           <Route path="/di-vang/create" element={<DepartureFormPage />} />
           <Route path="/di-vang/:id/edit" element={<DepartureFormPage />} />
-          <Route path="/nu-tu/:sisterId/di-vang" element={<DepartureListPage />} />
-          <Route path="/nu-tu/:sisterId/di-vang/create" element={<DepartureFormPage />} />
+          <Route
+            path="/nu-tu/:sisterId/di-vang"
+            element={<DepartureListPage />}
+          />
+          <Route
+            path="/nu-tu/:sisterId/di-vang/create"
+            element={<DepartureFormPage />}
+          />
+
+          {/* Danh Gia (Evaluation) */}
+          <Route path="/danh-gia" element={<EvaluationListPage />} />
+          <Route path="/danh-gia/create" element={<EvaluationFormPage />} />
+          <Route path="/danh-gia/:id" element={<EvaluationDetailPage />} />
+          <Route path="/danh-gia/:id/edit" element={<EvaluationFormPage />} />
+          <Route
+            path="/nu-tu/:sisterId/danh-gia"
+            element={<EvaluationListPage />}
+          />
+          <Route
+            path="/nu-tu/:sisterId/danh-gia/create"
+            element={<EvaluationFormPage />}
+          />
+
+          {/* Hoc Van (Education) */}
+          <Route
+            path="/nu-tu/:sisterId/hoc-van"
+            element={<EducationListPage />}
+          />
+
+          {/* Su Vu (Mission) */}
+          <Route path="/su-vu" element={<MissionListPage />} />
+          <Route path="/su-vu/:id" element={<MissionDetailPage />} />
+          <Route
+            path="/nu-tu/:sisterId/su-vu"
+            element={<MissionListPage />}
+          />
 
           {/* Redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

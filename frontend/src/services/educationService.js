@@ -1,120 +1,188 @@
 // src/services/educationService.js
 
 import api from "./api";
-import { API_ENDPOINTS } from "./apiEndpoints";
+
+const EDUCATION_ENDPOINTS = {
+  LIST: "/education",
+  CREATE: "/education",
+  DETAIL: (id) => `/education/${id}`,
+  UPDATE: (id) => `/education/${id}`,
+  DELETE: (id) => `/education/${id}`,
+  BY_SISTER: (sisterId) => `/sisters/${sisterId}/education`,
+  CERTIFICATES: (sisterId) => `/sisters/${sisterId}/education/certificates`,
+  STATISTICS: "/education/statistics",
+};
 
 const educationService = {
   /**
-   * Get education list
-   * @param {string} sisterId
+   * Lấy danh sách học vấn với phân trang và bộ lọc
+   * @param {object} params - Tham số tìm kiếm, phân trang
    * @returns {Promise}
    */
-  getList: async (sisterId) => {
+  getList: async (params = {}) => {
     try {
-      const response = await api.get(API_ENDPOINTS.EDUCATION.LIST(sisterId));
-      return response;
+      const response = await api.get(EDUCATION_ENDPOINTS.LIST, { params });
+      return {
+        success: true,
+        data: response.data || { items: [], total: 0 },
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching education records:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi tải danh sách học vấn",
+        data: { items: [], total: 0 },
+      };
     }
   },
 
   /**
-   * Get education detail
-   * @param {string} sisterId
-   * @param {string} id
+   * Lấy chi tiết học vấn theo ID
+   * @param {string|number} id
    * @returns {Promise}
    */
-  getDetail: async (sisterId, id) => {
+  getById: async (id) => {
     try {
-      const response = await api.get(
-        API_ENDPOINTS.EDUCATION.DETAIL(sisterId, id)
-      );
-      return response;
+      const response = await api.get(EDUCATION_ENDPOINTS.DETAIL(id));
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching education detail:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi tải chi tiết học vấn",
+      };
     }
   },
 
   /**
-   * Create education record
-   * @param {string} sisterId
-   * @param {Object} data
+   * Lấy danh sách học vấn theo nữ tu
+   * @param {string|number} sisterId
+   * @param {object} params
    * @returns {Promise}
    */
-  create: async (sisterId, data) => {
+  getBySister: async (sisterId, params = {}) => {
     try {
-      const response = await api.post(
-        API_ENDPOINTS.EDUCATION.CREATE(sisterId),
-        data
-      );
-      return response;
+      const response = await api.get(EDUCATION_ENDPOINTS.BY_SISTER(sisterId), { params });
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching sister education:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi tải học vấn của nữ tu",
+        data: [],
+      };
     }
   },
 
   /**
-   * Update education record
-   * @param {string} sisterId
-   * @param {string} id
-   * @param {Object} data
+   * Tạo hồ sơ học vấn mới
+   * @param {object} data
    * @returns {Promise}
    */
-  update: async (sisterId, id, data) => {
+  create: async (data) => {
     try {
-      const response = await api.put(
-        API_ENDPOINTS.EDUCATION.UPDATE(sisterId, id),
-        data
-      );
-      return response;
+      const response = await api.post(EDUCATION_ENDPOINTS.CREATE, data);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error creating education record:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi tạo hồ sơ học vấn mới",
+      };
     }
   },
 
   /**
-   * Delete education record
-   * @param {string} sisterId
-   * @param {string} id
+   * Cập nhật hồ sơ học vấn
+   * @param {string|number} id
+   * @param {object} data
    * @returns {Promise}
    */
-  delete: async (sisterId, id) => {
+  update: async (id, data) => {
     try {
-      const response = await api.delete(
-        API_ENDPOINTS.EDUCATION.DELETE(sisterId, id)
-      );
-      return response;
+      const response = await api.put(EDUCATION_ENDPOINTS.UPDATE(id), data);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error updating education record:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi cập nhật học vấn",
+      };
     }
   },
 
   /**
-   * Get certificates
-   * @param {string} sisterId
+   * Xóa hồ sơ học vấn
+   * @param {string|number} id
+   * @returns {Promise}
+   */
+  delete: async (id) => {
+    try {
+      await api.delete(EDUCATION_ENDPOINTS.DELETE(id));
+      return {
+        success: true,
+      };
+    } catch (error) {
+      console.error("Error deleting education record:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi xóa học vấn",
+      };
+    }
+  },
+
+  /**
+   * Lấy danh sách chứng chỉ của nữ tu
+   * @param {string|number} sisterId
    * @returns {Promise}
    */
   getCertificates: async (sisterId) => {
     try {
-      const response = await api.get(
-        API_ENDPOINTS.EDUCATION.CERTIFICATES(sisterId)
-      );
-      return response;
+      const response = await api.get(EDUCATION_ENDPOINTS.CERTIFICATES(sisterId));
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching certificates:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi tải danh sách chứng chỉ",
+        data: [],
+      };
     }
   },
 
   /**
-   * Get statistics
+   * Lấy thống kê học vấn
+   * @param {object} params
    * @returns {Promise}
    */
-  getStatistics: async () => {
+  getStatistics: async (params = {}) => {
     try {
-      const response = await api.get(API_ENDPOINTS.EDUCATION.STATISTICS);
-      return response;
+      const response = await api.get(EDUCATION_ENDPOINTS.STATISTICS, { params });
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching education statistics:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi tải thống kê học vấn",
+      };
     }
   },
 };

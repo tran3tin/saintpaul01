@@ -1,0 +1,60 @@
+/* src/features/danh-gia/components/EvaluationCard/EvaluationCard.css */
+
+.evaluation-card {
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.evaluation-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.evaluation-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.75rem;
+}
+
+.evaluation-period {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.evaluation-date {
+  font-size: 0.875rem;
+}
+
+.rating-section {
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.rating-badge {
+  font-size: 0.875rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.rating-progress {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.evaluator-info {
+  font-size: 0.875rem;
+  padding: 0.5rem 0;
+}
+
+.categories-preview {
+  padding-top: 0.75rem;
+  border-top: 1px solid #e9ecef;
+}

@@ -48,7 +48,9 @@ const DepartureCard = ({ departure, onView, onEdit, onDelete }) => {
           <h6 className="mb-2">
             <i className="fas fa-user text-primary me-2"></i>
             {departure.sister_religious_name && (
-              <span className="text-primary">{departure.sister_religious_name} - </span>
+              <span className="text-primary">
+                {departure.sister_religious_name} -{" "}
+              </span>
             )}
             {departure.sister_name}
           </h6>
@@ -63,7 +65,9 @@ const DepartureCard = ({ departure, onView, onEdit, onDelete }) => {
           {departure.expected_return_date && (
             <div className="detail-item">
               <i className="fas fa-calendar-check text-info me-2"></i>
-              <span>Dự kiến về: {formatDate(departure.expected_return_date)}</span>
+              <span>
+                Dự kiến về: {formatDate(departure.expected_return_date)}
+              </span>
             </div>
           )}
 

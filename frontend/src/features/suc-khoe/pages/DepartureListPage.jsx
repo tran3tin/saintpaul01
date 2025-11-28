@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Card, Nav, Tab, Badge } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Card,
+  Nav,
+  Tab,
+  Badge,
+} from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { departureService } from "@services";
 import { useTable, useDebounce } from "@hooks";
@@ -73,7 +82,9 @@ const DepartureListPage = () => {
     medical: departures.filter((d) => d.type === "medical"),
     study: departures.filter((d) => d.type === "study"),
     mission: departures.filter((d) => d.type === "mission"),
-    other: departures.filter((d) => !["temporary", "medical", "study", "mission"].includes(d.type)),
+    other: departures.filter(
+      (d) => !["temporary", "medical", "study", "mission"].includes(d.type)
+    ),
   };
 
   const activeCount = departures.filter((d) => !d.return_date).length;
@@ -103,7 +114,9 @@ const DepartureListPage = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1">Quản lý Đi vắng</h2>
-          <p className="text-muted mb-0">Theo dõi tình trạng đi vắng của nữ tu</p>
+          <p className="text-muted mb-0">
+            Theo dõi tình trạng đi vắng của nữ tu
+          </p>
         </div>
         <Button variant="primary" onClick={handleAdd}>
           <i className="fas fa-plus me-2"></i>
@@ -227,30 +240,34 @@ const DepartureListPage = () => {
                 </Tab.Pane>
                 <Tab.Pane eventKey="active">
                   <Row className="g-4">
-                    {departures.filter((d) => !d.return_date).map((departure) => (
-                      <Col key={departure.id} xs={12} sm={6} lg={4}>
-                        <DepartureCard
-                          departure={departure}
-                          onView={handleView}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                        />
-                      </Col>
-                    ))}
+                    {departures
+                      .filter((d) => !d.return_date)
+                      .map((departure) => (
+                        <Col key={departure.id} xs={12} sm={6} lg={4}>
+                          <DepartureCard
+                            departure={departure}
+                            onView={handleView}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                          />
+                        </Col>
+                      ))}
                   </Row>
                 </Tab.Pane>
                 <Tab.Pane eventKey="returned">
                   <Row className="g-4">
-                    {departures.filter((d) => d.return_date).map((departure) => (
-                      <Col key={departure.id} xs={12} sm={6} lg={4}>
-                        <DepartureCard
-                          departure={departure}
-                          onView={handleView}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                        />
-                      </Col>
-                    ))}
+                    {departures
+                      .filter((d) => d.return_date)
+                      .map((departure) => (
+                        <Col key={departure.id} xs={12} sm={6} lg={4}>
+                          <DepartureCard
+                            departure={departure}
+                            onView={handleView}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                          />
+                        </Col>
+                      ))}
                   </Row>
                 </Tab.Pane>
               </Tab.Content>
@@ -265,9 +282,7 @@ const DepartureListPage = () => {
               style={{ fontSize: "3rem" }}
             ></i>
             <h5>Chưa có phiếu đi vắng</h5>
-            <p className="text-muted">
-              Đăng ký phiếu đi vắng đầu tiên
-            </p>
+            <p className="text-muted">Đăng ký phiếu đi vắng đầu tiên</p>
             <Button variant="primary" onClick={handleAdd}>
               <i className="fas fa-plus me-2"></i>
               Đăng ký Đi vắng

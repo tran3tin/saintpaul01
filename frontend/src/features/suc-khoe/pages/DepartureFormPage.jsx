@@ -151,7 +151,9 @@ const DepartureFormPage = () => {
             {isEditMode ? "Chỉnh sửa Phiếu Đi vắng" : "Đăng ký Đi vắng"}
           </h2>
           <p className="text-muted mb-0">
-            {isEditMode ? "Cập nhật thông tin đi vắng" : "Tạo phiếu đăng ký đi vắng mới"}
+            {isEditMode
+              ? "Cập nhật thông tin đi vắng"
+              : "Tạo phiếu đăng ký đi vắng mới"}
           </p>
         </div>
         <Button variant="secondary" onClick={handleCancel}>
@@ -181,7 +183,9 @@ const DepartureFormPage = () => {
                 <Row className="g-3">
                   <Col md={6}>
                     <Form.Group>
-                      <Form.Label>Nữ tu <span className="text-danger">*</span></Form.Label>
+                      <Form.Label>
+                        Nữ tu <span className="text-danger">*</span>
+                      </Form.Label>
                       <Form.Select
                         name="sister_id"
                         value={formData.sister_id}
@@ -203,7 +207,9 @@ const DepartureFormPage = () => {
 
                   <Col md={6}>
                     <Form.Group>
-                      <Form.Label>Loại đi vắng <span className="text-danger">*</span></Form.Label>
+                      <Form.Label>
+                        Loại đi vắng <span className="text-danger">*</span>
+                      </Form.Label>
                       <Form.Select
                         name="type"
                         value={formData.type}
@@ -222,7 +228,9 @@ const DepartureFormPage = () => {
 
                   <Col md={4}>
                     <Form.Group>
-                      <Form.Label>Ngày đi <span className="text-danger">*</span></Form.Label>
+                      <Form.Label>
+                        Ngày đi <span className="text-danger">*</span>
+                      </Form.Label>
                       <Form.Control
                         type="date"
                         name="departure_date"

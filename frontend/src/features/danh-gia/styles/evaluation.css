@@ -1,0 +1,54 @@
+/* src/features/danh-gia/styles/evaluation.css */
+
+/* ========== STAT CARD ========== */
+.stat-card {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.5rem;
+}
+
+.stat-icon.bg-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-icon.bg-success {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+}
+
+.stat-icon.bg-info {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-icon.bg-warning {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-icon.bg-danger {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+}
