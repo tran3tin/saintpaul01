@@ -129,7 +129,9 @@ const CommunityFormPage = () => {
             {isEdit ? "Chỉnh sửa Cộng Đoàn" : "Thêm Cộng Đoàn Mới"}
           </h2>
           <p className="text-muted mb-0">
-            {isEdit ? "Cập nhật thông tin cộng đoàn" : "Tạo cộng đoàn mới trong hệ thống"}
+            {isEdit
+              ? "Cập nhật thông tin cộng đoàn"
+              : "Tạo cộng đoàn mới trong hệ thống"}
           </p>
         </div>
         <Button variant="secondary" onClick={() => navigate("/cong-doan")}>

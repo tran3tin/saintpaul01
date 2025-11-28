@@ -92,8 +92,33 @@ export const menuConfig = [
     id: "suc-khoe",
     label: "Sức Khỏe",
     icon: "fas fa-heartbeat",
-    path: "/suc-khoe",
     roles: [],
+    children: [
+      {
+        id: "suc-khoe-list",
+        label: "Hồ sơ sức khỏe",
+        icon: "fas fa-notes-medical",
+        path: "/suc-khoe",
+      },
+      {
+        id: "suc-khoe-create",
+        label: "Thêm hồ sơ mới",
+        icon: "fas fa-plus-circle",
+        path: "/suc-khoe/create",
+      },
+      {
+        id: "di-vang-list",
+        label: "Quản lý đi vắng",
+        icon: "fas fa-plane-departure",
+        path: "/di-vang",
+      },
+      {
+        id: "di-vang-create",
+        label: "Đăng ký đi vắng",
+        icon: "fas fa-plus-circle",
+        path: "/di-vang/create",
+      },
+    ],
   },
   {
     id: "danh-gia",

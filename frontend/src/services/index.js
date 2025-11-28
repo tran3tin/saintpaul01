@@ -12,3 +12,4 @@ export { default as evaluationService } from "./evaluationService";
 export { default as reportService } from "./reportService";
 export { default as userService } from "./userService";
 export { default as journeyService } from "./journeyService";
+export { default as departureService } from "./departureService";

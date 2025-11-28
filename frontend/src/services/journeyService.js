@@ -27,7 +27,8 @@ const journeyService = {
       console.error("Error fetching journeys:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tai danh sach hanh trinh",
+        error:
+          error.response?.data?.message || "Khong the tai danh sach hanh trinh",
         data: { items: [], total: 0 },
       };
     }
@@ -45,7 +46,8 @@ const journeyService = {
       console.error("Error fetching journey detail:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tai chi tiet hanh trinh",
+        error:
+          error.response?.data?.message || "Khong the tai chi tiet hanh trinh",
       };
     }
   },
@@ -53,7 +55,9 @@ const journeyService = {
   // Get journeys by sister ID
   getBySister: async (sisterId, params = {}) => {
     try {
-      const response = await api.get(JOURNEY_ENDPOINTS.BY_SISTER(sisterId), { params });
+      const response = await api.get(JOURNEY_ENDPOINTS.BY_SISTER(sisterId), {
+        params,
+      });
       return {
         success: true,
         data: response.data,
@@ -62,7 +66,8 @@ const journeyService = {
       console.error("Error fetching sister journeys:", error);
       return {
         success: false,
-        error: error.response?.data?.message || "Khong the tai hanh trinh cua nu tu",
+        error:
+          error.response?.data?.message || "Khong the tai hanh trinh cua nu tu",
         data: [],
       };
     }

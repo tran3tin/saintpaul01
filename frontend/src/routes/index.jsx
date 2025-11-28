@@ -33,6 +33,14 @@ import CommunityDetailPage from "@features/cong-doan/pages/CommunityDetailPage";
 import CommunityFormPage from "@features/cong-doan/pages/CommunityFormPage";
 import AssignmentPage from "@features/cong-doan/pages/AssignmentPage";
 
+// Suc Khoe
+import {
+  HealthRecordListPage,
+  HealthRecordFormPage,
+  DepartureListPage,
+  DepartureFormPage,
+} from "@features/suc-khoe";
+
 // Not Found
 import NotFoundPage from "@pages/NotFound/NotFoundPage";
 
@@ -60,13 +68,25 @@ const AppRoutes = () => {
           <Route path="/nu-tu/:id/edit" element={<SisterFormPage />} />
 
           {/* Hanh Trinh - Timeline cua Nu Tu */}
-          <Route path="/nu-tu/:sisterId/hanh-trinh" element={<TimelinePage />} />
+          <Route
+            path="/nu-tu/:sisterId/hanh-trinh"
+            element={<TimelinePage />}
+          />
 
           {/* Hanh Trinh - Quan ly chung */}
           <Route path="/hanh-trinh" element={<VocationJourneyListPage />} />
-          <Route path="/hanh-trinh/create" element={<VocationJourneyFormPage />} />
-          <Route path="/hanh-trinh/:id" element={<VocationJourneyDetailPage />} />
-          <Route path="/hanh-trinh/:id/edit" element={<VocationJourneyFormPage />} />
+          <Route
+            path="/hanh-trinh/create"
+            element={<VocationJourneyFormPage />}
+          />
+          <Route
+            path="/hanh-trinh/:id"
+            element={<VocationJourneyDetailPage />}
+          />
+          <Route
+            path="/hanh-trinh/:id/edit"
+            element={<VocationJourneyFormPage />}
+          />
 
           {/* Cong Doan */}
           <Route path="/cong-doan" element={<CongDoanListPage />} />
@@ -74,6 +94,20 @@ const AppRoutes = () => {
           <Route path="/cong-doan/:id" element={<CommunityDetailPage />} />
           <Route path="/cong-doan/:id/edit" element={<CommunityFormPage />} />
           <Route path="/cong-doan/:id/assign" element={<AssignmentPage />} />
+
+          {/* Suc Khoe */}
+          <Route path="/suc-khoe" element={<HealthRecordListPage />} />
+          <Route path="/suc-khoe/create" element={<HealthRecordFormPage />} />
+          <Route path="/suc-khoe/:id/edit" element={<HealthRecordFormPage />} />
+          <Route path="/nu-tu/:sisterId/suc-khoe" element={<HealthRecordListPage />} />
+          <Route path="/nu-tu/:sisterId/suc-khoe/create" element={<HealthRecordFormPage />} />
+
+          {/* Di Vang */}
+          <Route path="/di-vang" element={<DepartureListPage />} />
+          <Route path="/di-vang/create" element={<DepartureFormPage />} />
+          <Route path="/di-vang/:id/edit" element={<DepartureFormPage />} />
+          <Route path="/nu-tu/:sisterId/di-vang" element={<DepartureListPage />} />
+          <Route path="/nu-tu/:sisterId/di-vang/create" element={<DepartureFormPage />} />
 
           {/* Redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

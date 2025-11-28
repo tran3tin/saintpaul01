@@ -1,117 +1,171 @@
 // src/services/healthService.js
 
 import api from "./api";
-import { API_ENDPOINTS } from "./apiEndpoints";
+
+const HEALTH_ENDPOINTS = {
+  LIST: "/health-records",
+  CREATE: "/health-records",
+  DETAIL: (id) => `/health-records/${id}`,
+  UPDATE: (id) => `/health-records/${id}`,
+  DELETE: (id) => `/health-records/${id}`,
+  BY_SISTER: (sisterId) => `/sisters/${sisterId}/health-records`,
+  LATEST: (sisterId) => `/sisters/${sisterId}/health-records/latest`,
+  HISTORY: (sisterId) => `/sisters/${sisterId}/health-records/history`,
+  STATISTICS: "/health-records/statistics",
+};
 
 const healthService = {
-  /**
-   * Get health records list
-   * @param {string} sisterId
-   * @returns {Promise}
-   */
-  getList: async (sisterId) => {
+  // Get list of all health records with pagination and filters
+  getList: async (params = {}) => {
     try {
-      const response = await api.get(API_ENDPOINTS.HEALTH.LIST(sisterId));
-      return response;
+      const response = await api.get(HEALTH_ENDPOINTS.LIST, { params });
+      return {
+        success: true,
+        data: response.data || { items: [], total: 0 },
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching health records:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Khong the tai danh sach ho so suc khoe",
+        data: { items: [], total: 0 },
+      };
     }
   },
 
-  /**
-   * Get health record detail
-   * @param {string} sisterId
-   * @param {string} id
-   * @returns {Promise}
-   */
-  getDetail: async (sisterId, id) => {
+  // Get health record by ID
+  getById: async (id) => {
     try {
-      const response = await api.get(API_ENDPOINTS.HEALTH.DETAIL(sisterId, id));
-      return response;
+      const response = await api.get(HEALTH_ENDPOINTS.DETAIL(id));
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching health record detail:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Khong the tai chi tiet ho so suc khoe",
+      };
     }
   },
 
-  /**
-   * Create health record
-   * @param {string} sisterId
-   * @param {Object} data
-   * @returns {Promise}
-   */
-  create: async (sisterId, data) => {
+  // Get health records by sister ID
+  getBySister: async (sisterId, params = {}) => {
     try {
-      const response = await api.post(
-        API_ENDPOINTS.HEALTH.CREATE(sisterId),
-        data
-      );
-      return response;
+      const response = await api.get(HEALTH_ENDPOINTS.BY_SISTER(sisterId), { params });
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching sister health records:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Khong the tai ho so suc khoe cua nu tu",
+        data: [],
+      };
     }
   },
 
-  /**
-   * Update health record
-   * @param {string} sisterId
-   * @param {string} id
-   * @param {Object} data
-   * @returns {Promise}
-   */
-  update: async (sisterId, id, data) => {
+  // Create new health record
+  create: async (data) => {
     try {
-      const response = await api.put(
-        API_ENDPOINTS.HEALTH.UPDATE(sisterId, id),
-        data
-      );
-      return response;
+      const response = await api.post(HEALTH_ENDPOINTS.CREATE, data);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error creating health record:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Khong the tao ho so suc khoe moi",
+      };
     }
   },
 
-  /**
-   * Delete health record
-   * @param {string} sisterId
-   * @param {string} id
-   * @returns {Promise}
-   */
-  delete: async (sisterId, id) => {
+  // Update health record
+  update: async (id, data) => {
     try {
-      const response = await api.delete(
-        API_ENDPOINTS.HEALTH.DELETE(sisterId, id)
-      );
-      return response;
+      const response = await api.put(HEALTH_ENDPOINTS.UPDATE(id), data);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error updating health record:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Khong the cap nhat ho so suc khoe",
+      };
     }
   },
 
-  /**
-   * Get latest health record
-   * @param {string} sisterId
-   * @returns {Promise}
-   */
+  // Delete health record
+  delete: async (id) => {
+    try {
+      await api.delete(HEALTH_ENDPOINTS.DELETE(id));
+      return {
+        success: true,
+      };
+    } catch (error) {
+      console.error("Error deleting health record:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Khong the xoa ho so suc khoe",
+      };
+    }
+  },
+
+  // Get latest health record for a sister
   getLatest: async (sisterId) => {
     try {
-      const response = await api.get(API_ENDPOINTS.HEALTH.LATEST(sisterId));
-      return response;
+      const response = await api.get(HEALTH_ENDPOINTS.LATEST(sisterId));
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching latest health record:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Khong the tai ho so suc khoe moi nhat",
+      };
     }
   },
 
-  /**
-   * Get health history
-   * @param {string} sisterId
-   * @returns {Promise}
-   */
+  // Get health history for a sister
   getHistory: async (sisterId) => {
     try {
-      const response = await api.get(API_ENDPOINTS.HEALTH.HISTORY(sisterId));
-      return response;
+      const response = await api.get(HEALTH_ENDPOINTS.HISTORY(sisterId));
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      throw error;
+      console.error("Error fetching health history:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Khong the tai lich su suc khoe",
+      };
+    }
+  },
+
+  // Get statistics
+  getStatistics: async () => {
+    try {
+      const response = await api.get(HEALTH_ENDPOINTS.STATISTICS);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      console.error("Error fetching health statistics:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Khong the tai thong ke suc khoe",
+      };
     }
   },
 };

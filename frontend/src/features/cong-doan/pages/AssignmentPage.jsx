@@ -98,7 +98,9 @@ const AssignmentPage = () => {
         role: "member",
         joined_date: new Date().toISOString().split("T")[0],
       });
-      setSuccess("Da phan cong " + selectedSisters.length + " nu tu thanh cong");
+      setSuccess(
+        "Da phan cong " + selectedSisters.length + " nu tu thanh cong"
+      );
       setSelectedSisters([]);
       fetchData();
     } catch (err) {
@@ -110,7 +112,9 @@ const AssignmentPage = () => {
   };
 
   const handleRemoveMember = async (memberId) => {
-    if (window.confirm("Ban co chac chan muon xoa thanh vien nay khoi cong doan?")) {
+    if (
+      window.confirm("Ban co chac chan muon xoa thanh vien nay khoi cong doan?")
+    ) {
       try {
         await communityService.removeMember(id, memberId);
         setSuccess("Da xoa thanh vien khoi cong doan");
@@ -164,7 +168,10 @@ const AssignmentPage = () => {
             Cong doan: <strong>{community?.name}</strong>
           </p>
         </div>
-        <Button variant="secondary" onClick={() => navigate("/cong-doan/" + id)}>
+        <Button
+          variant="secondary"
+          onClick={() => navigate("/cong-doan/" + id)}
+        >
           Quay lai
         </Button>
       </div>
