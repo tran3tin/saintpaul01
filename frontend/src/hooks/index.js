@@ -11,3 +11,4 @@ export { default as useLocalStorage } from "./useLocalStorage";
 export { default as useForm } from "./useForm";
 export { default as useTable } from "./useTable";
 export { default as useNotification } from "./useNotification";
+export { default as usePermission } from "./usePermission";

@@ -331,22 +331,30 @@
    USER MENU DROPDOWN
    ============================================ */
 
-.user-menu-toggle {
-  background: none;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  color: #495057;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+.user-menu-dropdown {
+  position: relative;
 }
 
-.user-menu-toggle:hover {
-  background-color: #f8f9fa;
+.user-menu-toggle {
+  background: none !important;
+  border: none !important;
+  padding: 0.25rem 0.5rem;
+  color: #495057 !important;
+  text-decoration: none !important;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: none !important;
+}
+
+.user-menu-toggle:hover,
+.user-menu-toggle:focus,
+.user-menu-toggle:active {
+  background-color: #f8f9fa !important;
+  box-shadow: none !important;
 }
 
 .user-menu-toggle::after {
-  display: none;
+  display: none !important;
 }
 
 .user-info {
@@ -378,6 +386,14 @@
   line-height: 1.2;
 }
 
+.user-menu-dropdown .dropdown-menu {
+  display: none;
+}
+
+.user-menu-dropdown.show .dropdown-menu {
+  display: block;
+}
+
 .user-menu-dropdown-menu {
   width: 280px;
   border-radius: 12px;
@@ -385,6 +401,10 @@
   border: 1px solid #e9ecef;
   padding: 0;
   margin-top: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 1060;
 }
 
 .user-menu-dropdown-menu .dropdown-header {

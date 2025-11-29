@@ -10,43 +10,67 @@ import React, {
 
 const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+// Helper to validate user data structure - defined outside component
+const isValidUserData = (data) => {
+  // Valid user must NOT have password field
+  // If it has password, it's form data not user data
+  if (!data || typeof data !== 'object') return false;
+  if (data.password !== undefined) return false;
+  // Must have at least one of: id, role, full_name
+  return !!(data.id || data.role || data.full_name);
+};
 
-  // Initialize auth state on mount
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const userData = localStorage.getItem("user");
-
-        if (token && userData) {
-          setUser(JSON.parse(userData));
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error("Auth initialization error:", error);
-      } finally {
-        setLoading(false);
+// Get initial user from localStorage (runs BEFORE first render)
+const getInitialUser = () => {
+  try {
+    const userData = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
+    
+    if (userData && token) {
+      const parsed = JSON.parse(userData);
+      
+      // Validate the data
+      if (isValidUserData(parsed)) {
+        return parsed;
+      } else {
+        // Invalid data - clear it immediately
+        console.warn("🔧 Invalid user data detected, clearing localStorage...");
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        return null;
       }
-    };
+    }
+  } catch (e) {
+    console.error("Error parsing user data:", e);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+  }
+  return null;
+};
 
-    initAuth();
-  }, []);
+export const AuthProvider = ({ children }) => {
+  // Initialize with validated user data
+  const [user, setUser] = useState(() => getInitialUser());
+  const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!getInitialUser());
 
   // Login
-  const login = useCallback(async (email, password) => {
+  const login = useCallback(async (credentials) => {
     try {
       setLoading(true);
+      
+      // Extract username and password from credentials object
+      const { username, password, email } = credentials || {};
+      const userIdentifier = username || email || '';
+      
       // Mock login - replace with actual API call
       const mockUser = {
         id: 1,
         full_name: "Admin",
-        username: "admin",
-        email: email,
+        username: userIdentifier,
+        email: userIdentifier.includes('@') ? userIdentifier : `${userIdentifier}@example.com`,
         role: "admin",
+        role_label: "Quản trị viên",
       };
 
       localStorage.setItem("token", "mock-token");
@@ -73,10 +97,13 @@ export const AuthProvider = ({ children }) => {
   // Update user
   const updateUser = useCallback(
     (userData) => {
-      setUser((prev) => ({ ...prev, ...userData }));
-      localStorage.setItem("user", JSON.stringify({ ...user, ...userData }));
+      setUser((prev) => {
+        const newUser = { ...prev, ...userData };
+        localStorage.setItem("user", JSON.stringify(newUser));
+        return newUser;
+      });
     },
-    [user]
+    []
   );
 
   // Check permission

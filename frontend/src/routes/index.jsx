@@ -49,7 +49,11 @@ import {
 } from "@features/danh-gia";
 
 // Hoc Van (Education)
-import { EducationListPage, EducationListAllPage, EducationFormPage } from "@features/hoc-van";
+import {
+  EducationListPage,
+  EducationListAllPage,
+  EducationFormPage,
+} from "@features/hoc-van";
 
 // Su Vu (Mission)
 import { MissionListPage, MissionDetailPage } from "@features/su-vu";
@@ -83,6 +87,9 @@ import {
   PreferencesPage,
   BackupSettingsPage,
 } from "@features/settings";
+
+// Audit Log
+import { AuditLogPage } from "@features/audit-log";
 
 // Error Pages
 import { ForbiddenPage, ServerErrorPage } from "@pages/errors";
@@ -223,6 +230,7 @@ const AppRoutes = () => {
           <Route path="/settings/system" element={<SystemSettingsPage />} />
           <Route path="/settings/preferences" element={<PreferencesPage />} />
           <Route path="/settings/backup" element={<BackupSettingsPage />} />
+          <Route path="/settings/audit-log" element={<AuditLogPage />} />
 
           {/* Redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

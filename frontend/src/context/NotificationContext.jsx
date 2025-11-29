@@ -151,10 +151,7 @@ export const NotificationProvider = ({ children }) => {
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      <NotificationToast
-        notifications={visibleToasts}
-        onClose={hideToast}
-      />
+      <NotificationToast notifications={visibleToasts} onClose={hideToast} />
     </NotificationContext.Provider>
   );
 };

@@ -1,0 +1,95 @@
+/* src/features/audit-log/pages/AuditLogPage.css */
+
+.audit-log-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.audit-log-page .page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.audit-log-page .filter-card {
+  background: #f8f9fa;
+  border: none;
+  border-radius: 8px;
+}
+
+.audit-log-page .audit-log-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #495057;
+  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.audit-log-page .audit-log-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+.audit-log-page .audit-log-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.audit-log-page .description-cell {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audit-log-page .entity-type {
+  display: inline-flex;
+  align-items: center;
+}
+
+.audit-log-page .user-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.audit-log-page .ip-address {
+  font-size: 0.75rem;
+  background: #e9ecef;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.audit-log-page .log-detail .data-preview {
+  font-size: 0.75rem;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Badge colors */
+.badge.bg-purple {
+  background-color: #6f42c1 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .audit-log-page .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .audit-log-page .page-actions {
+    width: 100%;
+  }
+
+  .audit-log-page .page-actions .btn {
+    width: 100%;
+  }
+}

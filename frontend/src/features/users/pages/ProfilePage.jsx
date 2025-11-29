@@ -12,7 +12,7 @@ import {
   Nav,
   Tab,
 } from "react-bootstrap";
-import { useAuth } from "@hooks";
+import { useAuth } from "@context/AuthContext";
 import { userService } from "@services";
 import Input from "@components/forms/Input";
 import { isValidEmail, isValidPhone } from "@utils/validators";

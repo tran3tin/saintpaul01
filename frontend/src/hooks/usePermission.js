@@ -1,6 +1,6 @@
 // src/hooks/usePermission.js
 
-import { useAuth } from "./useAuth";
+import { useAuth } from "@context/AuthContext";
 
 /**
  * Hook to check user permissions

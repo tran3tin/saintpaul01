@@ -25,7 +25,7 @@ const EducationFormPage = () => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [sisters, setSisters] = useState([]);
-  
+
   const [formData, setFormData] = useState({
     sister_id: sisterId || "",
     institution: "",
@@ -94,7 +94,9 @@ const EducationFormPage = () => {
       if (result.success) {
         setMessage({
           type: "success",
-          text: isEdit ? "Đã cập nhật học vấn thành công!" : "Đã thêm học vấn thành công!",
+          text: isEdit
+            ? "Đã cập nhật học vấn thành công!"
+            : "Đã thêm học vấn thành công!",
         });
         setTimeout(() => {
           if (sisterId) {
@@ -364,9 +366,7 @@ const EducationFormPage = () => {
                 <li className="mb-2">
                   Cập nhật trạng thái khi hoàn thành khóa học
                 </li>
-                <li>
-                  Có thể bổ sung thông tin luận văn và GPA sau
-                </li>
+                <li>Có thể bổ sung thông tin luận văn và GPA sau</li>
               </ul>
             </Card.Body>
           </Card>

@@ -14,7 +14,14 @@ import {
   Badge,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { FaGraduationCap, FaSearch, FaPlus, FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import {
+  FaGraduationCap,
+  FaSearch,
+  FaPlus,
+  FaEye,
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
 import { educationService } from "@services";
 import { formatDate } from "@utils/formatters";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
@@ -46,7 +53,9 @@ const EducationListAllPage = () => {
       });
       if (response.success) {
         setEducations(response.data.items || response.data || []);
-        setTotalPages(Math.ceil((response.data.total || response.data.length) / 10));
+        setTotalPages(
+          Math.ceil((response.data.total || response.data.length) / 10)
+        );
       }
     } catch (error) {
       console.error("Error fetching educations:", error);
@@ -76,12 +85,12 @@ const EducationListAllPage = () => {
 
   const getDegreeTypeBadge = (type) => {
     const types = {
-      "dai_hoc": { label: "Đại học", variant: "primary" },
-      "thac_si": { label: "Thạc sĩ", variant: "success" },
-      "tien_si": { label: "Tiến sĩ", variant: "danger" },
-      "cao_dang": { label: "Cao đẳng", variant: "info" },
-      "trung_cap": { label: "Trung cấp", variant: "secondary" },
-      "chung_chi": { label: "Chứng chỉ", variant: "warning" },
+      dai_hoc: { label: "Đại học", variant: "primary" },
+      thac_si: { label: "Thạc sĩ", variant: "success" },
+      tien_si: { label: "Tiến sĩ", variant: "danger" },
+      cao_dang: { label: "Cao đẳng", variant: "info" },
+      trung_cap: { label: "Trung cấp", variant: "secondary" },
+      chung_chi: { label: "Chứng chỉ", variant: "warning" },
     };
     const degreeInfo = types[type] || { label: type, variant: "secondary" };
     return <Badge bg={degreeInfo.variant}>{degreeInfo.label}</Badge>;
@@ -89,18 +98,24 @@ const EducationListAllPage = () => {
 
   const getStatusBadge = (status) => {
     const statuses = {
-      "dang_hoc": { label: "Đang học", variant: "primary" },
-      "da_tot_nghiep": { label: "Đã tốt nghiệp", variant: "success" },
-      "tam_nghi": { label: "Tạm nghỉ", variant: "warning" },
-      "da_nghi": { label: "Đã nghỉ", variant: "secondary" },
+      dang_hoc: { label: "Đang học", variant: "primary" },
+      da_tot_nghiep: { label: "Đã tốt nghiệp", variant: "success" },
+      tam_nghi: { label: "Tạm nghỉ", variant: "warning" },
+      da_nghi: { label: "Đã nghỉ", variant: "secondary" },
     };
-    const statusInfo = statuses[status] || { label: status, variant: "secondary" };
+    const statusInfo = statuses[status] || {
+      label: status,
+      variant: "secondary",
+    };
     return <Badge bg={statusInfo.variant}>{statusInfo.label}</Badge>;
   };
 
   if (loading && educations.length === 0) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "60vh" }}
+      >
         <LoadingSpinner size="large" />
       </div>
     );
@@ -121,7 +136,9 @@ const EducationListAllPage = () => {
             <FaGraduationCap className="me-2" />
             Quản lý Học vấn
           </h2>
-          <p className="text-muted mb-0">Danh sách học vấn và bằng cấp của các nữ tu</p>
+          <p className="text-muted mb-0">
+            Danh sách học vấn và bằng cấp của các nữ tu
+          </p>
         </div>
         <Link to="/hoc-van/create" className="btn btn-primary">
           <FaPlus className="me-2" />
@@ -155,7 +172,9 @@ const EducationListAllPage = () => {
                   <Form.Label>Loại bằng</Form.Label>
                   <Form.Select
                     value={filter.degree_type}
-                    onChange={(e) => setFilter({ ...filter, degree_type: e.target.value })}
+                    onChange={(e) =>
+                      setFilter({ ...filter, degree_type: e.target.value })
+                    }
                   >
                     <option value="">Tất cả</option>
                     <option value="tien_si">Tiến sĩ</option>
@@ -172,7 +191,9 @@ const EducationListAllPage = () => {
                   <Form.Label>Trạng thái</Form.Label>
                   <Form.Select
                     value={filter.status}
-                    onChange={(e) => setFilter({ ...filter, status: e.target.value })}
+                    onChange={(e) =>
+                      setFilter({ ...filter, status: e.target.value })
+                    }
                   >
                     <option value="">Tất cả</option>
                     <option value="dang_hoc">Đang học</option>
@@ -207,7 +228,9 @@ const EducationListAllPage = () => {
             <div className="text-center py-5">
               <FaGraduationCap size={48} className="text-muted mb-3" />
               <h5>Chưa có thông tin học vấn</h5>
-              <p className="text-muted">Thêm học vấn đầu tiên để theo dõi quá trình học tập</p>
+              <p className="text-muted">
+                Thêm học vấn đầu tiên để theo dõi quá trình học tập
+              </p>
               <Link to="/hoc-van/create" className="btn btn-primary">
                 <FaPlus className="me-2" />
                 Thêm Học vấn
@@ -240,7 +263,9 @@ const EducationListAllPage = () => {
                       <td>{edu.institution || edu.school_name || "N/A"}</td>
                       <td>{edu.major || edu.field_of_study || "N/A"}</td>
                       <td>{getDegreeTypeBadge(edu.degree_type)}</td>
-                      <td>{edu.graduation_year || edu.end_year || "Đang học"}</td>
+                      <td>
+                        {edu.graduation_year || edu.end_year || "Đang học"}
+                      </td>
                       <td>{getStatusBadge(edu.status)}</td>
                       <td className="text-end">
                         <Link
