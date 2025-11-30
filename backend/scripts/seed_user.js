@@ -52,9 +52,24 @@ async function main() {
 
     // Tạo thêm các user mẫu khác
     const sampleUsers = [
-      { username: "betrentong", password: "123", email: "betrentong@hoidong.osp", role: "superior_general" },
-      { username: "thuky", password: "123", email: "thuky@hoidong.osp", role: "secretary" },
-      { username: "betrencongdoan", password: "123", email: "btcd@hoidong.osp", role: "superior_community" },
+      {
+        username: "betrentong",
+        password: "123",
+        email: "betrentong@hoidong.osp",
+        role: "superior_general",
+      },
+      {
+        username: "thuky",
+        password: "123",
+        email: "thuky@hoidong.osp",
+        role: "secretary",
+      },
+      {
+        username: "betrencongdoan",
+        password: "123",
+        email: "btcd@hoidong.osp",
+        role: "superior_community",
+      },
     ];
 
     for (const user of sampleUsers) {
@@ -76,7 +91,9 @@ async function main() {
           "INSERT INTO users (username, password, email, role, is_active) VALUES (?, ?, ?, ?, ?)",
           [user.username, userHashedPassword, user.email, user.role, 1]
         );
-        console.log(`User "${user.username}" created with password: ${user.password}`);
+        console.log(
+          `User "${user.username}" created with password: ${user.password}`
+        );
       }
     }
 

@@ -79,12 +79,16 @@ const login = async (req, res) => {
     const user = await UserModel.findByUsername(username);
 
     if (!user || !user.is_active) {
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
     }
 
     const token = buildToken(user);
@@ -151,13 +155,17 @@ const getProfile = async (req, res) => {
 
     const dbUser = await UserModel.findById(req.user.id);
     if (!dbUser) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     return res.status(200).json({ success: true, data: sanitizeUser(dbUser) });
   } catch (error) {
     console.error("Get profile error:", error.message);
-    return res.status(500).json({ success: false, message: "Failed to fetch profile" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch profile" });
   }
 };
 

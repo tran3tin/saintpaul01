@@ -96,7 +96,7 @@ const LoginForm = ({ onSubmit, loading, error, onClearError }) => {
       {/* Footer */}
       <div className="text-center mt-4">
         <p className="text-muted small mb-0">
-          © 2024 Hệ Thống Quản Lý Hội Dòng
+          © 2025 Hệ Thống Quản Lý Hội Dòng
         </p>
       </div>
     </div>

@@ -1,124 +1,61 @@
 // src/features/auth/pages/ForgotPasswordPage.jsx
 
-import React, { useState } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Form,
-  Button,
-  Alert,
-} from "react-bootstrap";
+import React from "react";
 import { Link } from "react-router-dom";
-import { authService } from "@services";
+import "./ForgotPasswordPage.css";
 
 const ForgotPasswordPage = () => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!email.trim()) {
-      setError("Vui long nhap email");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await authService.forgotPassword({ email });
-      setSuccess(true);
-    } catch (err) {
-      console.error("Error:", err);
-      setError("Co loi xay ra. Vui long thu lai sau.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (success) {
-    return (
-      <Container className="py-5">
-        <Row className="justify-content-center">
-          <Col md={6} lg={5}>
-            <Card className="shadow-sm">
-              <Card.Body className="p-4 text-center">
-                <div className="mb-4">
-                  <span style={{ fontSize: "4rem" }}>📧</span>
-                </div>
-                <h4 className="mb-3">Kiem tra email cua ban</h4>
-                <p className="text-muted mb-4">
-                  Chung toi da gui huong dan dat lai mat khau den email{" "}
-                  <strong>{email}</strong>
-                </p>
-                <Link to="/login">
-                  <Button variant="primary">Quay lai dang nhap</Button>
-                </Link>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
-
   return (
-    <Container className="py-5">
-      <Row className="justify-content-center">
-        <Col md={6} lg={5}>
-          <Card className="shadow-sm">
-            <Card.Body className="p-4">
-              <div className="text-center mb-4">
-                <h3>Quen mat khau</h3>
-                <p className="text-muted">
-                  Nhap email cua ban de nhan huong dan dat lai mat khau
-                </p>
-              </div>
+    <div className="forgot-password-form">
+      {/* Icon */}
+      <div className="text-center mb-4">
+        <div className="forgot-icon">
+          <i className="fas fa-lock"></i>
+        </div>
+        <h3 className="forgot-title mt-3">Quên mật khẩu?</h3>
+        <p className="forgot-subtitle text-muted">
+          Vui lòng liên hệ quản trị viên để được cấp lại mật khẩu
+        </p>
+      </div>
 
-              {error && (
-                <Alert
-                  variant="danger"
-                  dismissible
-                  onClose={() => setError("")}
-                >
-                  {error}
-                </Alert>
-              )}
+      {/* Contact Info */}
+      <div className="contact-info">
+        <div className="contact-item">
+          <i className="fas fa-envelope"></i>
+          <div>
+            <span className="contact-label">Email</span>
+            <a href="mailto:clarakimsoa@gmail.com" className="contact-value">
+              clarakimsoa@gmail.com
+            </a>
+          </div>
+        </div>
 
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Nhap email cua ban"
-                    required
-                  />
-                </Form.Group>
+        <div className="contact-item">
+          <i className="fas fa-phone"></i>
+          <div>
+            <span className="contact-label">Điện thoại</span>
+            <a href="tel:0979454576" className="contact-value">
+              0979 454 576
+            </a>
+          </div>
+        </div>
+      </div>
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-100 mb-3"
-                  disabled={loading}
-                >
-                  {loading ? "Dang xu ly..." : "Gui yeu cau"}
-                </Button>
+      {/* Back to login */}
+      <div className="text-center mt-4">
+        <Link to="/login" className="btn btn-primary w-100 btn-back">
+          <i className="fas fa-arrow-left me-2"></i>
+          Quay lại đăng nhập
+        </Link>
+      </div>
 
-                <div className="text-center">
-                  <Link to="/login">Quay lai dang nhap</Link>
-                </div>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+      {/* Footer */}
+      <div className="text-center mt-4">
+        <p className="text-muted small mb-0">
+          © 2025 Hệ Thống Quản Lý Hội Dòng
+        </p>
+      </div>
+    </div>
   );
 };
 

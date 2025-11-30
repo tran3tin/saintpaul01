@@ -1,11 +1,6 @@
 // src/context/AuthContext.jsx
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-} from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import authService from "@services/authService";
 
 const AuthContext = createContext(null);
@@ -84,7 +79,8 @@ export const AuthProvider = ({ children }) => {
         // Add role_label to user data
         const userData = {
           ...response.data.user,
-          role_label: ROLE_LABELS[response.data.user.role] || response.data.user.role,
+          role_label:
+            ROLE_LABELS[response.data.user.role] || response.data.user.role,
         };
 
         // authService đã lưu token và user vào localStorage
@@ -98,7 +94,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       console.log("❌ Login failed - response not valid");
-      return { success: false, error: response.message || "Đăng nhập thất bại" };
+      return {
+        success: false,
+        error: response.message || "Đăng nhập thất bại",
+      };
     } catch (error) {
       console.error("❌ Login error:", error);
       throw error;
