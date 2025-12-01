@@ -66,18 +66,18 @@ const generateCommunityCode = async () => {
     let nextNum = 1;
     if (rows.length > 0 && rows[0].code) {
       const lastCode = rows[0].code;
-      const numPart = lastCode.replace(/^CD/, '');
+      const numPart = lastCode.replace(/^CD/, "");
       if (!isNaN(numPart)) {
         nextNum = parseInt(numPart, 10) + 1;
       }
     }
 
     // Keep incrementing until we find an unused code
-    let newCode = `CD${String(nextNum).padStart(3, '0')}`;
+    let newCode = `CD${String(nextNum).padStart(3, "0")}`;
     let attempts = 0;
-    while (await isCodeExists(newCode) && attempts < 100) {
+    while ((await isCodeExists(newCode)) && attempts < 100) {
       nextNum++;
-      newCode = `CD${String(nextNum).padStart(3, '0')}`;
+      newCode = `CD${String(nextNum).padStart(3, "0")}`;
       attempts++;
     }
 
@@ -92,12 +92,12 @@ const generateCommunityCode = async () => {
 const isCodeExists = async (code, excludeId = null) => {
   let query = "SELECT id FROM communities WHERE code = ?";
   const params = [code];
-  
+
   if (excludeId) {
     query += " AND id != ?";
     params.push(excludeId);
   }
-  
+
   const rows = await CommunityModel.executeQuery(query, params);
   return rows.length > 0;
 };
@@ -178,20 +178,20 @@ const createCommunity = async (req, res) => {
     }
 
     const payload = { ...req.body };
-    
+
     // Auto-generate code if not provided
-    if (!payload.code || payload.code.trim() === '') {
+    if (!payload.code || payload.code.trim() === "") {
       payload.code = await generateCommunityCode();
     } else {
       // Check if code already exists
       const codeExists = await isCodeExists(payload.code);
       if (codeExists) {
-        return res.status(400).json({ 
-          message: `Mã cộng đoàn "${payload.code}" đã tồn tại. Vui lòng nhập mã khác hoặc để trống để hệ thống tự động tạo.` 
+        return res.status(400).json({
+          message: `Mã cộng đoàn "${payload.code}" đã tồn tại. Vui lòng nhập mã khác hoặc để trống để hệ thống tự động tạo.`,
         });
       }
     }
-    
+
     const created = await CommunityModel.create(payload);
     await logAudit(req, "CREATE", created.id, null, created);
 
@@ -215,13 +215,13 @@ const updateCommunity = async (req, res) => {
     }
 
     const payload = { ...req.body };
-    
+
     // Check if code is being changed and if it already exists
     if (payload.code && payload.code !== existing.code) {
       const codeExists = await isCodeExists(payload.code, id);
       if (codeExists) {
-        return res.status(400).json({ 
-          message: `Mã cộng đoàn "${payload.code}" đã tồn tại. Vui lòng nhập mã khác.` 
+        return res.status(400).json({
+          message: `Mã cộng đoàn "${payload.code}" đã tồn tại. Vui lòng nhập mã khác.`,
         });
       }
     }
@@ -254,11 +254,9 @@ const deleteCommunity = async (req, res) => {
     );
     const memberCount = memberCountRows[0] ? memberCountRows[0].total : 0;
     if (memberCount > 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Cannot delete community while members are assigned",
-        });
+      return res.status(400).json({
+        message: "Cannot delete community while members are assigned",
+      });
     }
 
     const deleted = await CommunityModel.delete(id);

@@ -37,7 +37,7 @@ const SisterFormPage = () => {
   const [communities, setCommunities] = useState([]);
   const [journeyStages, setJourneyStages] = useState([]);
   const [sisterStatuses, setSisterStatuses] = useState([]);
-  
+
   // Toast notification state
   const [toast, setToast] = useState({
     show: false,
@@ -246,10 +246,10 @@ const SisterFormPage = () => {
       }
     } catch (error) {
       console.error("Error saving sister:", error);
-      
+
       // Extract error message from response
       let errorMessage = "Đã xảy ra lỗi không xác định. Vui lòng thử lại.";
-      
+
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.response?.data?.errors) {
@@ -263,7 +263,7 @@ const SisterFormPage = () => {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       showToast(
         "danger",
         isEditMode ? "Cập nhật thất bại!" : "Tạo mới thất bại!",
@@ -298,7 +298,11 @@ const SisterFormPage = () => {
   return (
     <Container fluid className="py-4">
       {/* Toast Notification */}
-      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
+      <ToastContainer
+        position="top-end"
+        className="p-3"
+        style={{ zIndex: 9999 }}
+      >
         <Toast
           show={toast.show}
           onClose={hideToast}
@@ -316,7 +320,9 @@ const SisterFormPage = () => {
             ></i>
             <strong className="me-auto">{toast.title}</strong>
           </Toast.Header>
-          <Toast.Body className={toast.variant === "danger" ? "text-white" : ""}>
+          <Toast.Body
+            className={toast.variant === "danger" ? "text-white" : ""}
+          >
             {toast.message}
           </Toast.Body>
         </Toast>

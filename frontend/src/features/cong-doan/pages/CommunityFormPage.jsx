@@ -24,7 +24,7 @@ const CommunityFormPage = () => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  
+
   // Toast notification state
   const [toast, setToast] = useState({
     show: false,
@@ -69,7 +69,9 @@ const CommunityFormPage = () => {
           address: response.address || "",
           phone: response.phone || "",
           email: response.email || "",
-          established_date: response.established_date ? response.established_date.split('T')[0] : "",
+          established_date: response.established_date
+            ? response.established_date.split("T")[0]
+            : "",
           status: response.status || "active",
           description: response.description || "",
         });
@@ -124,7 +126,7 @@ const CommunityFormPage = () => {
       }, 1500);
     } catch (err) {
       console.error("Error saving community:", err);
-      
+
       // Extract error message
       let errorMessage = "Có lỗi xảy ra khi lưu thông tin. Vui lòng thử lại.";
       if (err.response?.data?.message) {
@@ -137,7 +139,7 @@ const CommunityFormPage = () => {
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
+
       showToast(
         "danger",
         isEdit ? "Cập nhật thất bại!" : "Tạo mới thất bại!",
@@ -163,7 +165,11 @@ const CommunityFormPage = () => {
   return (
     <Container fluid className="py-4">
       {/* Toast Notification */}
-      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
+      <ToastContainer
+        position="top-end"
+        className="p-3"
+        style={{ zIndex: 9999 }}
+      >
         <Toast
           show={toast.show}
           onClose={hideToast}
@@ -181,7 +187,9 @@ const CommunityFormPage = () => {
             ></i>
             <strong className="me-auto">{toast.title}</strong>
           </Toast.Header>
-          <Toast.Body className={toast.variant === "danger" ? "text-white" : ""}>
+          <Toast.Body
+            className={toast.variant === "danger" ? "text-white" : ""}
+          >
             {toast.message}
           </Toast.Body>
         </Toast>
@@ -250,9 +258,7 @@ const CommunityFormPage = () => {
 
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>
-                    Mã cộng đoàn
-                  </Form.Label>
+                  <Form.Label>Mã cộng đoàn</Form.Label>
                   <Form.Control
                     type="text"
                     name="code"
@@ -311,7 +317,12 @@ const CommunityFormPage = () => {
                   <DatePicker
                     name="established_date"
                     value={formData.established_date}
-                    onChange={(date) => setFormData(prev => ({ ...prev, established_date: date }))}
+                    onChange={(date) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        established_date: date,
+                      }))
+                    }
                     placeholder="dd/mm/yyyy"
                   />
                 </Form.Group>

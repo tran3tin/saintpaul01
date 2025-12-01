@@ -12,7 +12,7 @@ const up = async () => {
       AND TABLE_NAME = 'communities' 
       AND COLUMN_NAME = 'type'
     `);
-    
+
     if (columns.length > 0) {
       await connection.execute(`ALTER TABLE communities DROP COLUMN type`);
       console.log("✅ Dropped 'type' column from communities table");

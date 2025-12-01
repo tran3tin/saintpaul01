@@ -68,7 +68,7 @@ const VocationJourneyFormPage = () => {
         // If response.data is an array
         if (Array.isArray(response.data)) {
           setSisters(response.data);
-        } 
+        }
         // If response.data has items property
         else if (response.data.items) {
           setSisters(response.data.items);
@@ -249,7 +249,9 @@ const VocationJourneyFormPage = () => {
                       {(sisters || []).map((sister) => (
                         <option key={sister.id} value={sister.id}>
                           {sister.religious_name || sister.saint_name
-                            ? `${sister.religious_name || sister.saint_name} - ${sister.birth_name}`
+                            ? `${
+                                sister.religious_name || sister.saint_name
+                              } - ${sister.birth_name}`
                             : sister.birth_name}{" "}
                           ({sister.code})
                         </option>

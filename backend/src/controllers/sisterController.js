@@ -145,19 +145,21 @@ const getAllSisters = async (req, res) => {
       maxAge,
       excludeLeft: !showAll && !req.query.status, // exclude 'left' by default
     });
-    
+
     // Prefix clauses with 's.' for sisters table
-    const prefixedClauses = clauses.map(clause => {
+    const prefixedClauses = clauses.map((clause) => {
       // Replace field names with s. prefix
       return clause
-        .replace(/\bstatus\b/g, 's.status')
-        .replace(/\bbirth_name\b/g, 's.birth_name')
-        .replace(/\breligious_name\b/g, 's.religious_name')
-        .replace(/\bcode\b/g, 's.code')
-        .replace(/\bdate_of_birth\b/g, 's.date_of_birth');
+        .replace(/\bstatus\b/g, "s.status")
+        .replace(/\bbirth_name\b/g, "s.birth_name")
+        .replace(/\breligious_name\b/g, "s.religious_name")
+        .replace(/\bcode\b/g, "s.code")
+        .replace(/\bdate_of_birth\b/g, "s.date_of_birth");
     });
-    
-    const whereClause = prefixedClauses.length ? `WHERE ${prefixedClauses.join(" AND ")}` : "";
+
+    const whereClause = prefixedClauses.length
+      ? `WHERE ${prefixedClauses.join(" AND ")}`
+      : "";
 
     const totalRows = await SisterModel.executeQuery(
       `SELECT COUNT(*) AS total FROM sisters s ${whereClause}`,
@@ -188,7 +190,9 @@ const getAllSisters = async (req, res) => {
     });
   } catch (error) {
     console.error("getAllSisters error:", error.message);
-    return res.status(500).json({ success: false, message: "Failed to fetch sisters" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch sisters" });
   }
 };
 
@@ -257,13 +261,11 @@ const createSister = async (req, res) => {
     console.error("createSister error:", error.message);
     console.error("Full error:", error);
     console.error("Request body:", req.body);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to create sister",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create sister",
+      error: error.message,
+    });
   }
 };
 

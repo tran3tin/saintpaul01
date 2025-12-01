@@ -37,7 +37,7 @@ const CongDoanListPage = () => {
       setLoading(true);
       const params = {
         page: currentPage,
-        page_size: 10,
+        limit: 10,
       };
 
       if (statusFilter !== "all") {
@@ -46,11 +46,21 @@ const CongDoanListPage = () => {
 
       const response = await communityService.getList(params);
       if (response) {
-        setCommunities(response.items || []);
-        setTotalPages(response.total_pages || 1);
+        // Handle response format: { data: [...], meta: {...} }
+        if (Array.isArray(response.data)) {
+          setCommunities(response.data);
+          setTotalPages(response.meta?.totalPages || 1);
+        } else if (Array.isArray(response)) {
+          setCommunities(response);
+          setTotalPages(1);
+        } else {
+          setCommunities(response.items || []);
+          setTotalPages(response.total_pages || 1);
+        }
       }
     } catch (error) {
       console.error("Error fetching communities:", error);
+      setCommunities([]);
     } finally {
       setLoading(false);
     }

@@ -9,7 +9,9 @@ const up = async () => {
       ALTER TABLE communities 
       MODIFY COLUMN type VARCHAR(50) DEFAULT 'other'
     `);
-    console.log("✅ Altered communities.type column to VARCHAR(50) with default 'other'");
+    console.log(
+      "✅ Altered communities.type column to VARCHAR(50) with default 'other'"
+    );
   } finally {
     connection.release();
   }
