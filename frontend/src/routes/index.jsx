@@ -131,7 +131,10 @@ const AppRoutes = () => {
             element={<VocationJourneyFormPage />}
           />
           <Route path="/hanh-trinh/timeline" element={<TimelinePage />} />
-          <Route path="/hanh-trinh/timeline/:sisterId" element={<TimelinePage />} />
+          <Route
+            path="/hanh-trinh/timeline/:sisterId"
+            element={<TimelinePage />}
+          />
           <Route
             path="/hanh-trinh/:id"
             element={<VocationJourneyDetailPage />}
@@ -143,6 +146,7 @@ const AppRoutes = () => {
 
           {/* Cong Doan */}
           <Route path="/cong-doan" element={<CongDoanListPage />} />
+          <Route path="/cong-doan/assignment" element={<AssignmentPage />} />
           <Route path="/cong-doan/create" element={<CommunityFormPage />} />
           <Route path="/cong-doan/:id" element={<CommunityDetailPage />} />
           <Route path="/cong-doan/:id/edit" element={<CommunityFormPage />} />

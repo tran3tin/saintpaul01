@@ -39,7 +39,7 @@ export const FILE_UPLOAD = {
  */
 export const JOURNEY_STAGES = {
   INQUIRY: "inquiry", // 1. Tìm hiểu
-  ASPIRANT: "aspirant", // 2. Ứng sinh  
+  ASPIRANT: "aspirant", // 2. Ứng sinh
   POSTULANT: "postulant", // 3. Thỉnh sinh
   NOVICE: "novice", // 4. Tập viện
   TEMPORARY_VOWS: "temporary_vows", // 5. Khấn tạm

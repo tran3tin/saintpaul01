@@ -1,5 +1,380 @@
 /* src/features/cong-doan/pages/AssignmentPage.css */
 
+:root {
+  --primary-color: #667eea;
+  --secondary-color: #764ba2;
+  --success-color: #2ecc71;
+  --info-color: #3498db;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+  --dark-color: #2c3e50;
+}
+
+/* Stats Cards */
+.stats-card {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 4px solid;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card.primary {
+  border-color: var(--primary-color);
+}
+
+.stats-card.success {
+  border-color: var(--success-color);
+}
+
+.stats-card.warning {
+  border-color: var(--warning-color);
+}
+
+.stats-card.danger {
+  border-color: var(--danger-color);
+}
+
+.stats-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-success {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+}
+
+.bg-gradient-warning {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.bg-gradient-danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.stats-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--dark-color);
+}
+
+.stats-label {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+/* Main Card */
+.main-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: none;
+}
+
+.card-header-custom {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  padding: 1.5rem;
+  border: none;
+}
+
+.card-header-custom h5 {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Filters */
+.filter-section {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Table */
+.custom-table {
+  margin: 0;
+}
+
+.custom-table thead {
+  background: #f8f9fa;
+}
+
+.custom-table thead th {
+  border: none;
+  color: var(--dark-color);
+  font-weight: 600;
+  padding: 1rem;
+  white-space: nowrap;
+}
+
+.custom-table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+.custom-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.custom-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+/* Sister Info */
+.sister-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sister-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.sister-details {
+  flex: 1;
+}
+
+.sister-name {
+  font-weight: 600;
+  color: var(--dark-color);
+  margin-bottom: 0.25rem;
+}
+
+.sister-stage {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+/* Role Badges */
+.role-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.role-leader {
+  background: #ffeaa7;
+  color: #d63031;
+}
+
+.role-vice-leader {
+  background: #dfe6e9;
+  color: #2d3436;
+}
+
+.role-secretary {
+  background: #a29bfe;
+  color: #6c5ce7;
+}
+
+.role-treasurer {
+  background: #fd79a8;
+  color: #e84393;
+}
+
+.role-member {
+  background: #74b9ff;
+  color: #0984e3;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status-active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-completed {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.status-cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Action Buttons */
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 0.25rem;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-view {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.btn-edit {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.btn-delete {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Modal Styles */
+.modal-header-custom {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border: none;
+}
+
+.modal-header-custom .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+.assignment-page .form-label {
+  font-weight: 600;
+  color: var(--dark-color);
+  margin-bottom: 0.5rem;
+}
+
+.assignment-page .form-control,
+.assignment-page .form-select {
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.assignment-page .form-control:focus,
+.assignment-page .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Timeline in Modal */
+.assignment-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.assignment-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #dee2e6;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -1.5rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.timeline-content {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #7f8c8d;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-card {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Legacy support */
 .members-list {
   max-height: 600px;
   overflow-y: auto;
@@ -13,16 +388,4 @@
 
 .member-card:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.table-responsive {
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-.table thead {
-  position: sticky;
-  top: 0;
-  background-color: #f8f9fa;
-  z-index: 1;
 }

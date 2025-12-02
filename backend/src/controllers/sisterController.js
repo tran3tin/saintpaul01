@@ -198,12 +198,13 @@ const getAllSisters = async (req, res) => {
        LIMIT ? OFFSET ?`,
       [...params, limit, offset]
     );
-    
+
     // Map the results to use journey data as primary source
-    const mappedRows = rows.map(row => ({
+    const mappedRows = rows.map((row) => ({
       ...row,
       current_stage: row.current_stage_from_journey || row.current_stage,
-      current_community_name: row.current_community_name_from_journey || row.current_community_name
+      current_community_name:
+        row.current_community_name_from_journey || row.current_community_name,
     }));
 
     return res.status(200).json({
