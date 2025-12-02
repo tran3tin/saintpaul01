@@ -1,7 +1,15 @@
 // src/features/hanh-trinh/pages/TimelinePage.jsx
 
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Button, Badge, Form } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Badge,
+  Form,
+} from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { journeyService, sisterService } from "@services";
 import { formatDate, calculateDuration } from "@utils";
@@ -112,12 +120,11 @@ const TimelinePage = () => {
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h2 className="mb-1">Timeline Hành trình Ơn gọi</h2>
-            <p className="text-muted mb-0">Chọn nữ tu để xem timeline hành trình</p>
+            <p className="text-muted mb-0">
+              Chọn nữ tu để xem timeline hành trình
+            </p>
           </div>
-          <Button
-            variant="secondary"
-            onClick={() => navigate("/hanh-trinh")}
-          >
+          <Button variant="secondary" onClick={() => navigate("/hanh-trinh")}>
             Quay lại
           </Button>
         </div>
@@ -134,7 +141,8 @@ const TimelinePage = () => {
                 <option value="">-- Chọn nữ tu --</option>
                 {sisters.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.saint_name ? `${s.saint_name} - ` : ""}{s.birth_name} ({s.code})
+                    {s.saint_name ? `${s.saint_name} - ` : ""}
+                    {s.birth_name} ({s.code})
                   </option>
                 ))}
               </Form.Select>
@@ -187,14 +195,19 @@ const TimelinePage = () => {
               <option value="">-- Chọn nữ tu khác --</option>
               {sisters.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.saint_name ? `${s.saint_name} - ` : ""}{s.birth_name} ({s.code})
+                  {s.saint_name ? `${s.saint_name} - ` : ""}
+                  {s.birth_name} ({s.code})
                 </option>
               ))}
             </Form.Select>
           )}
           <Button
             variant="secondary"
-            onClick={() => sisterId ? navigate(`/nu-tu/${sisterId}`) : navigate("/hanh-trinh")}
+            onClick={() =>
+              sisterId
+                ? navigate(`/nu-tu/${sisterId}`)
+                : navigate("/hanh-trinh")
+            }
           >
             Quay lại
           </Button>

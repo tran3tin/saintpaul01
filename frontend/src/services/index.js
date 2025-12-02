@@ -16,3 +16,4 @@ export { default as departureService } from "./departureService";
 export { default as permissionService } from "./permissionService";
 export { default as settingService } from "./settingService";
 export { default as lookupService } from "./lookupService";
+export { default as chatbotService } from "./chatbotService";

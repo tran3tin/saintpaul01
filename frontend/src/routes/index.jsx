@@ -130,10 +130,7 @@ const AppRoutes = () => {
             path="/hanh-trinh/create"
             element={<VocationJourneyFormPage />}
           />
-          <Route
-            path="/hanh-trinh/timeline"
-            element={<TimelinePage />}
-          />
+          <Route path="/hanh-trinh/timeline" element={<TimelinePage />} />
           <Route
             path="/hanh-trinh/:id"
             element={<VocationJourneyDetailPage />}

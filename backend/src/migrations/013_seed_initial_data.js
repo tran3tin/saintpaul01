@@ -15,10 +15,10 @@ const up = async () => {
     );
 
     await connection.query(
-      `INSERT INTO communities (code, name, address, type)
+      `INSERT INTO communities (code, name, address)
        VALUES
-         ('MH-001', 'Motherhouse Headquarters', '123 Main St, City', 'motherhouse'),
-         ('EDU-001', 'St. Joseph Education Center', '45 School Ave, City', 'education')
+         ('MH-001', 'Motherhouse Headquarters', '123 Main St, City'),
+         ('EDU-001', 'St. Joseph Education Center', '45 School Ave, City')
        ON DUPLICATE KEY UPDATE code = code;`
     );
 
