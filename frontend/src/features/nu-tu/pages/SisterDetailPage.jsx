@@ -14,7 +14,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { sisterService } from "@services";
 import { formatDate, calculateAge } from "@utils";
-import { JOURNEY_STAGE_LABELS, SISTER_STATUS_LABELS } from "@utils/constants";
+import { JOURNEY_STAGE_LABELS } from "@utils/constants";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
 import Breadcrumb from "@components/common/Breadcrumb";
 
@@ -148,14 +148,20 @@ const SisterDetailPage = () => {
                 {sister.code}
               </p>
 
-              {/* Badges */}
+              {/* Badges - Giai đoạn hiện tại */}
               <div className="mb-3">
-                <Badge bg="primary" className="me-2 mb-2">
-                  {JOURNEY_STAGE_LABELS[sister.current_stage]}
-                </Badge>
-                <Badge bg={getStatusColor(sister.status)} className="mb-2">
-                  {SISTER_STATUS_LABELS[sister.status]}
-                </Badge>
+                {(() => {
+                  const currentStage = getCurrentStage(sister.vocationJourney);
+                  const stageName = currentStage ? 
+                    (JOURNEY_STAGE_LABELS[currentStage.stage] || currentStage.stage) : 
+                    'Chưa xác định';
+                  return (
+                    <Badge bg="primary" className="mb-2">
+                      <i className="fas fa-route me-1"></i>
+                      {stageName}
+                    </Badge>
+                  );
+                })()}
               </div>
 
               {/* Quick Info */}
@@ -178,7 +184,11 @@ const SisterDetailPage = () => {
                   <div>
                     <small className="text-muted">Cộng đoàn</small>
                     <div className="fw-semibold">
-                      {sister.community_name || "-"}
+                      {(() => {
+                        // Lấy cộng đoàn từ vocationJourney (giai đoạn gần nhất)
+                        const currentStage = getCurrentStage(sister.vocationJourney);
+                        return currentStage?.community_name || sister.current_community_name || "-";
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -259,17 +269,23 @@ const SisterDetailPage = () => {
                       </Col>
                       <Col md={6}>
                         <InfoItem
-                          label="Tên dòng"
-                          value={sister.religious_name}
+                          label="Cộng đoàn hiện tại"
+                          value={(() => {
+                            // Lấy cộng đoàn từ vocationJourney (giai đoạn gần nhất)
+                            const currentStage = getCurrentStage(sister.vocationJourney);
+                            return currentStage?.community_name || sister.current_community_name;
+                          })()}
                         />
                       </Col>
                       <Col md={6}>
                         <InfoItem
-                          label="Cộng đoàn hiện tại"
-                          value={
-                            sister.currentCommunity?.community_name ||
-                            sister.current_community_name
-                          }
+                          label="Giai đoạn hiện tại"
+                          value={(() => {
+                            const currentStage = getCurrentStage(sister.vocationJourney);
+                            return currentStage ? 
+                              (JOURNEY_STAGE_LABELS[currentStage.stage] || currentStage.stage) : 
+                              'Chưa xác định';
+                          })()}
                         />
                       </Col>
                       <Col md={6}>
@@ -296,20 +312,8 @@ const SisterDetailPage = () => {
                           value={sister.nationality}
                         />
                       </Col>
-                      <Col md={4}>
+                      <Col md={6}>
                         <InfoItem label="CMND/CCCD" value={sister.id_card} />
-                      </Col>
-                      <Col md={4}>
-                        <InfoItem
-                          label="Ngày cấp"
-                          value={formatDate(sister.id_card_date)}
-                        />
-                      </Col>
-                      <Col md={4}>
-                        <InfoItem
-                          label="Nơi cấp"
-                          value={sister.id_card_place}
-                        />
                       </Col>
                       <Col md={6}>
                         <InfoItem label="Điện thoại" value={sister.phone} />
@@ -411,27 +415,6 @@ const SisterDetailPage = () => {
                       </Col>
                     </Row>
 
-                    <h5 className="mt-4 mb-3">Trạng thái hiện tại</h5>
-                    <Row className="g-3">
-                      <Col md={6}>
-                        <InfoItem
-                          label="Giai đoạn"
-                          value={
-                            JOURNEY_STAGE_LABELS[sister.current_stage] ||
-                            sister.current_stage
-                          }
-                        />
-                      </Col>
-                      <Col md={6}>
-                        <InfoItem
-                          label="Trạng thái"
-                          value={
-                            SISTER_STATUS_LABELS[sister.status] || sister.status
-                          }
-                        />
-                      </Col>
-                    </Row>
-
                     {/* Tài liệu đính kèm */}
                     <h5 className="mt-4 mb-3">
                       <i className="fas fa-file-alt me-2"></i>
@@ -520,28 +503,49 @@ const SisterDetailPage = () => {
 
                   {/* Journey Tab */}
                   <Tab.Pane eventKey="journey">
-                    <h5 className="mb-3">Hành trình Ơn Gọi</h5>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <h5 className="mb-0">Hành trình Ơn Gọi</h5>
+                      <Button 
+                        variant="outline-primary" 
+                        size="sm"
+                        onClick={() => navigate(`/nu-tu/${id}/hanh-trinh`)}
+                      >
+                        <i className="fas fa-external-link-alt me-2"></i>
+                        Xem chi tiết Timeline
+                      </Button>
+                    </div>
                     <div className="timeline">
-                      {sister.journeys && sister.journeys.length > 0 ? (
-                        sister.journeys.map((journey, index) => (
-                          <div key={index} className="timeline-item">
+                      {sister.vocationJourney && sister.vocationJourney.length > 0 ? (
+                        [...sister.vocationJourney]
+                          .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+                          .map((journey, index) => (
+                          <div key={journey.id || index} className="timeline-item">
                             <div className="timeline-marker"></div>
                             <div className="timeline-content">
                               <div className="d-flex justify-content-between align-items-start mb-2">
                                 <div>
                                   <h6 className="mb-1">
-                                    {JOURNEY_STAGE_LABELS[journey.stage]}
+                                    {JOURNEY_STAGE_LABELS[journey.stage] || journey.stage}
                                   </h6>
                                   <small className="text-muted">
                                     {formatDate(journey.start_date)}
                                     {journey.end_date &&
                                       ` - ${formatDate(journey.end_date)}`}
+                                    {!journey.end_date && ' - Hiện tại'}
                                   </small>
                                 </div>
-                                <Badge bg="primary">{journey.location}</Badge>
+                                {journey.community_name && (
+                                  <Badge bg="primary">{journey.community_name}</Badge>
+                                )}
                               </div>
+                              {journey.supervisor_name && (
+                                <p className="mb-1 small">
+                                  <i className="fas fa-user-tie me-1"></i>
+                                  Người hướng dẫn: {journey.supervisor_name}
+                                </p>
+                              )}
                               {journey.notes && (
-                                <p className="mb-0 text-muted">
+                                <p className="mb-0 text-muted small">
                                   {journey.notes}
                                 </p>
                               )}
@@ -692,16 +696,6 @@ const InfoItem = ({ label, value }) => (
 );
 
 // Helper Functions
-const getStatusColor = (status) => {
-  const colors = {
-    active: "success",
-    inactive: "warning",
-    leave: "secondary",
-    deceased: "dark",
-  };
-  return colors[status] || "secondary";
-};
-
 const getHealthStatusColor = (status) => {
   const colors = {
     excellent: "success",
@@ -710,6 +704,18 @@ const getHealthStatusColor = (status) => {
     poor: "danger",
   };
   return colors[status] || "secondary";
+};
+
+// Lấy giai đoạn hiện tại từ hành trình ơn gọi (gần nhất)
+const getCurrentStage = (vocationJourney) => {
+  if (!vocationJourney || vocationJourney.length === 0) return null;
+  // Sắp xếp theo thời gian giảm dần và lấy giai đoạn hiện tại (chưa có end_date hoặc gần nhất)
+  const sorted = [...vocationJourney].sort((a, b) => 
+    new Date(b.start_date) - new Date(a.start_date)
+  );
+  // Ưu tiên giai đoạn chưa kết thúc
+  const current = sorted.find(j => !j.end_date);
+  return current || sorted[0];
 };
 
 export default SisterDetailPage;

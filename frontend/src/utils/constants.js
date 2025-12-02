@@ -35,15 +35,18 @@ export const FILE_UPLOAD = {
 
 /**
  * Journey Stages (Giai đoạn hành trình ơn gọi)
+ * Thứ tự từ Tìm hiểu đến Đã qua đời
  */
 export const JOURNEY_STAGES = {
-  INQUIRY: "inquiry", // Tìm hiểu
-  ASPIRANT: "aspirant", // Ứng sinh
-  POSTULANT: "postulant", // Thỉnh sinh
-  NOVICE: "novice", // Tập viện
-  TEMPORARY_VOWS: "temporary_vows", // Khấn tạm
-  PERPETUAL_VOWS: "perpetual_vows", // Khấn trọn
-  LEFT: "left", // Đã rời dòng
+  INQUIRY: "inquiry", // 1. Tìm hiểu
+  ASPIRANT: "aspirant", // 2. Ứng sinh  
+  POSTULANT: "postulant", // 3. Thỉnh sinh
+  NOVICE: "novice", // 4. Tập viện
+  TEMPORARY_VOWS: "temporary_vows", // 5. Khấn tạm
+  PERPETUAL_VOWS: "perpetual_vows", // 6. Khấn trọn
+  // Trạng thái đặc biệt (gộp từ SISTER_STATUS)
+  LEAVE: "leave", // 7. Đã rời dòng
+  DECEASED: "deceased", // 8. Đã qua đời
 };
 
 export const JOURNEY_STAGE_LABELS = {
@@ -53,7 +56,12 @@ export const JOURNEY_STAGE_LABELS = {
   [JOURNEY_STAGES.NOVICE]: "Tập viện",
   [JOURNEY_STAGES.TEMPORARY_VOWS]: "Khấn tạm",
   [JOURNEY_STAGES.PERPETUAL_VOWS]: "Khấn trọn",
-  [JOURNEY_STAGES.LEFT]: "Đã rời dòng",
+  [JOURNEY_STAGES.LEAVE]: "Đã rời dòng",
+  [JOURNEY_STAGES.DECEASED]: "Đã qua đời",
+  // Legacy mappings for backward compatibility
+  left: "Đã rời dòng",
+  active: "Đang hoạt động",
+  inactive: "Tạm nghỉ",
 };
 
 export const JOURNEY_STAGE_COLORS = {
@@ -63,11 +71,25 @@ export const JOURNEY_STAGE_COLORS = {
   [JOURNEY_STAGES.NOVICE]: "#fd7e14",
   [JOURNEY_STAGES.TEMPORARY_VOWS]: "#6f42c1",
   [JOURNEY_STAGES.PERPETUAL_VOWS]: "#28a745",
-  [JOURNEY_STAGES.LEFT]: "#dc3545",
+  [JOURNEY_STAGES.LEAVE]: "#dc3545",
+  [JOURNEY_STAGES.DECEASED]: "#343a40",
 };
 
+// Thứ tự hiển thị giai đoạn
+export const JOURNEY_STAGE_ORDER = [
+  JOURNEY_STAGES.INQUIRY,
+  JOURNEY_STAGES.ASPIRANT,
+  JOURNEY_STAGES.POSTULANT,
+  JOURNEY_STAGES.NOVICE,
+  JOURNEY_STAGES.TEMPORARY_VOWS,
+  JOURNEY_STAGES.PERPETUAL_VOWS,
+  JOURNEY_STAGES.LEAVE,
+  JOURNEY_STAGES.DECEASED,
+];
+
 /**
- * Sister Status
+ * Sister Status (Legacy - kept for backward compatibility)
+ * Được gộp vào JOURNEY_STAGES
  */
 export const SISTER_STATUS = {
   ACTIVE: "active",
@@ -79,7 +101,7 @@ export const SISTER_STATUS = {
 export const SISTER_STATUS_LABELS = {
   [SISTER_STATUS.ACTIVE]: "Đang hoạt động",
   [SISTER_STATUS.INACTIVE]: "Tạm nghỉ",
-  [SISTER_STATUS.LEAVE]: "Đã rời",
+  [SISTER_STATUS.LEAVE]: "Đã rời dòng",
   [SISTER_STATUS.DECEASED]: "Đã qua đời",
 };
 

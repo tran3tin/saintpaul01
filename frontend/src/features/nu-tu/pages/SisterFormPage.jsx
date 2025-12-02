@@ -14,7 +14,7 @@ import {
   ToastContainer,
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
-import { sisterService, communityService, lookupService } from "@services";
+import { sisterService, communityService } from "@services";
 import { useForm } from "@hooks";
 import Input from "@components/forms/Input";
 import Select from "@components/forms/Select";
@@ -35,8 +35,6 @@ const SisterFormPage = () => {
   const [loading, setLoading] = useState(isEditMode);
   const [submitting, setSubmitting] = useState(false);
   const [communities, setCommunities] = useState([]);
-  const [journeyStages, setJourneyStages] = useState([]);
-  const [sisterStatuses, setSisterStatuses] = useState([]);
 
   // Toast notification state
   const [toast, setToast] = useState({
@@ -99,11 +97,6 @@ const SisterFormPage = () => {
     emergency_contact_name: "",
     emergency_contact_phone: "",
 
-    // Status
-    current_stage: "",
-    status: "",
-    current_community_id: "",
-
     // Documents - Tài liệu
     documents: [],
 
@@ -123,20 +116,10 @@ const SisterFormPage = () => {
 
   const fetchLookupData = async () => {
     try {
-      const [communitiesRes, stagesRes, statusesRes] = await Promise.all([
-        communityService.getList({ page_size: 100 }),
-        lookupService.getJourneyStages(),
-        lookupService.getSisterStatuses(),
-      ]);
+      const communitiesRes = await communityService.getList({ page_size: 100 });
 
       if (communitiesRes.success) {
         setCommunities(communitiesRes.data.items || []);
-      }
-      if (stagesRes.success) {
-        setJourneyStages(stagesRes.data || []);
-      }
-      if (statusesRes.success) {
-        setSisterStatuses(statusesRes.data || []);
       }
     } catch (error) {
       console.error("Error fetching lookup data:", error);
@@ -389,12 +372,7 @@ const SisterFormPage = () => {
                         Bí tích
                       </Nav.Link>
                     </Nav.Item>
-                    <Nav.Item>
-                      <Nav.Link eventKey="status">
-                        <i className="fas fa-info-circle me-2"></i>
-                        Trạng thái
-                      </Nav.Link>
-                    </Nav.Item>
+
                     <Nav.Item>
                       <Nav.Link eventKey="documents">
                         <i className="fas fa-folder-open me-2"></i>
@@ -708,93 +686,6 @@ const SisterFormPage = () => {
                               setFieldValue("first_communion_date", date)
                             }
                             onBlur={handleBlur}
-                          />
-                        </Col>
-                      </Row>
-                    </Tab.Pane>
-
-                    {/* Status Tab */}
-                    <Tab.Pane eventKey="status">
-                      <Row className="g-3">
-                        <Col md={6}>
-                          <SelectWithAdd
-                            label="Giai đoạn hiện tại"
-                            name="current_stage"
-                            value={values.current_stage}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            options={journeyStages}
-                            valueKey="code"
-                            labelKey="name"
-                            colorKey="color"
-                            showColor
-                            placeholder="Chọn giai đoạn"
-                            addNewLabel="Thêm giai đoạn mới"
-                            onAddNew={async (data) => {
-                              try {
-                                const res =
-                                  await lookupService.createJourneyStage(data);
-                                if (res.success) {
-                                  setJourneyStages([
-                                    ...journeyStages,
-                                    res.data,
-                                  ]);
-                                  setFieldValue("current_stage", res.data.code);
-                                }
-                                return res;
-                              } catch (error) {
-                                console.error("Error creating stage:", error);
-                                return { success: false };
-                              }
-                            }}
-                          />
-                        </Col>
-
-                        <Col md={6}>
-                          <SelectWithAdd
-                            label="Trạng thái"
-                            name="status"
-                            value={values.status}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            options={sisterStatuses}
-                            valueKey="code"
-                            labelKey="name"
-                            colorKey="color"
-                            showColor
-                            placeholder="Chọn trạng thái"
-                            addNewLabel="Thêm trạng thái mới"
-                            onAddNew={async (data) => {
-                              try {
-                                const res =
-                                  await lookupService.createSisterStatus(data);
-                                if (res.success) {
-                                  setSisterStatuses([
-                                    ...sisterStatuses,
-                                    res.data,
-                                  ]);
-                                  setFieldValue("status", res.data.code);
-                                }
-                                return res;
-                              } catch (error) {
-                                console.error("Error creating status:", error);
-                                return { success: false };
-                              }
-                            }}
-                          />
-                        </Col>
-
-                        <Col md={12}>
-                          <SelectWithAdd
-                            label="Cộng đoàn hiện tại"
-                            name="current_community_id"
-                            value={values.current_community_id}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            options={communities}
-                            valueKey="id"
-                            labelKey="name"
-                            placeholder="Chọn cộng đoàn"
                           />
                         </Col>
                       </Row>

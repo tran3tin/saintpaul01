@@ -65,7 +65,7 @@ const TimelinePage = () => {
   const [journeys, setJourneys] = useState([]);
   const [sisters, setSisters] = useState([]);
   const [selectedSisterId, setSelectedSisterId] = useState(sisterId || "");
-  
+
   // Search states
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -97,7 +97,9 @@ const TimelinePage = () => {
   useEffect(() => {
     if (isSearching && searchTerm.trim()) {
       const filtered = sisters.filter((s) => {
-        const fullName = `${s.saint_name || ""} ${s.birth_name} ${s.code}`.toLowerCase();
+        const fullName = `${s.saint_name || ""} ${s.birth_name} ${
+          s.code
+        }`.toLowerCase();
         return fullName.includes(searchTerm.toLowerCase());
       });
       setFilteredSisters(filtered);
@@ -161,7 +163,9 @@ const TimelinePage = () => {
 
   const handleSelectSister = (s) => {
     setSelectedSisterId(s.id);
-    setSearchTerm(`${s.saint_name ? s.saint_name + " - " : ""}${s.birth_name} (${s.code})`);
+    setSearchTerm(
+      `${s.saint_name ? s.saint_name + " - " : ""}${s.birth_name} (${s.code})`
+    );
     setShowDropdown(false);
     setIsSearching(false);
     fetchSisterData(s.id);
@@ -438,7 +442,9 @@ const TimelinePage = () => {
               >
                 <i className="fas fa-hourglass-half"></i>
               </div>
-              <div className="stats-value">{calculateYearsInCongregation()}</div>
+              <div className="stats-value">
+                {calculateYearsInCongregation()}
+              </div>
               <div className="stats-label">Năm tu hành</div>
             </div>
           </Col>
@@ -542,7 +548,11 @@ const TimelinePage = () => {
           </Button>
 
           {!sisterId && (
-            <div ref={searchRef} className="position-relative" style={{ width: "350px" }}>
+            <div
+              ref={searchRef}
+              className="position-relative"
+              style={{ width: "350px" }}
+            >
               <Form.Control
                 type="text"
                 placeholder="Chọn nữ tu khác..."
@@ -572,11 +582,6 @@ const TimelinePage = () => {
           )}
         </div>
       </Container>
-
-      {/* Print Button */}
-      <button className="print-btn" onClick={handlePrint} title="In trang này">
-        <i className="fas fa-print"></i>
-      </button>
     </div>
   );
 };

@@ -167,20 +167,48 @@ const getAllSisters = async (req, res) => {
     );
     const total = totalRows[0] ? totalRows[0].total : 0;
 
-    // JOIN with communities table to get current_community_name
+    // JOIN with communities and vocation_journey to get current stage and community
+    // Ưu tiên giai đoạn chưa kết thúc (end_date IS NULL), sau đó lấy giai đoạn mới nhất
     const rows = await SisterModel.executeQuery(
-      `SELECT s.*, c.name AS current_community_name 
+      `SELECT s.*, 
+              c.name AS current_community_name,
+              vj_latest.stage AS current_stage_from_journey,
+              vj_latest.community_id AS current_community_id_from_journey,
+              c_journey.name AS current_community_name_from_journey
        FROM sisters s 
-       LEFT JOIN communities c ON s.current_community_id = c.id 
+       LEFT JOIN communities c ON s.current_community_id = c.id
+       LEFT JOIN (
+         SELECT vj1.sister_id, vj1.stage, vj1.community_id
+         FROM vocation_journey vj1
+         INNER JOIN (
+           SELECT sister_id, 
+                  MAX(CASE WHEN end_date IS NULL THEN 1 ELSE 0 END) as has_current,
+                  MAX(start_date) as max_start_date
+           FROM vocation_journey
+           GROUP BY sister_id
+         ) vj2 ON vj1.sister_id = vj2.sister_id 
+              AND (
+                (vj2.has_current = 1 AND vj1.end_date IS NULL) 
+                OR (vj2.has_current = 0 AND vj1.start_date = vj2.max_start_date)
+              )
+       ) vj_latest ON s.id = vj_latest.sister_id
+       LEFT JOIN communities c_journey ON vj_latest.community_id = c_journey.id
        ${whereClause} 
        ORDER BY s.created_at DESC 
        LIMIT ? OFFSET ?`,
       [...params, limit, offset]
     );
+    
+    // Map the results to use journey data as primary source
+    const mappedRows = rows.map(row => ({
+      ...row,
+      current_stage: row.current_stage_from_journey || row.current_stage,
+      current_community_name: row.current_community_name_from_journey || row.current_community_name
+    }));
 
     return res.status(200).json({
       success: true,
-      data: rows,
+      data: mappedRows,
       meta: {
         total,
         page,
