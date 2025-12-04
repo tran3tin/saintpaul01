@@ -34,7 +34,7 @@ const EducationListAllPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState({
-    degree_type: "",
+    level: "",
     status: "",
   });
 
@@ -83,17 +83,15 @@ const EducationListAllPage = () => {
     }
   };
 
-  const getDegreeTypeBadge = (type) => {
-    const types = {
-      dai_hoc: { label: "Đại học", variant: "primary" },
-      thac_si: { label: "Thạc sĩ", variant: "success" },
-      tien_si: { label: "Tiến sĩ", variant: "danger" },
-      cao_dang: { label: "Cao đẳng", variant: "info" },
-      trung_cap: { label: "Trung cấp", variant: "secondary" },
-      chung_chi: { label: "Chứng chỉ", variant: "warning" },
+  const getLevelBadge = (level) => {
+    const levels = {
+      secondary: { label: "Trung học", variant: "secondary" },
+      bachelor: { label: "Đại học", variant: "primary" },
+      master: { label: "Thạc sĩ", variant: "success" },
+      doctorate: { label: "Tiến sĩ", variant: "danger" },
     };
-    const degreeInfo = types[type] || { label: type, variant: "secondary" };
-    return <Badge bg={degreeInfo.variant}>{degreeInfo.label}</Badge>;
+    const levelInfo = levels[level] || { label: level, variant: "secondary" };
+    return <Badge bg={levelInfo.variant}>{levelInfo.label}</Badge>;
   };
 
   const getStatusBadge = (status) => {
@@ -155,20 +153,18 @@ const EducationListAllPage = () => {
               </Col>
               <Col md={3}>
                 <Form.Group>
-                  <Form.Label>Loại bằng</Form.Label>
+                  <Form.Label>Trình độ</Form.Label>
                   <Form.Select
-                    value={filter.degree_type}
+                    value={filter.level}
                     onChange={(e) =>
-                      setFilter({ ...filter, degree_type: e.target.value })
+                      setFilter({ ...filter, level: e.target.value })
                     }
                   >
                     <option value="">Tất cả</option>
-                    <option value="tien_si">Tiến sĩ</option>
-                    <option value="thac_si">Thạc sĩ</option>
-                    <option value="dai_hoc">Đại học</option>
-                    <option value="cao_dang">Cao đẳng</option>
-                    <option value="trung_cap">Trung cấp</option>
-                    <option value="chung_chi">Chứng chỉ</option>
+                    <option value="secondary">Trung học</option>
+                    <option value="bachelor">Đại học</option>
+                    <option value="master">Thạc sĩ</option>
+                    <option value="doctorate">Tiến sĩ</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -195,7 +191,7 @@ const EducationListAllPage = () => {
                   className="w-100"
                   onClick={() => {
                     setSearchTerm("");
-                    setFilter({ degree_type: "", status: "" });
+                    setFilter({ level: "", status: "" });
                     setCurrentPage(1);
                   }}
                 >
@@ -231,7 +227,7 @@ const EducationListAllPage = () => {
                     <th>Nữ tu</th>
                     <th>Trường học</th>
                     <th>Ngành học</th>
-                    <th>Loại bằng</th>
+                    <th>Trình độ</th>
                     <th>Năm tốt nghiệp</th>
                     <th>Trạng thái</th>
                     <th className="text-end">Thao tác</th>
@@ -246,11 +242,11 @@ const EducationListAllPage = () => {
                           {edu.sister_name || edu.religious_name || "N/A"}
                         </Link>
                       </td>
-                      <td>{edu.institution || edu.school_name || "N/A"}</td>
-                      <td>{edu.major || edu.field_of_study || "N/A"}</td>
-                      <td>{getDegreeTypeBadge(edu.degree_type)}</td>
+                      <td>{edu.institution || "N/A"}</td>
+                      <td>{edu.major || "N/A"}</td>
+                      <td>{getLevelBadge(edu.level)}</td>
                       <td>
-                        {edu.graduation_year || edu.end_year || "Đang học"}
+                        {edu.graduation_year || "Đang học"}
                       </td>
                       <td>{getStatusBadge(edu.status)}</td>
                       <td className="text-end">

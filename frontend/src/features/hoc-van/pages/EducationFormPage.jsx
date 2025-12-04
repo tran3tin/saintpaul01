@@ -12,9 +12,36 @@ import {
   Spinner,
 } from "react-bootstrap";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { FaGraduationCap, FaSave, FaArrowLeft } from "react-icons/fa";
+import { FaGraduationCap, FaSave, FaArrowLeft, FaPaperclip } from "react-icons/fa";
 import { educationService, sisterService } from "@services";
 import Breadcrumb from "@components/common/Breadcrumb";
+import MultiFileUpload from "@components/forms/MultiFileUpload";
+
+// Chuẩn hóa danh sách nữ tu, loại bỏ trùng lặp
+const normalizeSisters = (rawList = []) => {
+  const map = new Map();
+  rawList.forEach((sister) => {
+    if (!sister || !sister.id || map.has(sister.id)) return;
+    map.set(sister.id, {
+      id: sister.id,
+      code: sister.code,
+      displayName:
+        sister.religious_name || sister.birth_name || sister.full_name || "",
+    });
+  });
+  return Array.from(map.values()).sort((a, b) =>
+    (a.displayName || "").localeCompare(b.displayName || "", "vi")
+  );
+};
+
+// Trích xuất danh sách từ response API
+const extractSisterItems = (payload) => {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.items)) return payload.items;
+  if (Array.isArray(payload.data)) return payload.data;
+  return [];
+};
 
 const EducationFormPage = () => {
   const navigate = useNavigate();
@@ -25,14 +52,15 @@ const EducationFormPage = () => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [sisters, setSisters] = useState([]);
+  const [documents, setDocuments] = useState([]);
 
   const [formData, setFormData] = useState({
     sister_id: sisterId || "",
-    institution: "",
+    level: "bachelor",
     major: "",
-    degree_type: "dai_hoc",
-    start_year: "",
-    end_year: "",
+    institution: "",
+    start_date: "",
+    end_date: "",
     graduation_year: "",
     status: "dang_hoc",
     gpa: "",
@@ -49,12 +77,14 @@ const EducationFormPage = () => {
 
   const fetchSisters = async () => {
     try {
-      const response = await sisterService.getAll();
-      if (response.success) {
-        setSisters(response.data || []);
-      }
+      const response = await sisterService.getList({ limit: 1000, status: "all" });
+      const list = normalizeSisters(
+        extractSisterItems(response?.data) || extractSisterItems(response)
+      );
+      setSisters(list);
     } catch (error) {
       console.error("Error fetching sisters:", error);
+      setMessage({ type: "danger", text: "Không thể tải danh sách nữ tu" });
     }
   };
 
@@ -84,11 +114,27 @@ const EducationFormPage = () => {
     setMessage({ type: "", text: "" });
 
     try {
+      // Chuẩn bị payload với đúng định dạng backend yêu cầu
+      const payload = {
+        sister_id: parseInt(formData.sister_id, 10),
+        level: formData.level,
+        major: formData.major || null,
+        institution: formData.institution || null,
+        start_date: formData.start_date || null,
+        end_date: formData.end_date || null,
+        graduation_year: formData.graduation_year ? parseInt(formData.graduation_year, 10) : null,
+        status: formData.status || "dang_hoc",
+        gpa: formData.gpa || null,
+        thesis_title: formData.thesis_title || null,
+        notes: formData.notes || null,
+        documents: documents.length > 0 ? JSON.stringify(documents) : null,
+      };
+
       let result;
       if (isEdit) {
-        result = await educationService.update(id, formData);
+        result = await educationService.update(id, payload);
       } else {
-        result = await educationService.create(formData);
+        result = await educationService.create(payload);
       }
 
       if (result.success) {
@@ -179,7 +225,8 @@ const EducationFormPage = () => {
                         <option value="">-- Chọn nữ tu --</option>
                         {sisters.map((sister) => (
                           <option key={sister.id} value={sister.id}>
-                            {sister.religious_name} {sister.full_name}
+                            {sister.displayName}
+                            {sister.code ? ` (${sister.code})` : ""}
                           </option>
                         ))}
                       </Form.Select>
@@ -187,26 +234,24 @@ const EducationFormPage = () => {
                   </Col>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Loại bằng *</Form.Label>
+                      <Form.Label>Trình độ *</Form.Label>
                       <Form.Select
-                        name="degree_type"
-                        value={formData.degree_type}
+                        name="level"
+                        value={formData.level}
                         onChange={handleChange}
                         required
                       >
-                        <option value="tien_si">Tiến sĩ</option>
-                        <option value="thac_si">Thạc sĩ</option>
-                        <option value="dai_hoc">Đại học</option>
-                        <option value="cao_dang">Cao đẳng</option>
-                        <option value="trung_cap">Trung cấp</option>
-                        <option value="chung_chi">Chứng chỉ</option>
+                        <option value="secondary">Trung học</option>
+                        <option value="bachelor">Đại học</option>
+                        <option value="master">Thạc sĩ</option>
+                        <option value="doctorate">Tiến sĩ</option>
                       </Form.Select>
                     </Form.Group>
                   </Col>
                 </Row>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Trường / Cơ sở đào tạo *</Form.Label>
+                  <Form.Label>Trường / Cơ sở đào tạo</Form.Label>
                   <Form.Control
                     type="text"
                     name="institution"
@@ -230,34 +275,31 @@ const EducationFormPage = () => {
                 </Form.Group>
 
                 <Row>
-                  <Col md={4}>
+                  <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Năm bắt đầu</Form.Label>
+                      <Form.Label>Ngày bắt đầu</Form.Label>
                       <Form.Control
-                        type="number"
-                        name="start_year"
-                        value={formData.start_year}
+                        type="date"
+                        name="start_date"
+                        value={formData.start_date}
                         onChange={handleChange}
-                        placeholder="VD: 2020"
-                        min="1950"
-                        max={new Date().getFullYear() + 5}
                       />
                     </Form.Group>
                   </Col>
-                  <Col md={4}>
+                  <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Năm kết thúc</Form.Label>
+                      <Form.Label>Ngày kết thúc</Form.Label>
                       <Form.Control
-                        type="number"
-                        name="end_year"
-                        value={formData.end_year}
+                        type="date"
+                        name="end_date"
+                        value={formData.end_date}
                         onChange={handleChange}
-                        placeholder="VD: 2024"
-                        min="1950"
-                        max={new Date().getFullYear() + 10}
                       />
                     </Form.Group>
                   </Col>
+                </Row>
+
+                <Row>
                   <Col md={4}>
                     <Form.Group className="mb-3">
                       <Form.Label>Năm tốt nghiệp</Form.Label>
@@ -272,10 +314,7 @@ const EducationFormPage = () => {
                       />
                     </Form.Group>
                   </Col>
-                </Row>
-
-                <Row>
-                  <Col md={6}>
+                  <Col md={4}>
                     <Form.Group className="mb-3">
                       <Form.Label>Trạng thái</Form.Label>
                       <Form.Select
@@ -290,7 +329,7 @@ const EducationFormPage = () => {
                       </Form.Select>
                     </Form.Group>
                   </Col>
-                  <Col md={6}>
+                  <Col md={4}>
                     <Form.Group className="mb-3">
                       <Form.Label>Điểm trung bình (GPA)</Form.Label>
                       <Form.Control
@@ -298,7 +337,7 @@ const EducationFormPage = () => {
                         name="gpa"
                         value={formData.gpa}
                         onChange={handleChange}
-                        placeholder="VD: 3.5/4.0 hoặc 8.5/10"
+                        placeholder="VD: 3.5/4.0"
                       />
                     </Form.Group>
                   </Col>
@@ -326,6 +365,27 @@ const EducationFormPage = () => {
                     placeholder="Ghi chú thêm..."
                   />
                 </Form.Group>
+
+                <Card className="mb-3">
+                  <Card.Header className="bg-light">
+                    <h6 className="mb-0">
+                      <FaPaperclip className="me-2" />
+                      Tài liệu đính kèm
+                    </h6>
+                  </Card.Header>
+                  <Card.Body>
+                    <MultiFileUpload
+                      value={documents}
+                      onChange={setDocuments}
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      maxFiles={5}
+                      maxSize={10 * 1024 * 1024}
+                    />
+                    <small className="text-muted d-block mt-2">
+                      Hỗ trợ: PDF, Word, hình ảnh (tối đa 5 file, mỗi file ≤ 10MB)
+                    </small>
+                  </Card.Body>
+                </Card>
 
                 <div className="d-flex justify-content-end gap-2">
                   <Link

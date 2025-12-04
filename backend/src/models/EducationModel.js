@@ -10,6 +10,12 @@ class EducationModel extends BaseModel {
       "institution",
       "start_date",
       "end_date",
+      "graduation_year",
+      "status",
+      "gpa",
+      "thesis_title",
+      "notes",
+      "documents",
       "certificate_url",
     ];
     this.requiredFields = ["sister_id", "level"];

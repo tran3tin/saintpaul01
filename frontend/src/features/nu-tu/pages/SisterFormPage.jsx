@@ -268,7 +268,10 @@ const SisterFormPage = () => {
 
         if (response.success && values.photo_file) {
           try {
-            await sisterService.uploadAvatar(response.data.id, values.photo_file);
+            await sisterService.uploadAvatar(
+              response.data.id,
+              values.photo_file
+            );
           } catch (uploadError) {
             console.error("Avatar upload failed:", uploadError);
             showToast(

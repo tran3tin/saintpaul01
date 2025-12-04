@@ -240,7 +240,77 @@ const getStatisticsByLevel = async (req, res) => {
   }
 };
 
+const getAllEducation = async (req, res) => {
+  try {
+    if (!ensurePermission(req, res, viewerRoles)) return;
+
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 100);
+    const offset = (page - 1) * limit;
+    const { search, level, status } = req.query;
+
+    let whereClause = "1=1";
+    const params = [];
+
+    if (search) {
+      whereClause += " AND (s.birth_name LIKE ? OR s.religious_name LIKE ? OR e.institution LIKE ? OR e.major LIKE ?)";
+      const searchPattern = `%${search}%`;
+      params.push(searchPattern, searchPattern, searchPattern, searchPattern);
+    }
+
+    if (level) {
+      whereClause += " AND e.level = ?";
+      params.push(level);
+    }
+
+    if (status) {
+      whereClause += " AND e.status = ?";
+      params.push(status);
+    }
+
+    // Get total count
+    const countResult = await EducationModel.executeQuery(
+      `SELECT COUNT(*) as total FROM education e 
+       LEFT JOIN sisters s ON e.sister_id = s.id 
+       WHERE ${whereClause}`,
+      params
+    );
+    const total = countResult[0]?.total || 0;
+
+    // Get data with pagination
+    const items = await EducationModel.executeQuery(
+            `SELECT e.*, 
+              s.birth_name as sister_name, 
+              s.saint_name as religious_name,
+              s.code as sister_code
+       FROM education e
+       LEFT JOIN sisters s ON e.sister_id = s.id
+       WHERE ${whereClause}
+      ORDER BY e.start_date DESC, e.id DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        items,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+        limit,
+      },
+    });
+  } catch (error) {
+    console.error("getAllEducation error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch education records" });
+  }
+};
+
 module.exports = {
+  getAllEducation,
   getEducationBySister,
   addEducation,
   updateEducation,
