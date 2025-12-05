@@ -86,11 +86,9 @@ const assignSisterToCommunity = async (req, res) => {
     } = req.body;
 
     if (!sisterId || !communityId || !role || !startDate) {
-      return res
-        .status(400)
-        .json({
-          message: "sister_id, community_id, role, start_date are required",
-        });
+      return res.status(400).json({
+        message: "sister_id, community_id, role, start_date are required",
+      });
     }
 
     const validation = await ensureEntitiesExist(sisterId, communityId);
@@ -227,6 +225,39 @@ const getAssignmentHistory = async (req, res) => {
   }
 };
 
+const getAssignmentsByCommunity = async (req, res) => {
+  try {
+    if (!ensurePermission(req, res, viewerRoles)) {
+      return;
+    }
+
+    const { communityId } = req.params;
+    const community = await CommunityModel.findById(communityId);
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    const assignments = await CommunityAssignmentModel.findByCommunity(
+      communityId
+    );
+    return res.status(200).json({
+      community: {
+        id: community.id,
+        name: community.name,
+        address: community.address,
+        diocese: community.diocese,
+        established_date: community.established_date,
+      },
+      assignments,
+    });
+  } catch (error) {
+    console.error("getAssignmentsByCommunity error:", error.message);
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch community assignments" });
+  }
+};
+
 const getCurrentAssignment = async (req, res) => {
   try {
     if (!ensurePermission(req, res, viewerRoles)) {
@@ -305,6 +336,7 @@ module.exports = {
   updateAssignment,
   endAssignment,
   getAssignmentHistory,
+  getAssignmentsByCommunity,
   getCurrentAssignment,
   uploadDecisionFile,
 };

@@ -21,6 +21,7 @@ const Timeline = ({
   emptyDescription = "Không tìm thấy thông tin nào.",
   statsConfig = [],
   calculateStats = null,
+  onItemClick = null,
 }) => {
   const { sisterId } = useParams();
   const navigate = useNavigate();
@@ -321,7 +322,11 @@ const Timeline = ({
               return (
                 <div
                   key={item.id || index}
-                  className={`timeline-item ${config.className}`}
+                  className={`timeline-item ${config.className}${
+                    onItemClick ? " clickable" : ""
+                  }`}
+                  onClick={() => onItemClick && onItemClick(item)}
+                  style={onItemClick ? { cursor: "pointer" } : {}}
                 >
                   <div className={`timeline-icon ${config.className}`}>
                     <i className={config.icon}></i>

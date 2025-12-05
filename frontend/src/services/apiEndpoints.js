@@ -77,6 +77,19 @@ export const API_ENDPOINTS = {
   },
 
   // ============================================
+  // COMMUNITY ASSIGNMENT (BỔ NHIỆM CỘNG ĐOÀN)
+  // ============================================
+  COMMUNITY_ASSIGNMENT: {
+    CREATE: "/assignments",
+    UPDATE: (id) => `/assignments/${id}`,
+    DELETE: (id) => `/assignments/${id}`,
+    BY_SISTER: (sisterId) => `/assignments/sister/${sisterId}`,
+    BY_COMMUNITY: (communityId) => `/assignments/community/${communityId}`,
+    CURRENT: (sisterId) => `/assignments/sister/${sisterId}/current`,
+    UPLOAD_DECISION: (id) => `/assignments/${id}/decision-file`,
+  },
+
+  // ============================================
   // EDUCATION (HỌC VẤN)
   // ============================================
   EDUCATION: {

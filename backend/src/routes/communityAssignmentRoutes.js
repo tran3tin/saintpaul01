@@ -15,6 +15,10 @@ router.get(
   communityAssignmentController.getAssignmentHistory
 );
 router.get(
+  "/community/:communityId",
+  communityAssignmentController.getAssignmentsByCommunity
+);
+router.get(
   "/sister/:sisterId/current",
   communityAssignmentController.getCurrentAssignment
 );

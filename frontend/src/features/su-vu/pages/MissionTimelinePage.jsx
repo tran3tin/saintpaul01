@@ -65,7 +65,12 @@ const MissionTimelinePage = () => {
     try {
       const response = await missionService.getBySister(sisterId);
       if (response && response.success) {
-        const items = response.data?.items || response.data || [];
+        // Backend returns { sister: {...}, missions: [...] }
+        const items =
+          response.data?.missions ||
+          response.data?.items ||
+          response.data ||
+          [];
         // Sort by start_date descending
         return items.sort(
           (a, b) =>

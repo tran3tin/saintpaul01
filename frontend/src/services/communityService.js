@@ -33,6 +33,30 @@ const communityService = {
   },
 
   /**
+   * Get assignment history by community
+   * @param {string} communityId
+   * @returns {Promise}
+   */
+  getAssignmentHistory: async (communityId) => {
+    try {
+      const response = await api.get(
+        API_ENDPOINTS.COMMUNITY_ASSIGNMENT.BY_COMMUNITY(communityId)
+      );
+      return {
+        success: true,
+        data: response,
+      };
+    } catch (error) {
+      console.error("Error fetching community assignments:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi tải lịch sử bổ nhiệm",
+        data: { community: null, assignments: [] },
+      };
+    }
+  },
+
+  /**
    * Create community
    * @param {Object} data
    * @returns {Promise}

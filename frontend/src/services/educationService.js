@@ -69,9 +69,11 @@ const educationService = {
       const response = await api.get(EDUCATION_ENDPOINTS.BY_SISTER(sisterId), {
         params,
       });
+      // api interceptor returns response.data directly
+      // Backend returns { sister: {...}, education: [...] }
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       console.error("Error fetching sister education:", error);

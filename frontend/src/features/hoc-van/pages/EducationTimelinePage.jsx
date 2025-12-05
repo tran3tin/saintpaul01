@@ -1,6 +1,7 @@
 // src/features/hoc-van/pages/EducationTimelinePage.jsx
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Timeline from "@components/common/Timeline";
 import { educationService } from "@services";
 import { formatDate } from "@utils";
@@ -27,12 +28,27 @@ const educationLevelConfig = {
     icon: "fas fa-university",
     className: "level-college",
   },
+  associate: {
+    label: "Cao đẳng",
+    icon: "fas fa-university",
+    className: "level-college",
+  },
   university: {
     label: "Đại học",
     icon: "fas fa-user-graduate",
     className: "level-university",
   },
+  bachelor: {
+    label: "Cử nhân",
+    icon: "fas fa-user-graduate",
+    className: "level-university",
+  },
   masters: {
+    label: "Thạc sĩ",
+    icon: "fas fa-award",
+    className: "level-masters",
+  },
+  master: {
     label: "Thạc sĩ",
     icon: "fas fa-award",
     className: "level-masters",
@@ -48,7 +64,7 @@ const educationLevelConfig = {
     className: "level-college",
   },
   vocational: {
-    label: "Nghề",
+    label: "Trung cấp",
     icon: "fas fa-tools",
     className: "level-secondary",
   },
@@ -56,6 +72,11 @@ const educationLevelConfig = {
     label: "Đào tạo tu trì",
     icon: "fas fa-cross",
     className: "level-university",
+  },
+  other: {
+    label: "Khác",
+    icon: "fas fa-book",
+    className: "level-secondary",
   },
 };
 
@@ -75,7 +96,8 @@ const EducationTimelinePage = () => {
     try {
       const response = await educationService.getBySister(sisterId);
       if (response && response.success) {
-        const items = response.data || [];
+        // Backend returns { sister: {...}, education: [...] }
+        const items = response.data?.education || response.data || [];
         // Sort by start_date descending
         return items.sort(
           (a, b) =>
@@ -150,9 +172,13 @@ const EducationTimelinePage = () => {
         "primary",
         "secondary",
         "high_school",
+        "vocational",
         "college",
+        "associate",
         "university",
+        "bachelor",
         "masters",
+        "master",
         "doctorate",
       ];
       const currentIndex = levels.indexOf(item.level);
@@ -189,6 +215,15 @@ const EducationTimelinePage = () => {
     ];
   };
 
+  const navigate = useNavigate();
+
+  // Handle click on timeline item
+  const handleItemClick = (item) => {
+    if (item.id) {
+      navigate(`/hoc-van/${item.id}`);
+    }
+  };
+
   return (
     <Timeline
       title="Timeline Học Vấn"
@@ -199,6 +234,7 @@ const EducationTimelinePage = () => {
       getItemConfig={getItemConfig}
       renderItemContent={renderItemContent}
       calculateStats={calculateStats}
+      onItemClick={handleItemClick}
       emptyMessage="Chưa có hồ sơ học vấn"
       emptyDescription="Nữ tu này chưa có thông tin học vấn nào được ghi nhận."
     />

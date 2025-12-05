@@ -162,7 +162,7 @@ const AppRoutes = () => {
             element={<CommunityTimelinePage />}
           />
           <Route
-            path="/cong-doan/timeline/:sisterId"
+            path="/cong-doan/timeline/:communityId"
             element={<CommunityTimelinePage />}
           />
           <Route path="/cong-doan/create" element={<CommunityFormPage />} />

@@ -152,6 +152,35 @@
   border-left-color: var(--timeline-accent);
 }
 
+/* Clickable timeline item */
+.timeline-item.clickable .timeline-content {
+  cursor: pointer;
+}
+
+.timeline-item.clickable .timeline-content:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 35px rgba(4, 41, 84, 0.25);
+  border-left-color: var(--timeline-accent);
+}
+
+.timeline-item.clickable .timeline-content::after {
+  content: "\f061";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: all 0.3s ease;
+  color: var(--timeline-accent);
+}
+
+.timeline-item.clickable .timeline-content:hover::after {
+  opacity: 1;
+  right: 10px;
+}
+
 .timeline-item:nth-child(odd) .timeline-content {
   margin-right: 40px;
 }
