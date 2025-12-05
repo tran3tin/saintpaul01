@@ -2,6 +2,7 @@ export {
   HealthRecordListPage,
   HealthRecordFormPage,
   HealthRecordDetailPage,
+  HealthTimelinePage,
   DepartureListPage,
   DepartureFormPage,
 } from "./pages";

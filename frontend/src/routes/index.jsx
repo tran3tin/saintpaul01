@@ -32,12 +32,14 @@ import CongDoanListPage from "@features/cong-doan/pages/CongDoanListPage";
 import CommunityDetailPage from "@features/cong-doan/pages/CommunityDetailPage";
 import CommunityFormPage from "@features/cong-doan/pages/CommunityFormPage";
 import AssignmentPage from "@features/cong-doan/pages/AssignmentPage";
+import CommunityTimelinePage from "@features/cong-doan/pages/CommunityTimelinePage";
 
 // Suc Khoe
 import {
   HealthRecordListPage,
   HealthRecordFormPage,
   HealthRecordDetailPage,
+  HealthTimelinePage,
   DepartureListPage,
   DepartureFormPage,
 } from "@features/suc-khoe";
@@ -55,6 +57,7 @@ import {
   EducationListAllPage,
   EducationFormPage,
   EducationDetailPage,
+  EducationTimelinePage,
 } from "@features/hoc-van";
 
 // Su Vu (Mission)
@@ -62,6 +65,7 @@ import {
   MissionListPage,
   MissionDetailPage,
   MissionFormPage,
+  MissionTimelinePage,
 } from "@features/su-vu";
 
 // Bao Cao (Reports)
@@ -153,6 +157,14 @@ const AppRoutes = () => {
           {/* Cong Doan */}
           <Route path="/cong-doan" element={<CongDoanListPage />} />
           <Route path="/cong-doan/assignment" element={<AssignmentPage />} />
+          <Route
+            path="/cong-doan/timeline"
+            element={<CommunityTimelinePage />}
+          />
+          <Route
+            path="/cong-doan/timeline/:sisterId"
+            element={<CommunityTimelinePage />}
+          />
           <Route path="/cong-doan/create" element={<CommunityFormPage />} />
           <Route path="/cong-doan/:id" element={<CommunityDetailPage />} />
           <Route path="/cong-doan/:id/edit" element={<CommunityFormPage />} />
@@ -160,6 +172,11 @@ const AppRoutes = () => {
 
           {/* Suc Khoe */}
           <Route path="/suc-khoe" element={<HealthRecordListPage />} />
+          <Route path="/suc-khoe/timeline" element={<HealthTimelinePage />} />
+          <Route
+            path="/suc-khoe/timeline/:sisterId"
+            element={<HealthTimelinePage />}
+          />
           <Route path="/suc-khoe/create" element={<HealthRecordFormPage />} />
           <Route path="/suc-khoe/:id" element={<HealthRecordDetailPage />} />
           <Route path="/suc-khoe/:id/edit" element={<HealthRecordFormPage />} />
@@ -201,6 +218,11 @@ const AppRoutes = () => {
 
           {/* Hoc Van (Education) */}
           <Route path="/hoc-van" element={<EducationListAllPage />} />
+          <Route path="/hoc-van/timeline" element={<EducationTimelinePage />} />
+          <Route
+            path="/hoc-van/timeline/:sisterId"
+            element={<EducationTimelinePage />}
+          />
           <Route path="/hoc-van/create" element={<EducationFormPage />} />
           <Route path="/hoc-van/:id" element={<EducationDetailPage />} />
           <Route path="/hoc-van/:id/edit" element={<EducationFormPage />} />
@@ -215,6 +237,11 @@ const AppRoutes = () => {
 
           {/* Su Vu (Mission) */}
           <Route path="/su-vu" element={<MissionListPage />} />
+          <Route path="/su-vu/timeline" element={<MissionTimelinePage />} />
+          <Route
+            path="/su-vu/timeline/:sisterId"
+            element={<MissionTimelinePage />}
+          />
           <Route path="/su-vu/create" element={<MissionFormPage />} />
           <Route path="/su-vu/:id" element={<MissionDetailPage />} />
           <Route path="/su-vu/:id/edit" element={<MissionFormPage />} />

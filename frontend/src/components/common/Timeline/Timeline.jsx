@@ -1,68 +1,32 @@
-// src/features/hanh-trinh/pages/TimelinePage.jsx
+// src/components/common/Timeline/Timeline.jsx
+// Reusable Timeline Component with Akkhor Sidebar Theme
 
 import React, { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
-import { journeyService, sisterService } from "@services";
+import { sisterService } from "@services";
 import { formatDate } from "@utils";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
-import "./TimelinePage.css";
+import "./Timeline.css";
 
-// Stage configurations
-const stageConfig = {
-  inquiry: {
-    label: "Tìm hiểu",
-    icon: "fas fa-search",
-    className: "stage-inquiry",
-  },
-  postulant: {
-    label: "Thỉnh sinh",
-    icon: "fas fa-door-open",
-    className: "stage-postulant",
-  },
-  aspirant: {
-    label: "Tiền Tập Viện",
-    icon: "fas fa-book-open",
-    className: "stage-aspirant",
-  },
-  novice: {
-    label: "Tập Viện",
-    icon: "fas fa-graduation-cap",
-    className: "stage-novice",
-  },
-  temporary_vows: {
-    label: "Khấn Tạm",
-    icon: "fas fa-praying-hands",
-    className: "stage-temporary_vows",
-  },
-  perpetual_vows: {
-    label: "Khấn Vĩnh Viễn",
-    icon: "fas fa-infinity",
-    className: "stage-perpetual_vows",
-  },
-  left: {
-    label: "Đã rời",
-    icon: "fas fa-sign-out-alt",
-    className: "stage-left",
-  },
-};
-
-const getStageConfig = (stage) => {
-  return (
-    stageConfig[stage] || {
-      label: stage || "Chưa xác định",
-      icon: "fas fa-circle",
-      className: "stage-default",
-    }
-  );
-};
-
-const TimelinePage = () => {
+const Timeline = ({
+  title = "Timeline",
+  subtitle = "",
+  icon = "fas fa-route",
+  backUrl = "/",
+  fetchDataBySister,
+  getItemConfig,
+  renderItemContent,
+  emptyMessage = "Chưa có dữ liệu",
+  emptyDescription = "Không tìm thấy thông tin nào.",
+  statsConfig = [],
+  calculateStats = null,
+}) => {
   const { sisterId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [sister, setSister] = useState(null);
-  const [journeys, setJourneys] = useState([]);
+  const [items, setItems] = useState([]);
   const [sisters, setSisters] = useState([]);
   const [selectedSisterId, setSelectedSisterId] = useState(sisterId || "");
 
@@ -133,31 +97,15 @@ const TimelinePage = () => {
         setSister(sisterRes);
       }
 
-      const journeyRes = await journeyService.getList({
-        sister_id: id,
-        limit: 100,
-      });
-      if (journeyRes && journeyRes.success) {
-        const sortedJourneys = (journeyRes.data || []).sort(
-          (a, b) => new Date(a.start_date) - new Date(b.start_date)
-        );
-        setJourneys(sortedJourneys);
+      // Fetch items using provided function
+      if (fetchDataBySister) {
+        const data = await fetchDataBySister(id);
+        setItems(data || []);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSisterChange = (e) => {
-    const id = e.target.value;
-    setSelectedSisterId(id);
-    if (id) {
-      fetchSisterData(id);
-    } else {
-      setSister(null);
-      setJourneys([]);
     }
   };
 
@@ -185,10 +133,6 @@ const TimelinePage = () => {
     setShowDropdown(true);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const calculateAge = (birthDate) => {
     if (!birthDate) return null;
     const birth = new Date(birthDate);
@@ -197,21 +141,6 @@ const TimelinePage = () => {
     const m = today.getMonth() - birth.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
     return age;
-  };
-
-  const calculateYearsInCongregation = () => {
-    if (!journeys.length) return 0;
-    const firstJourney = journeys[0];
-    if (!firstJourney.start_date) return 0;
-    const start = new Date(firstJourney.start_date);
-    const today = new Date();
-    return Math.floor((today - start) / (365.25 * 24 * 60 * 60 * 1000));
-  };
-
-  const countVows = () => {
-    return journeys.filter(
-      (j) => j.stage === "temporary_vows" || j.stage === "perpetual_vows"
-    ).length;
   };
 
   const getPhotoUrl = (sisterData) => {
@@ -224,11 +153,8 @@ const TimelinePage = () => {
     return null;
   };
 
-  const getCurrentStage = () => {
-    if (!journeys.length) return null;
-    const currentJourney = journeys.find((j) => !j.end_date);
-    return currentJourney || journeys[journeys.length - 1];
-  };
+  // Calculate stats if function provided
+  const stats = calculateStats ? calculateStats(items, sister) : [];
 
   if (loading) {
     return (
@@ -248,9 +174,10 @@ const TimelinePage = () => {
         <Container className="mt-4">
           <div className="select-sister-card">
             <h4 className="text-center mb-4">
-              <i className="fas fa-user-circle me-2"></i>
-              Chọn Nữ Tu để xem Hành Trình
+              <i className={`${icon} me-2`}></i>
+              {title}
             </h4>
+            <p className="text-center text-muted mb-4">{subtitle}</p>
             <Form.Group ref={searchRef} className="position-relative">
               <Form.Control
                 type="text"
@@ -287,10 +214,7 @@ const TimelinePage = () => {
               )}
             </Form.Group>
             <div className="text-center mt-4">
-              <Button
-                variant="secondary"
-                onClick={() => navigate("/hanh-trinh")}
-              >
+              <Button variant="secondary" onClick={() => navigate(backUrl)}>
                 <i className="fas fa-arrow-left me-2"></i>
                 Quay lại
               </Button>
@@ -300,11 +224,6 @@ const TimelinePage = () => {
       </div>
     );
   }
-
-  const currentStage = getCurrentStage();
-  const currentStageConfig = currentStage
-    ? getStageConfig(currentStage.stage)
-    : null;
 
   return (
     <div className="timeline-page">
@@ -355,31 +274,11 @@ const TimelinePage = () => {
                     </span>
                   )}
                 </div>
-                <div className="mb-3">
-                  {sister.saint_name && (
-                    <span className="info-badge">
-                      <i className="fas fa-church"></i>
-                      Tên dòng: {sister.saint_name}
-                    </span>
-                  )}
-                  {sister.baptism_date && (
-                    <span className="info-badge">
-                      <i className="fas fa-cross"></i>
-                      Rửa tội: {formatDate(sister.baptism_date)}
-                    </span>
-                  )}
-                </div>
                 <div>
                   {sister.current_community_name && (
                     <span className="info-badge">
                       <i className="fas fa-home"></i>
                       Cộng đoàn: {sister.current_community_name}
-                    </span>
-                  )}
-                  {currentStageConfig && (
-                    <span className="info-badge">
-                      <i className="fas fa-star"></i>
-                      Giai đoạn: {currentStageConfig.label}
                     </span>
                   )}
                 </div>
@@ -389,110 +288,60 @@ const TimelinePage = () => {
         )}
 
         {/* Stats Cards */}
-        <Row className="mb-5">
-          <Col md={3} className="mb-3">
-            <div className="stats-card">
-              <div
-                className="stats-icon"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                }}
-              >
-                <i className="fas fa-calendar-check"></i>
-              </div>
-              <div className="stats-value">{journeys.length}</div>
-              <div className="stats-label">Sự kiện quan trọng</div>
-            </div>
-          </Col>
-          <Col md={3} className="mb-3">
-            <div className="stats-card">
-              <div
-                className="stats-icon"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)",
-                }}
-              >
-                <i className="fas fa-hourglass-half"></i>
-              </div>
-              <div className="stats-value">
-                {calculateYearsInCongregation()}
-              </div>
-              <div className="stats-label">Năm tu hành</div>
-            </div>
-          </Col>
-          <Col md={3} className="mb-3">
-            <div className="stats-card">
-              <div
-                className="stats-icon"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #f39c12 0%, #e67e22 100%)",
-                }}
-              >
-                <i className="fas fa-praying-hands"></i>
-              </div>
-              <div className="stats-value">{countVows()}</div>
-              <div className="stats-label">Lần khấn</div>
-            </div>
-          </Col>
-          <Col md={3} className="mb-3">
-            <div className="stats-card">
-              <div
-                className="stats-icon"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)",
-                }}
-              >
-                <i className="fas fa-heart"></i>
-              </div>
-              <div className="stats-value">100%</div>
-              <div className="stats-label">Tận tâm phục vụ</div>
-            </div>
-          </Col>
-        </Row>
+        {stats.length > 0 && (
+          <Row className="mb-5">
+            {stats.map((stat, index) => (
+              <Col md={3} className="mb-3" key={index}>
+                <div className="stats-card">
+                  <div
+                    className="stats-icon"
+                    style={{ background: stat.gradient }}
+                  >
+                    <i className={stat.icon}></i>
+                  </div>
+                  <div className="stats-value">{stat.value}</div>
+                  <div className="stats-label">{stat.label}</div>
+                </div>
+              </Col>
+            ))}
+          </Row>
+        )}
 
         {/* Timeline */}
-        {journeys.length > 0 ? (
+        {items.length > 0 ? (
           <div className="timeline">
-            {journeys.map((journey, index) => {
-              const config = getStageConfig(journey.stage);
+            {items.map((item, index) => {
+              const config = getItemConfig
+                ? getItemConfig(item)
+                : {
+                    icon: "fas fa-circle",
+                    className: "stage-default",
+                    label: "Mặc định",
+                  };
               return (
                 <div
-                  key={journey.id}
+                  key={item.id || index}
                   className={`timeline-item ${config.className}`}
                 >
                   <div className={`timeline-icon ${config.className}`}>
                     <i className={config.icon}></i>
                   </div>
                   <div className="timeline-content">
-                    <div className="timeline-date">
-                      <i className="fas fa-calendar"></i>
-                      {formatDate(journey.start_date)}
-                      {journey.end_date && ` - ${formatDate(journey.end_date)}`}
-                    </div>
-                    <h3 className="timeline-title">
-                      {journey.stage_name || config.label}
-                    </h3>
-                    <span className={`timeline-stage ${config.className}`}>
-                      {config.label}
-                    </span>
-                    {journey.notes && (
-                      <p className="timeline-description">{journey.notes}</p>
-                    )}
-                    {journey.location && (
-                      <div className="timeline-location">
-                        <i className="fas fa-map-marker-alt"></i>
-                        {journey.location}
-                      </div>
-                    )}
-                    {journey.supervisor && (
-                      <div className="timeline-supervisor">
-                        <i className="fas fa-user-tie"></i>
-                        Người hướng dẫn: {journey.supervisor}
-                      </div>
+                    {renderItemContent ? (
+                      renderItemContent(item, config)
+                    ) : (
+                      <>
+                        <div className="timeline-date">
+                          <i className="fas fa-calendar"></i>
+                          {formatDate(item.created_at)}
+                        </div>
+                        <h3 className="timeline-title">
+                          {item.title || "Không có tiêu đề"}
+                        </h3>
+                        <span className={`timeline-stage ${config.className}`}>
+                          {config.label}
+                        </span>
+                      </>
                     )}
                   </div>
                 </div>
@@ -501,9 +350,9 @@ const TimelinePage = () => {
           </div>
         ) : (
           <div className="empty-timeline">
-            <i className="fas fa-route"></i>
-            <h4>Chưa có thông tin hành trình</h4>
-            <p>Hành trình ơn gọi của nữ tu này chưa được ghi nhận.</p>
+            <i className={icon}></i>
+            <h4>{emptyMessage}</h4>
+            <p>{emptyDescription}</p>
           </div>
         )}
 
@@ -512,9 +361,7 @@ const TimelinePage = () => {
           <Button
             variant="secondary"
             onClick={() =>
-              sisterId
-                ? navigate(`/nu-tu/${sisterId}`)
-                : navigate("/hanh-trinh")
+              sisterId ? navigate(`/nu-tu/${sisterId}`) : navigate(backUrl)
             }
           >
             <i className="fas fa-arrow-left me-2"></i>
@@ -560,4 +407,4 @@ const TimelinePage = () => {
   );
 };
 
-export default TimelinePage;
+export default Timeline;

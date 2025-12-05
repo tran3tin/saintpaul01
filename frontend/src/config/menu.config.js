@@ -78,6 +78,12 @@ export const menuConfig = [
         icon: "fas fa-user-tag",
         path: "/cong-doan/assignment",
       },
+      {
+        id: "cong-doan-timeline",
+        label: "Timeline Cộng Đoàn",
+        icon: "fas fa-stream",
+        path: "/cong-doan/timeline",
+      },
     ],
   },
   {
@@ -97,6 +103,12 @@ export const menuConfig = [
         label: "Thêm học vấn mới",
         icon: "fas fa-plus-circle",
         path: "/hoc-van/create",
+      },
+      {
+        id: "hoc-van-timeline",
+        label: "Timeline Học Vấn",
+        icon: "fas fa-stream",
+        path: "/hoc-van/timeline",
       },
     ],
   },
@@ -118,6 +130,12 @@ export const menuConfig = [
         icon: "fas fa-plus-circle",
         path: "/su-vu/create",
       },
+      {
+        id: "su-vu-timeline",
+        label: "Timeline Sứ Vụ",
+        icon: "fas fa-stream",
+        path: "/su-vu/timeline",
+      },
     ],
   },
   {
@@ -137,6 +155,12 @@ export const menuConfig = [
         label: "Thêm hồ sơ mới",
         icon: "fas fa-plus-circle",
         path: "/suc-khoe/create",
+      },
+      {
+        id: "suc-khoe-timeline",
+        label: "Timeline Sức Khỏe",
+        icon: "fas fa-stream",
+        path: "/suc-khoe/timeline",
       },
       {
         id: "di-vang-list",
