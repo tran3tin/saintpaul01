@@ -1,11 +1,12 @@
 // src/features/hanh-trinh/pages/TimelinePage.jsx
 
-import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { journeyService, sisterService } from "@services";
 import { formatDate } from "@utils";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
+import SearchableSelect from "@components/forms/SearchableSelect";
 import "./TimelinePage.css";
 
 // Stage configurations
@@ -66,47 +67,26 @@ const TimelinePage = () => {
   const [sisters, setSisters] = useState([]);
   const [selectedSisterId, setSelectedSisterId] = useState(sisterId || "");
 
-  // Search states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [filteredSisters, setFilteredSisters] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const searchRef = useRef(null);
-
   useEffect(() => {
     if (sisterId) {
       setSelectedSisterId(sisterId);
       fetchSisterData(sisterId);
-    } else {
-      fetchSistersList();
     }
   }, [sisterId]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    fetchSistersList();
   }, []);
 
-  // Filter sisters when search term changes
-  useEffect(() => {
-    if (isSearching && searchTerm.trim()) {
-      const filtered = sisters.filter((s) => {
-        const fullName = `${s.saint_name || ""} ${s.birth_name} ${
-          s.code
-        }`.toLowerCase();
-        return fullName.includes(searchTerm.toLowerCase());
-      });
-      setFilteredSisters(filtered);
-    } else {
-      setFilteredSisters(sisters);
-    }
-  }, [searchTerm, sisters, isSearching]);
+  const formatSisterLabel = (sister) =>
+    `${sister.saint_name ? `${sister.saint_name} ` : ""}${
+      sister.birth_name || ""
+    }${sister.code ? ` (${sister.code})` : ""}`;
+
+  const sisterOptions = (sisters || []).map((s) => ({
+    value: s.id,
+    label: formatSisterLabel(s),
+  }));
 
   const fetchSistersList = async () => {
     try {
@@ -150,8 +130,8 @@ const TimelinePage = () => {
     }
   };
 
-  const handleSisterChange = (e) => {
-    const id = e.target.value;
+  const handleSelectSister = (event) => {
+    const id = event?.target?.value;
     setSelectedSisterId(id);
     if (id) {
       fetchSisterData(id);
@@ -159,30 +139,6 @@ const TimelinePage = () => {
       setSister(null);
       setJourneys([]);
     }
-  };
-
-  const handleSelectSister = (s) => {
-    setSelectedSisterId(s.id);
-    setSearchTerm(
-      `${s.saint_name ? s.saint_name + " - " : ""}${s.birth_name} (${s.code})`
-    );
-    setShowDropdown(false);
-    setIsSearching(false);
-    fetchSisterData(s.id);
-  };
-
-  const handleSearchFocus = () => {
-    if (sisters.length > 0) {
-      setFilteredSisters(sisters);
-      setShowDropdown(true);
-      setIsSearching(true);
-    }
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setIsSearching(true);
-    setShowDropdown(true);
   };
 
   const handlePrint = () => {
@@ -251,41 +207,16 @@ const TimelinePage = () => {
               <i className="fas fa-user-circle me-2"></i>
               Chọn Nữ Tu để xem Hành Trình
             </h4>
-            <Form.Group ref={searchRef} className="position-relative">
-              <Form.Control
-                type="text"
-                size="lg"
+            <div className="mb-3">
+              <SearchableSelect
+                name="sister_id"
+                value={selectedSisterId}
+                onChange={handleSelectSister}
+                options={sisterOptions}
                 placeholder="Nhập tên để tìm hoặc click để chọn..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                className="searchable-select"
+                maxDisplayItems={8}
               />
-              <i className="fas fa-chevron-down dropdown-arrow"></i>
-              {showDropdown && (
-                <div className="select-dropdown">
-                  {filteredSisters.length > 0 ? (
-                    filteredSisters.map((s) => (
-                      <div
-                        key={s.id}
-                        className="select-dropdown-item"
-                        onClick={() => handleSelectSister(s)}
-                      >
-                        <i className="fas fa-user me-2"></i>
-                        {s.saint_name ? `${s.saint_name} - ` : ""}
-                        {s.birth_name}
-                        <span className="text-muted ms-2">({s.code})</span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="select-dropdown-item text-muted">
-                      <i className="fas fa-search me-2"></i>
-                      Không tìm thấy nữ tu nào
-                    </div>
-                  )}
-                </div>
-              )}
-            </Form.Group>
+            </div>
             <div className="text-center mt-4">
               <Button
                 variant="secondary"
@@ -521,39 +452,16 @@ const TimelinePage = () => {
             Quay lại
           </Button>
 
-          {!sisterId && (
-            <div
-              ref={searchRef}
-              className="position-relative"
-              style={{ width: "350px" }}
-            >
-              <Form.Control
-                type="text"
-                placeholder="Chọn nữ tu khác..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                className="searchable-select-sm"
-              />
-              <i className="fas fa-chevron-down dropdown-arrow-sm"></i>
-              {showDropdown && filteredSisters.length > 0 && (
-                <div className="select-dropdown select-dropdown-up">
-                  {filteredSisters.slice(0, 8).map((s) => (
-                    <div
-                      key={s.id}
-                      className="select-dropdown-item"
-                      onClick={() => handleSelectSister(s)}
-                    >
-                      <i className="fas fa-user me-2"></i>
-                      {s.saint_name ? `${s.saint_name} - ` : ""}
-                      {s.birth_name}
-                      <span className="text-muted ms-2">({s.code})</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          <div style={{ width: "350px" }}>
+            <SearchableSelect
+              name="sister_id"
+              value={selectedSisterId}
+              onChange={handleSelectSister}
+              options={sisterOptions}
+              placeholder="Chọn nữ tu khác..."
+              maxDisplayItems={8}
+            />
+          </div>
         </div>
       </Container>
     </div>

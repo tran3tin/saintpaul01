@@ -111,13 +111,6 @@ const DepartureListPage = () => {
         ]}
       />
 
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <Button variant="primary" onClick={handleAdd}>
-          <i className="fas fa-plus me-2"></i>
-          Đăng ký Đi vắng
-        </Button>
-      </div>
-
       <Row className="g-3 mb-4">
         <Col xs={6} md={3}>
           <Card className="stat-card">

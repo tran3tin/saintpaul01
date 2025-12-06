@@ -156,6 +156,8 @@ const DepartureFormPage = () => {
       // Prepare payload with documents
       const payload = {
         ...formData,
+        // Backend still validates stage_at_departure; use a safe default
+        stage_at_departure: "temporary_vows",
         documents: documents.length > 0 ? JSON.stringify(documents) : null,
       };
 

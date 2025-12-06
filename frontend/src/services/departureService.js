@@ -19,7 +19,7 @@ const departureService = {
       const response = await api.get(DEPARTURE_ENDPOINTS.LIST, { params });
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       console.error("Error fetching departures:", error);
@@ -38,7 +38,7 @@ const departureService = {
       const response = await api.get(DEPARTURE_ENDPOINTS.DETAIL(id));
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       console.error("Error fetching departure detail:", error);
@@ -58,7 +58,7 @@ const departureService = {
       });
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       console.error("Error fetching sister departures:", error);
@@ -78,7 +78,7 @@ const departureService = {
       const response = await api.post(DEPARTURE_ENDPOINTS.CREATE, data);
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       console.error("Error creating departure:", error);
@@ -96,7 +96,7 @@ const departureService = {
       const response = await api.put(DEPARTURE_ENDPOINTS.UPDATE(id), data);
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       console.error("Error updating departure:", error);
@@ -130,7 +130,7 @@ const departureService = {
       const response = await api.get(DEPARTURE_ENDPOINTS.STATISTICS);
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       console.error("Error fetching departure statistics:", error);

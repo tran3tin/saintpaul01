@@ -237,7 +237,7 @@ const validateDepartureRecordCreate = [
     .isISO8601()
     .withMessage("departure_date must be a valid date"),
   body("stage_at_departure")
-    .optional({ nullable: true })
+    .optional({ nullable: true, checkFalsy: true })
     .isIn([
       "inquiry",
       "postulant",

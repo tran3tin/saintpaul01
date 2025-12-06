@@ -42,6 +42,7 @@ import {
   HealthTimelinePage,
   DepartureListPage,
   DepartureFormPage,
+  DepartureDetailPage,
 } from "@features/suc-khoe";
 
 // Danh Gia (Evaluation)
@@ -191,11 +192,16 @@ const AppRoutes = () => {
 
           {/* Di Vang */}
           <Route path="/di-vang" element={<DepartureListPage />} />
+          <Route path="/di-vang/:id" element={<DepartureDetailPage />} />
           <Route path="/di-vang/create" element={<DepartureFormPage />} />
           <Route path="/di-vang/:id/edit" element={<DepartureFormPage />} />
           <Route
             path="/nu-tu/:sisterId/di-vang"
             element={<DepartureListPage />}
+          />
+          <Route
+            path="/nu-tu/:sisterId/di-vang/:id"
+            element={<DepartureDetailPage />}
           />
           <Route
             path="/nu-tu/:sisterId/di-vang/create"

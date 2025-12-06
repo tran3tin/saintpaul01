@@ -44,15 +44,19 @@ const DepartureCard = ({ departure, onView, onEdit, onDelete }) => {
           </div>
         </div>
 
-        {departure.sister_name && (
-          <h6 className="mb-2">
+        {(departure.saint_name ||
+          departure.birth_name ||
+          departure.sister_code) && (
+          <h6 className="mb-2 d-flex align-items-center flex-wrap gap-2">
             <i className="fas fa-user text-primary me-2"></i>
-            {departure.sister_religious_name && (
-              <span className="text-primary">
-                {departure.sister_religious_name} -{" "}
-              </span>
+            {departure.sister_code && (
+              <span className="text-muted">[{departure.sister_code}]</span>
             )}
-            {departure.sister_name}
+            <span className="d-flex align-items-center flex-wrap gap-1">
+              {[departure.saint_name, departure.birth_name]
+                .filter(Boolean)
+                .join(" ")}
+            </span>
           </h6>
         )}
 

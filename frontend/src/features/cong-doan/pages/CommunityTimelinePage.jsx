@@ -1,12 +1,13 @@
 // src/features/cong-doan/pages/CommunityTimelinePage.jsx
 // Timeline theo cộng đoàn - hiển thị lịch sử bổ nhiệm, thay đổi trong cộng đoàn
 
-import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Form, Button, Modal } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Button, Modal } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { communityService } from "@services";
 import { formatDate } from "@utils";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
+import SearchableSelect from "@components/forms/SearchableSelect";
 import "@components/common/Timeline/Timeline.css";
 
 // Role configurations
@@ -53,6 +54,11 @@ const getRoleConfig = (role) => {
   );
 };
 
+const formatCommunityLabel = (community) =>
+  `${community.name || ""}${
+    community.diocese ? ` (${community.diocese})` : ""
+  }`;
+
 const CommunityTimelinePage = () => {
   const { communityId } = useParams();
   const navigate = useNavigate();
@@ -64,55 +70,37 @@ const CommunityTimelinePage = () => {
     communityId || ""
   );
 
-  // Search states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [filteredCommunities, setFilteredCommunities] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const searchRef = useRef(null);
-
   // Modal for assignment detail
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
 
   useEffect(() => {
-    if (communityId) {
-      setSelectedCommunityId(communityId);
-      fetchCommunityData(communityId);
-    } else {
-      fetchCommunitiesList();
-    }
-  }, [communityId]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setShowDropdown(false);
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        await fetchCommunitiesList(false);
+        if (communityId) {
+          setSelectedCommunityId(communityId);
+          await fetchCommunityData(communityId, false);
+        }
+      } finally {
+        setLoading(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
-  // Filter communities when search term changes
-  useEffect(() => {
-    if (isSearching && searchTerm.trim()) {
-      const filtered = communities.filter((c) => {
-        const searchText = `${c.name} ${c.address || ""} ${
-          c.diocese || ""
-        }`.toLowerCase();
-        return searchText.includes(searchTerm.toLowerCase());
-      });
-      setFilteredCommunities(filtered);
-    } else {
-      setFilteredCommunities(communities);
-    }
-  }, [searchTerm, communities, isSearching]);
+    loadData();
+  }, [communityId]);
 
-  const fetchCommunitiesList = async () => {
+  const communityOptions = (communities || []).map((c) => ({
+    value: c.id,
+    label: formatCommunityLabel(c),
+  }));
+
+  const fetchCommunitiesList = async (withLoading = true) => {
     try {
-      setLoading(true);
+      if (withLoading) {
+        setLoading(true);
+      }
       const res = await communityService.getList({ limit: 1000 });
       console.log("Communities response:", res);
       // API returns { data: [...], meta: {...} }
@@ -128,13 +116,17 @@ const CommunityTimelinePage = () => {
     } catch (error) {
       console.error("Error fetching communities:", error);
     } finally {
-      setLoading(false);
+      if (withLoading) {
+        setLoading(false);
+      }
     }
   };
 
-  const fetchCommunityData = async (id) => {
+  const fetchCommunityData = async (id, withLoading = true) => {
     try {
-      setLoading(true);
+      if (withLoading) {
+        setLoading(true);
+      }
 
       // Get community detail
       const communityRes = await communityService.getDetail(id);
@@ -160,30 +152,21 @@ const CommunityTimelinePage = () => {
     } catch (error) {
       console.error("Error fetching community data:", error);
     } finally {
-      setLoading(false);
+      if (withLoading) {
+        setLoading(false);
+      }
     }
   };
 
-  const handleSelectCommunity = (c) => {
-    setSelectedCommunityId(c.id);
-    setSearchTerm(c.name);
-    setShowDropdown(false);
-    setIsSearching(false);
-    fetchCommunityData(c.id);
-  };
-
-  const handleSearchFocus = () => {
-    if (communities.length > 0) {
-      setFilteredCommunities(communities);
-      setShowDropdown(true);
-      setIsSearching(true);
+  const handleSelectCommunity = (event) => {
+    const id = event?.target?.value;
+    setSelectedCommunityId(id);
+    if (id) {
+      fetchCommunityData(id);
+    } else {
+      setCommunity(null);
+      setAssignments([]);
     }
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setIsSearching(true);
-    setShowDropdown(true);
   };
 
   const handleItemClick = (assignment) => {
@@ -253,42 +236,16 @@ const CommunityTimelinePage = () => {
             <p className="text-center text-muted mb-4">
               Xem lịch sử bổ nhiệm và thay đổi trong cộng đoàn
             </p>
-            <Form.Group ref={searchRef} className="position-relative">
-              <Form.Control
-                type="text"
-                size="lg"
+            <div className="mb-3">
+              <SearchableSelect
+                name="community_id"
+                value={selectedCommunityId}
+                onChange={handleSelectCommunity}
+                options={communityOptions}
                 placeholder="Nhập tên cộng đoàn để tìm hoặc click để chọn..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                className="searchable-select"
+                maxDisplayItems={8}
               />
-              <i className="fas fa-chevron-down dropdown-arrow"></i>
-              {showDropdown && (
-                <div className="select-dropdown">
-                  {filteredCommunities.length > 0 ? (
-                    filteredCommunities.map((c) => (
-                      <div
-                        key={c.id}
-                        className="select-dropdown-item"
-                        onClick={() => handleSelectCommunity(c)}
-                      >
-                        <i className="fas fa-home me-2"></i>
-                        {c.name}
-                        {c.diocese && (
-                          <span className="text-muted ms-2">({c.diocese})</span>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="select-dropdown-item text-muted">
-                      <i className="fas fa-search me-2"></i>
-                      Không tìm thấy cộng đoàn nào
-                    </div>
-                  )}
-                </div>
-              )}
-            </Form.Group>
+            </div>
             <div className="text-center mt-4">
               <Button
                 variant="secondary"
@@ -445,40 +402,16 @@ const CommunityTimelinePage = () => {
             Quay lại
           </Button>
 
-          {!communityId && (
-            <div
-              ref={searchRef}
-              className="position-relative"
-              style={{ width: "350px" }}
-            >
-              <Form.Control
-                type="text"
-                placeholder="Chọn cộng đoàn khác..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                className="searchable-select-sm"
-              />
-              <i className="fas fa-chevron-down dropdown-arrow-sm"></i>
-              {showDropdown && filteredCommunities.length > 0 && (
-                <div className="select-dropdown select-dropdown-up">
-                  {filteredCommunities.slice(0, 8).map((c) => (
-                    <div
-                      key={c.id}
-                      className="select-dropdown-item"
-                      onClick={() => handleSelectCommunity(c)}
-                    >
-                      <i className="fas fa-home me-2"></i>
-                      {c.name}
-                      {c.diocese && (
-                        <span className="text-muted ms-2">({c.diocese})</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          <div style={{ width: "350px" }}>
+            <SearchableSelect
+              name="community_id"
+              value={selectedCommunityId}
+              onChange={handleSelectCommunity}
+              options={communityOptions}
+              placeholder="Chọn cộng đoàn khác..."
+              maxDisplayItems={8}
+            />
+          </div>
         </div>
       </Container>
 

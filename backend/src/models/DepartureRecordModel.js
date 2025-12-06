@@ -94,7 +94,7 @@ class DepartureRecordModel extends BaseModel {
 
     if (search) {
       whereClauses.push(
-        "(s.religious_name LIKE ? OR s.civil_name LIKE ? OR d.destination LIKE ? OR d.reason LIKE ?)"
+        "(s.saint_name LIKE ? OR s.birth_name LIKE ? OR d.destination LIKE ? OR d.reason LIKE ?)"
       );
       const searchPattern = `%${search}%`;
       params.push(searchPattern, searchPattern, searchPattern, searchPattern);
@@ -114,7 +114,7 @@ class DepartureRecordModel extends BaseModel {
 
     const dataSQL = `
       SELECT d.*, 
-             s.religious_name, s.civil_name, s.code as sister_code
+             s.saint_name, s.birth_name, s.code as sister_code
       FROM ${this.tableName} d
       LEFT JOIN sisters s ON d.sister_id = s.id
       ${whereSQL}
@@ -122,7 +122,6 @@ class DepartureRecordModel extends BaseModel {
       LIMIT ? OFFSET ?
     `;
     const items = await this.executeQuery(dataSQL, [...params, limit, offset]);
-
     return { items, total, page, limit };
   }
 }

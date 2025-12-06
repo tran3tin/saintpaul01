@@ -96,8 +96,8 @@ const getDepartureRecordById = async (req, res) => {
         ? {
             id: sister.id,
             code: sister.code,
-            religious_name: sister.religious_name,
-            civil_name: sister.civil_name,
+            saint_name: sister.saint_name,
+            birth_name: sister.birth_name,
           }
         : null,
     });
@@ -141,6 +141,8 @@ const createDepartureRecord = async (req, res) => {
       return;
     }
 
+    console.log("[createDepartureRecord] body:", req.body);
+
     const {
       sister_id: sisterId,
       departure_date: departureDate,
@@ -172,7 +174,12 @@ const createDepartureRecord = async (req, res) => {
     const payload = {
       sister_id: sisterId,
       departure_date: departureDate,
-      stage_at_departure: stageAtDeparture || null,
+      stage_at_departure:
+        stageAtDeparture === undefined ||
+        stageAtDeparture === null ||
+        stageAtDeparture === ""
+          ? null
+          : stageAtDeparture,
       type: type || null,
       expected_return_date: expectedReturnDate || null,
       return_date: returnDate || null,
