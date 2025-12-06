@@ -97,10 +97,26 @@ export const AuthProvider = ({ children }) => {
       return {
         success: false,
         error: response.message || "Đăng nhập thất bại",
+        errors: response.errors || {},
       };
     } catch (error) {
       console.error("❌ Login error:", error);
-      throw error;
+      
+      // Trả về lỗi từ backend nếu có - KHÔNG throw
+      if (error.response?.data) {
+        return {
+          success: false,
+          error: error.response.data.message || "Đăng nhập thất bại",
+          errors: error.response.data.errors || {},
+        };
+      }
+      
+      // Lỗi network hoặc lỗi khác
+      return {
+        success: false,
+        error: error.message || "Không thể kết nối đến server",
+        errors: {},
+      };
     } finally {
       setLoading(false);
     }

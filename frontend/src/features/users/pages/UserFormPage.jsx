@@ -29,6 +29,7 @@ const UserFormPage = () => {
   const [loading, setLoading] = useState(isEditMode);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState([]);
   const [userStatuses, setUserStatuses] = useState([
@@ -44,7 +45,8 @@ const UserFormPage = () => {
     handleBlur,
     setValues,
     setFieldValue,
-    validateForm,
+    setFieldError,
+    setFieldTouched,
   } = useForm({
     username: "",
     password: "",
@@ -113,9 +115,9 @@ const UserFormPage = () => {
   const validate = () => {
     const newErrors = {};
 
-    if (!values.username) {
+    if (!values.username || !values.username.trim()) {
       newErrors.username = "Tên đăng nhập là bắt buộc";
-    } else if (values.username.length < 3) {
+    } else if (values.username.trim().length < 3) {
       newErrors.username = "Tên đăng nhập phải có ít nhất 3 ký tự";
     }
 
@@ -133,11 +135,11 @@ const UserFormPage = () => {
       }
     }
 
-    if (!values.full_name) {
+    if (!values.full_name || !values.full_name.trim()) {
       newErrors.full_name = "Họ tên là bắt buộc";
     }
 
-    if (!values.email) {
+    if (!values.email || !values.email.trim()) {
       newErrors.email = "Email là bắt buộc";
     } else if (!isValidEmail(values.email)) {
       newErrors.email = "Email không hợp lệ";
@@ -157,19 +159,33 @@ const UserFormPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clear previous messages
+    setSuccessMessage("");
+    setError("");
+
     console.log("Form submitted with values:", values);
 
+    // Client-side validation
     const validationErrors = validate();
     console.log("Validation errors:", validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-      validateForm(validationErrors);
+      // Set errors vào state để hiển thị
+      Object.keys(validationErrors).forEach((fieldName) => {
+        setFieldError(fieldName, validationErrors[fieldName]);
+        setFieldTouched(fieldName, true);
+      });
+      
+      // Hiển thị thông báo lỗi chung
+      setError("Vui lòng kiểm tra lại thông tin đã nhập");
+      
+      // Scroll to top để thấy thông báo lỗi
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
     try {
       setSubmitting(true);
-      setError("");
 
       // Prepare data for submission
       const submitData = { ...values };
@@ -198,17 +214,50 @@ const UserFormPage = () => {
       console.log("API response:", response);
 
       if (response.success) {
-        navigate(`/users/${response.data.id}`);
+        setSuccessMessage(
+          isEditMode
+            ? "Cập nhật người dùng thành công!"
+            : "Tạo người dùng thành công!"
+        );
+        
+        // Navigate sau 1 giây để user thấy thông báo
+        setTimeout(() => {
+          navigate(`/users/${response.data.id}`);
+        }, 1000);
       } else {
         setError(response.error || "Có lỗi xảy ra");
       }
     } catch (error) {
       console.error("Error saving user:", error);
-      setError(
-        error.response?.data?.message ||
-          error.message ||
-          "Có lỗi xảy ra khi lưu người dùng"
-      );
+      
+      // Xử lý lỗi từ backend
+      if (error.response) {
+        const { data } = error.response;
+        
+        // Nếu backend trả về field-specific errors
+        if (data.errors) {
+          Object.keys(data.errors).forEach((fieldName) => {
+            setFieldError(fieldName, data.errors[fieldName]);
+            setFieldTouched(fieldName, true);
+          });
+        }
+        
+        // Hiển thị message chung
+        if (data.message) {
+          setError(data.message);
+        } else {
+          setError("Có lỗi xảy ra khi lưu người dùng");
+        }
+      } else if (error.request) {
+        // Request được gửi nhưng không nhận được response
+        setError("Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng!");
+      } else {
+        // Lỗi khác
+        setError(error.message || "Có lỗi xảy ra khi lưu người dùng");
+      }
+      
+      // Scroll to top để thấy thông báo lỗi
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setSubmitting(false);
     }
@@ -246,10 +295,19 @@ const UserFormPage = () => {
         ]}
       />
 
+      {/* Error Message */}
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError("")}>
           <i className="fas fa-exclamation-circle me-2"></i>
           {error}
+        </Alert>
+      )}
+
+      {/* Success Message */}
+      {successMessage && (
+        <Alert variant="success" dismissible onClose={() => setSuccessMessage("")}>
+          <i className="fas fa-check-circle me-2"></i>
+          {successMessage}
         </Alert>
       )}
 

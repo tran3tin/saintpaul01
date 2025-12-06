@@ -54,7 +54,10 @@ api.interceptors.response.use(
 
       switch (status) {
         case 400:
-          toast.error(data.message || "Dữ liệu không hợp lệ");
+          // Skip toast for login validation errors - let UI handle it
+          if (!isAuthLoginRequest) {
+            toast.error(data.message || "Dữ liệu không hợp lệ");
+          }
           break;
 
         case 401:

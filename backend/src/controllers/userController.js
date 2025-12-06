@@ -142,11 +142,51 @@ const createUser = async (req, res) => {
       status,
     } = req.body;
 
-    // Required fields validation
-    if (!username || !password || !email || !role) {
+    // Validation errors object
+    const errors = {};
+
+    // Validate username
+    if (!username || !username.trim()) {
+      errors.username = "Tên đăng nhập là bắt buộc";
+    } else if (username.trim().length < 3) {
+      errors.username = "Tên đăng nhập phải có ít nhất 3 ký tự";
+    }
+
+    // Validate password
+    if (!password) {
+      errors.password = "Mật khẩu là bắt buộc";
+    } else if (password.length < 6) {
+      errors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
+
+    // Validate email
+    if (!email || !email.trim()) {
+      errors.email = "Email là bắt buộc";
+    } else if (!isValidEmail(email)) {
+      errors.email = "Email không hợp lệ";
+    }
+
+    // Validate full_name
+    if (!full_name || !full_name.trim()) {
+      errors.full_name = "Họ tên là bắt buộc";
+    }
+
+    // Validate phone if provided
+    if (phone && !isValidPhone(phone)) {
+      errors.phone = "Số điện thoại không hợp lệ";
+    }
+
+    // Validate role
+    if (!role) {
+      errors.role = "Vai trò là bắt buộc";
+    }
+
+    // If validation errors exist, return them
+    if (Object.keys(errors).length > 0) {
       return res.status(400).json({
         success: false,
-        message: "username, password, email, role are required",
+        errors: errors,
+        message: "Vui lòng kiểm tra lại thông tin",
       });
     }
 
@@ -155,7 +195,21 @@ const createUser = async (req, res) => {
     if (existing) {
       return res.status(409).json({
         success: false,
-        message: "Username already exists",
+        errors: { username: "Tên đăng nhập đã tồn tại" },
+        message: "Tên đăng nhập đã được sử dụng",
+      });
+    }
+
+    // Check if email already exists
+    const existingEmail = await UserModel.executeQuery(
+      "SELECT id FROM users WHERE email = ?",
+      [email]
+    );
+    if (existingEmail.length > 0) {
+      return res.status(409).json({
+        success: false,
+        errors: { email: "Email đã tồn tại" },
+        message: "Email đã được sử dụng",
       });
     }
 
@@ -164,12 +218,12 @@ const createUser = async (req, res) => {
 
     // Create user with all fields
     const userData = {
-      username,
+      username: username.trim(),
       password: hashedPassword,
-      email,
+      email: email.trim(),
       role,
-      full_name: full_name || null,
-      phone: phone || null,
+      full_name: full_name.trim(),
+      phone: phone ? phone.trim() : null,
       avatar: avatar || null,
       is_active: status === "active" ? 1 : 0,
     };
@@ -180,13 +234,14 @@ const createUser = async (req, res) => {
 
     return res.status(201).json({
       success: true,
+      message: "Tạo người dùng thành công",
       data: sanitizeUser(created),
     });
   } catch (error) {
     console.error("createUser error:", error.message);
     return res.status(500).json({
       success: false,
-      message: "Failed to create user",
+      message: "Lỗi server khi tạo người dùng",
     });
   }
 };
@@ -204,23 +259,80 @@ const updateUser = async (req, res) => {
 
     const user = await UserModel.findById(id);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found" 
+      });
     }
 
-    const allowedFields = ["email"];
-    if (req.user.role === "admin") {
-      allowedFields.push("role");
-    }
+    const {
+      email,
+      role,
+      full_name,
+      phone,
+      avatar,
+      status,
+    } = req.body;
 
-    const payload = {};
-    allowedFields.forEach((field) => {
-      if (Object.prototype.hasOwnProperty.call(req.body, field)) {
-        payload[field] = req.body[field];
+    // Validation errors object
+    const errors = {};
+
+    // Validate email if provided
+    if (email !== undefined) {
+      if (!email || !email.trim()) {
+        errors.email = "Email là bắt buộc";
+      } else if (!isValidEmail(email)) {
+        errors.email = "Email không hợp lệ";
+      } else {
+        // Check if email already exists for another user
+        const existingEmail = await UserModel.executeQuery(
+          "SELECT id FROM users WHERE email = ? AND id != ?",
+          [email, id]
+        );
+        if (existingEmail.length > 0) {
+          errors.email = "Email đã tồn tại";
+        }
       }
-    });
+    }
+
+    // Validate full_name if provided
+    if (full_name !== undefined && (!full_name || !full_name.trim())) {
+      errors.full_name = "Họ tên là bắt buộc";
+    }
+
+    // Validate phone if provided
+    if (phone && !isValidPhone(phone)) {
+      errors.phone = "Số điện thoại không hợp lệ";
+    }
+
+    // If validation errors exist, return them
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({
+        success: false,
+        errors: errors,
+        message: "Vui lòng kiểm tra lại thông tin",
+      });
+    }
+
+    // Build update payload
+    const payload = {};
+    
+    if (email !== undefined) payload.email = email.trim();
+    if (full_name !== undefined) payload.full_name = full_name.trim();
+    if (phone !== undefined) payload.phone = phone ? phone.trim() : null;
+    if (avatar !== undefined) payload.avatar = avatar;
+    if (status !== undefined) payload.is_active = status === "active" ? 1 : 0;
+    
+    // Admin can update role
+    if (req.user.role === "admin" && role !== undefined) {
+      payload.role = role;
+    }
 
     if (!Object.keys(payload).length) {
-      return res.status(400).json({ message: "No fields provided for update" });
+      return res.status(400).json({ 
+        success: false,
+        message: "No fields provided for update" 
+      });
     }
 
     const updated = await UserModel.update(id, payload);
@@ -232,10 +344,17 @@ const updateUser = async (req, res) => {
       sanitizeUser(updated)
     );
 
-    return res.status(200).json({ user: sanitizeUser(updated) });
+    return res.status(200).json({ 
+      success: true,
+      message: "Cập nhật người dùng thành công",
+      data: sanitizeUser(updated) 
+    });
   } catch (error) {
     console.error("updateUser error:", error.message);
-    return res.status(500).json({ message: "Failed to update user" });
+    return res.status(500).json({ 
+      success: false,
+      message: "Lỗi server khi cập nhật người dùng" 
+    });
   }
 };
 

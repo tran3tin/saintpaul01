@@ -2,21 +2,96 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Form, Button, Alert, InputGroup } from "react-bootstrap";
+import { Form, Alert, InputGroup } from "react-bootstrap";
 import { useForm } from "@hooks";
 import "./LoginForm.css";
 
-const LoginForm = ({ onSubmit, loading, error, onClearError }) => {
+const LoginForm = ({
+  onSubmit,
+  loading,
+  error,
+  fieldErrors = {},
+  onClearError,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const { values, errors, touched, handleChange, handleBlur, handleSubmit } =
-    useForm({
-      username: "",
-      password: "",
-    });
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    setFieldError,
+    setFieldTouched,
+  } = useForm({
+    username: "",
+    password: "",
+  });
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  // Custom handleChange để clear errors khi user gõ
+  const handleInputChange = (e) => {
+    handleChange(e);
+    
+    // Clear field error khi user bắt đầu gõ
+    const fieldName = e.target.name;
+    if (errors[fieldName]) {
+      setFieldError(fieldName, undefined);
+    }
+    
+    // Clear general error khi user bắt đầu gõ
+    if (onClearError) {
+      onClearError();
+    }
+  };
+
+  // Merge backend errors with local errors
+  React.useEffect(() => {
+    if (fieldErrors && Object.keys(fieldErrors).length > 0) {
+      Object.keys(fieldErrors).forEach((fieldName) => {
+        setFieldError(fieldName, fieldErrors[fieldName]);
+        setFieldTouched(fieldName, true);
+      });
+    }
+  }, [fieldErrors, setFieldError, setFieldTouched]);
+
+  // Client-side validation
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!values.username || !values.username.trim()) {
+      newErrors.username = "Vui lòng nhập tên đăng nhập";
+    }
+
+    if (!values.password) {
+      newErrors.password = "Vui lòng nhập mật khẩu";
+    }
+
+    return newErrors;
+  };
+
+  // Handle form submission with validation
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Validate
+    const validationErrors = validateForm();
+
+    if (Object.keys(validationErrors).length > 0) {
+      // Set errors to display
+      Object.keys(validationErrors).forEach((fieldName) => {
+        setFieldError(fieldName, validationErrors[fieldName]);
+        setFieldTouched(fieldName, true);
+      });
+      return;
+    }
+
+    // Submit if validation passes
+    await onSubmit(values);
   };
 
   return (
@@ -41,7 +116,7 @@ const LoginForm = ({ onSubmit, loading, error, onClearError }) => {
       )}
 
       {/* Login Form */}
-      <Form onSubmit={handleSubmit(onSubmit)}>
+      <Form onSubmit={handleFormSubmit}>
         <Form.Group className="mb-3">
           <Form.Label className="fw-semibold">
             Tên đăng nhập <span className="text-danger">*</span>
@@ -54,15 +129,19 @@ const LoginForm = ({ onSubmit, loading, error, onClearError }) => {
               type="text"
               name="username"
               value={values.username}
-              onChange={handleChange}
+              onChange={handleInputChange}
               onBlur={handleBlur}
               placeholder="Nhập tên đăng nhập"
               disabled={loading}
               isInvalid={touched.username && errors.username}
+              autoComplete="username"
             />
           </InputGroup>
           {touched.username && errors.username && (
-            <Form.Text className="text-danger">{errors.username}</Form.Text>
+            <Form.Control.Feedback type="invalid" className="d-block">
+              <i className="fas fa-exclamation-circle me-1"></i>
+              {errors.username}
+            </Form.Control.Feedback>
           )}
         </Form.Group>
 
@@ -78,11 +157,12 @@ const LoginForm = ({ onSubmit, loading, error, onClearError }) => {
               type={showPassword ? "text" : "password"}
               name="password"
               value={values.password}
-              onChange={handleChange}
+              onChange={handleInputChange}
               onBlur={handleBlur}
               placeholder="Nhập mật khẩu"
               disabled={loading}
               isInvalid={touched.password && errors.password}
+              autoComplete="current-password"
             />
             <InputGroup.Text
               className="password-toggle"
@@ -95,7 +175,10 @@ const LoginForm = ({ onSubmit, loading, error, onClearError }) => {
             </InputGroup.Text>
           </InputGroup>
           {touched.password && errors.password && (
-            <Form.Text className="text-danger">{errors.password}</Form.Text>
+            <Form.Control.Feedback type="invalid" className="d-block">
+              <i className="fas fa-exclamation-circle me-1"></i>
+              {errors.password}
+            </Form.Control.Feedback>
           )}
         </Form.Group>
 
@@ -106,11 +189,16 @@ const LoginForm = ({ onSubmit, loading, error, onClearError }) => {
           </Link>
         </div>
 
-        <Button
+        <button
           type="submit"
-          variant="primary"
-          className="w-100 btn-login"
+          className="btn btn-primary w-100 btn-login"
           disabled={loading}
+          style={{
+            padding: '14px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            borderRadius: '6px'
+          }}
         >
           {loading ? (
             <>
@@ -123,7 +211,7 @@ const LoginForm = ({ onSubmit, loading, error, onClearError }) => {
               Đăng nhập
             </>
           )}
-        </Button>
+        </button>
       </Form>
 
       {/* Footer */}

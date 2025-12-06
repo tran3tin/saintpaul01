@@ -188,6 +188,7 @@ const SearchableSelect = ({
 
       {isInvalid && (
         <Form.Control.Feedback type="invalid" className="d-block">
+          <i className="fas fa-exclamation-circle me-1"></i>
           {error}
         </Form.Control.Feedback>
       )}

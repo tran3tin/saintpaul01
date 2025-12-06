@@ -176,6 +176,20 @@ const useForm = (initialValues = {}, validationSchema = null) => {
     }));
   }, []);
 
+  /**
+   * Set all errors at once
+   */
+  const setAllErrors = useCallback((newErrors) => {
+    setErrors(newErrors);
+  }, []);
+
+  /**
+   * Set all touched at once
+   */
+  const setAllTouched = useCallback((newTouched) => {
+    setTouched(newTouched);
+  }, []);
+
   return {
     values,
     errors,
@@ -184,9 +198,12 @@ const useForm = (initialValues = {}, validationSchema = null) => {
     handleChange,
     handleBlur,
     handleSubmit,
+    setValues,
     setFieldValue,
     setFieldError,
     setFieldTouched,
+    setAllErrors,
+    setAllTouched,
     updateValues,
     resetForm,
     validateField,

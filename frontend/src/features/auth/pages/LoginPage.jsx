@@ -11,53 +11,35 @@ const LoginPage = () => {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleLogin = async (values) => {
-    try {
-      setLoading(true);
-      setError("");
+    setLoading(true);
+    // KHÔNG clear errors ở đây - để LoginForm tự clear khi user gõ
+    
+    console.log('📝 Login attempt with:', values);
 
-      const result = await login(values);
+    const result = await login(values);
+    
+    console.log('📡 Login result:', result);
 
-      if (result.success) {
-        navigate("/dashboard");
+    if (result.success) {
+      console.log('✅ Login successful, navigating to dashboard');
+      navigate("/dashboard");
+    } else {
+      console.log('❌ Login failed:', result);
+      // Xử lý lỗi từ result
+      if (result.errors && Object.keys(result.errors).length > 0) {
+        console.log('Setting field errors:', result.errors);
+        setFieldErrors(result.errors);
       } else {
-        // Kiểm tra nếu là lỗi xác thực sai
-        const errorMsg = result.error || "";
-        if (
-          errorMsg.toLowerCase().includes("invalid") ||
-          errorMsg.toLowerCase().includes("credentials") ||
-          errorMsg.toLowerCase().includes("incorrect") ||
-          errorMsg.toLowerCase().includes("wrong")
-        ) {
-          setError("Sai tên đăng nhập hoặc mật khẩu, vui lòng đăng nhập lại");
-        } else {
-          setError(
-            errorMsg ||
-              "Sai tên đăng nhập hoặc mật khẩu, vui lòng đăng nhập lại"
-          );
-        }
+        // Nếu không có field errors, clear nó
+        setFieldErrors({});
       }
-    } catch (err) {
-      console.error("Login error:", err);
-      // Lấy message lỗi từ backend
-      const errorMessage = err.response?.data?.message || err.message || "";
-
-      // Kiểm tra nếu là lỗi xác thực sai
-      if (
-        errorMessage.toLowerCase().includes("invalid") ||
-        errorMessage.toLowerCase().includes("credentials") ||
-        errorMessage.toLowerCase().includes("incorrect") ||
-        errorMessage.toLowerCase().includes("wrong") ||
-        err.response?.status === 401
-      ) {
-        setError("Sai tên đăng nhập hoặc mật khẩu, vui lòng đăng nhập lại");
-      } else {
-        setError(errorMessage || "Có lỗi xảy ra. Vui lòng thử lại.");
-      }
-    } finally {
-      setLoading(false);
+      setError(result.error || "Đăng nhập thất bại. Vui lòng thử lại.");
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -66,7 +48,11 @@ const LoginPage = () => {
         onSubmit={handleLogin}
         loading={loading}
         error={error}
-        onClearError={() => setError("")}
+        fieldErrors={fieldErrors}
+        onClearError={() => {
+          setError(""); // Chỉ clear general error
+          // KHÔNG clear fieldErrors - để LoginForm tự quản lý
+        }}
       />
     </div>
   );

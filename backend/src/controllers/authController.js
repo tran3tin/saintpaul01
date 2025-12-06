@@ -76,19 +76,57 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    const user = await UserModel.findByUsername(username);
 
-    if (!user || !user.is_active) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
+    // Validation errors object
+    const errors = {};
+
+    // Validate username
+    if (!username || !username.trim()) {
+      errors.username = "Vui lòng nhập tên đăng nhập";
+    }
+
+    // Validate password
+    if (!password) {
+      errors.password = "Vui lòng nhập mật khẩu";
+    }
+
+    // If validation errors exist, return them
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({
+        success: false,
+        errors: errors,
+        message: "Vui lòng kiểm tra lại thông tin đăng nhập",
+      });
+    }
+
+    const user = await UserModel.findByUsername(username.trim());
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        errors: {
+          username: "Tên đăng nhập không tồn tại",
+        },
+        message: "Tên đăng nhập không tồn tại",
+      });
+    }
+
+    if (!user.is_active) {
+      return res.status(401).json({
+        success: false,
+        message: "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.",
+      });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
+      return res.status(401).json({
+        success: false,
+        errors: {
+          password: "Mật khẩu không đúng",
+        },
+        message: "Mật khẩu không đúng",
+      });
     }
 
     const token = buildToken(user);
