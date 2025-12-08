@@ -161,7 +161,9 @@ const SisterListPage = () => {
   const filteredSisters = useMemo(() => {
     return (sisters || []).filter((s) => {
       const matchesSearch = searchTerm
-        ? (s.birth_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ? (s.birth_name || "")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
           (s.saint_name || "").toLowerCase().includes(searchTerm.toLowerCase())
         : true;
       const matchesStage = stageFilter ? s.current_stage === stageFilter : true;
@@ -180,15 +182,26 @@ const SisterListPage = () => {
       const dir = sortOrder === "asc" ? 1 : -1;
       switch (sortBy) {
         case "saint_name":
-          return dir * ((a.saint_name || "").localeCompare(b.saint_name || ""));
+          return dir * (a.saint_name || "").localeCompare(b.saint_name || "");
         case "birth_name":
-          return dir * ((a.birth_name || "").localeCompare(b.birth_name || ""));
+          return dir * (a.birth_name || "").localeCompare(b.birth_name || "");
         case "age":
-          return dir * ((calculateAge(a.date_of_birth) || 0) - (calculateAge(b.date_of_birth) || 0));
+          return (
+            dir *
+            ((calculateAge(a.date_of_birth) || 0) -
+              (calculateAge(b.date_of_birth) || 0))
+          );
         case "stage":
-          return dir * ((a.current_stage || "").localeCompare(b.current_stage || ""));
+          return (
+            dir * (a.current_stage || "").localeCompare(b.current_stage || "")
+          );
         case "community":
-          return dir * ((a.current_community_name || "").localeCompare(b.current_community_name || ""));
+          return (
+            dir *
+            (a.current_community_name || "").localeCompare(
+              b.current_community_name || ""
+            )
+          );
         default:
           return 0;
       }
@@ -348,9 +361,7 @@ const SisterListPage = () => {
             <option value="">Tất cả cộng đoàn</option>
             {Array.from(
               new Set(
-                sisters
-                  .map((s) => s.current_community_name)
-                  .filter(Boolean)
+                sisters.map((s) => s.current_community_name).filter(Boolean)
               )
             ).map((c) => (
               <option key={c} value={c}>
@@ -400,38 +411,26 @@ const SisterListPage = () => {
             <Table responsive hover className="mb-0">
               <thead
                 className="bg-light"
-                style={{ borderTopLeftRadius: "12px", borderTopRightRadius: "12px" }}
+                style={{
+                  borderTopLeftRadius: "12px",
+                  borderTopRightRadius: "12px",
+                }}
               >
                 <tr>
                   <th>#</th>
-                  <th
-                    role="button"
-                    onClick={() => handleSort("saint_name")}
-                  >
+                  <th role="button" onClick={() => handleSort("saint_name")}>
                     Tên Thánh {renderSortIcon("saint_name")}
                   </th>
-                  <th
-                    role="button"
-                    onClick={() => handleSort("birth_name")}
-                  >
+                  <th role="button" onClick={() => handleSort("birth_name")}>
                     Họ và Tên {renderSortIcon("birth_name")}
                   </th>
-                  <th
-                    role="button"
-                    onClick={() => handleSort("age")}
-                  >
+                  <th role="button" onClick={() => handleSort("age")}>
                     Tuổi {renderSortIcon("age")}
                   </th>
-                  <th
-                    role="button"
-                    onClick={() => handleSort("stage")}
-                  >
+                  <th role="button" onClick={() => handleSort("stage")}>
                     Giai đoạn {renderSortIcon("stage")}
                   </th>
-                  <th
-                    role="button"
-                    onClick={() => handleSort("community")}
-                  >
+                  <th role="button" onClick={() => handleSort("community")}>
                     Cộng đoàn {renderSortIcon("community")}
                   </th>
                   <th className="text-center">Thao tác</th>
@@ -495,8 +494,8 @@ const SisterListPage = () => {
         <div className="d-flex justify-content-between align-items-center mt-4">
           <div className="text-muted">
             Hiển thị {(pagination.page - 1) * pagination.limit + 1} -{" "}
-            {Math.min(pagination.page * pagination.limit, sortedSisters.length)} /{" "}
-            {sortedSisters.length} nữ tu
+            {Math.min(pagination.page * pagination.limit, sortedSisters.length)}{" "}
+            / {sortedSisters.length} nữ tu
           </div>
           {renderPagination()}
         </div>
