@@ -33,12 +33,18 @@ const useTable = (options = {}) => {
    * Handle sort
    */
   const handleSort = useCallback(
-    (column) => {
-      if (sortBy === column) {
-        setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-      } else {
+    (column, order) => {
+      // Support both signatures: handleSort(column) and handleSort(column, order)
+      if (order) {
         setSortBy(column);
-        setSortOrder("asc");
+        setSortOrder(order);
+      } else {
+        if (sortBy === column) {
+          setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+        } else {
+          setSortBy(column);
+          setSortOrder("asc");
+        }
       }
     },
     [sortBy]

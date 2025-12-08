@@ -125,6 +125,14 @@ const VocationJourneyListPage = () => {
 
   const columns = [
     {
+      key: "stt",
+      label: "#",
+      width: "60px",
+      render: (row, rowIndex) => {
+        return (table.currentPage - 1) * table.pageSize + rowIndex + 1;
+      },
+    },
+    {
       key: "sister_name",
       label: "Nữ Tu",
       sortable: true,
@@ -173,11 +181,13 @@ const VocationJourneyListPage = () => {
     {
       key: "superior",
       label: "Bề trên",
+      sortable: true,
       render: (row) => row.superior || "-",
     },
     {
       key: "duration",
       label: "Thời gian",
+      sortable: false,
       render: (row) => {
         if (!row.end_date) return "Đang diễn ra";
         const start = new Date(row.start_date);
@@ -299,7 +309,7 @@ const VocationJourneyListPage = () => {
 
       {/* Search & Filter */}
       <Row className="g-3 mb-4">
-        <Col md={6}>
+        <Col md={5}>
           <Form.Control
             type="text"
             placeholder="Tìm kiếm theo tên nữ tu, địa điểm..."
@@ -307,7 +317,7 @@ const VocationJourneyListPage = () => {
             onChange={(e) => table.handleSearch(e.target.value)}
           />
         </Col>
-        <Col md={4}>
+        <Col md={3}>
           <Form.Select
             value={stageFilter}
             onChange={(e) => setStageFilter(e.target.value)}
@@ -318,6 +328,17 @@ const VocationJourneyListPage = () => {
                 {stage.name}
               </option>
             ))}
+          </Form.Select>
+        </Col>
+        <Col md={2}>
+          <Form.Select
+            value={table.pageSize}
+            onChange={(e) => table.changePageSize(Number(e.target.value))}
+          >
+            <option value={10}>10 dòng</option>
+            <option value={20}>20 dòng</option>
+            <option value={50}>50 dòng</option>
+            <option value={100}>100 dòng</option>
           </Form.Select>
         </Col>
         <Col md={2}>
@@ -346,19 +367,12 @@ const VocationJourneyListPage = () => {
             <DataTable
               columns={columns}
               data={journeys}
-              onRowClick={handleRowClick}
-              pagination={{
-                currentPage: table.currentPage,
-                totalPages: table.totalPages,
-                pageSize: table.pageSize,
-                onPageChange: table.goToPage,
-                onPageSizeChange: table.changePageSize,
-              }}
-              sorting={{
-                sortBy: table.sortBy,
-                sortOrder: table.sortOrder,
-                onSort: table.handleSort,
-              }}
+              currentPage={table.currentPage}
+              totalPages={table.totalPages}
+              onPageChange={table.goToPage}
+              sortBy={table.sortBy}
+              sortOrder={table.sortOrder}
+              onSort={table.handleSort}
               emptyMessage="Không có dữ liệu hành trình"
             />
           </Card.Body>

@@ -85,6 +85,27 @@ const getAllJourneys = async (req, res) => {
       params.push(searchTerm, searchTerm, searchTerm, searchTerm);
     }
 
+    // Build ORDER BY clause
+    let orderByClause = "vj.start_date DESC"; // default
+    const sortBy = req.query.sortBy;
+    const sortOrder = req.query.sortOrder === "desc" ? "DESC" : "ASC";
+
+    if (sortBy) {
+      // Map frontend column keys to database columns
+      const sortMapping = {
+        sister_name: "s.saint_name",
+        stage: "vj.stage",
+        start_date: "vj.start_date",
+        end_date: "vj.end_date",
+        location: "vj.location",
+        superior: "vj.superior",
+      };
+
+      if (sortMapping[sortBy]) {
+        orderByClause = `${sortMapping[sortBy]} ${sortOrder}`;
+      }
+    }
+
     // Check if journey_stages table exists first (for count query)
     let hasJourneyStagesTable = false;
     try {
@@ -122,7 +143,7 @@ const getAllJourneys = async (req, res) => {
         LEFT JOIN sisters s ON vj.sister_id = s.id
         LEFT JOIN journey_stages js ON vj.stage COLLATE utf8mb4_unicode_ci = js.code COLLATE utf8mb4_unicode_ci
         WHERE ${whereClause}
-        ORDER BY vj.start_date DESC
+        ORDER BY ${orderByClause}
         LIMIT ? OFFSET ?
       `;
     } else {
@@ -136,10 +157,11 @@ const getAllJourneys = async (req, res) => {
         FROM vocation_journey vj
         LEFT JOIN sisters s ON vj.sister_id = s.id
         WHERE ${whereClause}
-        ORDER BY vj.start_date DESC
+        ORDER BY ${orderByClause}
         LIMIT ? OFFSET ?
       `;
     }
+
     params.push(limit, offset);
     const data = await VocationJourneyModel.executeQuery(sql, params);
 

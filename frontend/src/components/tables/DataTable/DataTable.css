@@ -36,12 +36,6 @@
 .datatable-header th.sortable {
   cursor: pointer;
   user-select: none;
-  transition: all 0.3s ease;
-}
-
-.datatable-header th.sortable:hover {
-  background-color: rgba(102, 126, 234, 0.1);
-  color: #667eea;
 }
 
 .datatable-header-content {
@@ -63,7 +57,7 @@
 
 /* Body */
 .datatable-body tr {
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
   border-bottom: 1px solid #e9ecef;
 }
 
@@ -75,10 +69,12 @@
   background-color: rgba(102, 126, 234, 0.1);
 }
 
-.datatable-body tr.hovered {
+.datatable-body tr.clickable {
+  cursor: pointer;
+}
+
+.datatable-body tr.clickable:hover {
   background-color: #f8f9fa;
-  transform: scale(1.01);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .datatable-body td {

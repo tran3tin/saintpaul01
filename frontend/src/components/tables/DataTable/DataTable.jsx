@@ -170,13 +170,9 @@ const DataTable = ({
                 className={`
                   datatable-row
                   ${isRowSelected(row, rowIndex) ? "selected" : ""}
-                  ${hoveredRow === rowIndex ? "hovered" : ""}
                   ${onRowClick ? "clickable" : ""}
                 `}
-                onMouseEnter={() => setHoveredRow(rowIndex)}
-                onMouseLeave={() => setHoveredRow(null)}
                 onClick={() => onRowClick && onRowClick(row, rowIndex)}
-                style={onRowClick ? { cursor: "pointer" } : {}}
               >
                 {selectable && (
                   <td
