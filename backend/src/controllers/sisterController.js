@@ -103,7 +103,7 @@ const buildFilters = ({
   }
 
   if (search) {
-    clauses.push("(birth_name LIKE ? OR religious_name LIKE ? OR code LIKE ?)");
+    clauses.push("(birth_name LIKE ? OR saint_name LIKE ? OR code LIKE ?)");
     params.push(`%${search}%`, `%${search}%`, `%${search}%`);
   }
 
@@ -152,7 +152,7 @@ const getAllSisters = async (req, res) => {
       return clause
         .replace(/\bstatus\b/g, "s.status")
         .replace(/\bbirth_name\b/g, "s.birth_name")
-        .replace(/\breligious_name\b/g, "s.religious_name")
+        .replace(/\bsaint_name\b/g, "s.saint_name")
         .replace(/\bcode\b/g, "s.code")
         .replace(/\bdate_of_birth\b/g, "s.date_of_birth");
     });

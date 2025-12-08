@@ -1,18 +1,15 @@
 // src/features/nu-tu/pages/SisterListPage.jsx
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Container,
   Row,
   Col,
   Button,
-  ButtonGroup,
   Card,
   Table,
   Badge,
   Form,
-  InputGroup,
-  Pagination,
   Alert,
   Spinner,
 } from "react-bootstrap";
@@ -21,7 +18,6 @@ import { toast } from "react-toastify";
 import sisterService from "@services/sisterService";
 import Breadcrumb from "@components/common/Breadcrumb/Breadcrumb";
 import StatsCards from "@components/common/StatsCards";
-import SearchFilterBar from "@components/common/SearchFilterBar";
 
 // Stage labels mapping (từ database ENUM)
 const stageLabels = {
@@ -39,8 +35,11 @@ const SisterListPage = () => {
   const [loading, setLoading] = useState(true);
   const [sisters, setSisters] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [viewMode, setViewMode] = useState("table");
   const [error, setError] = useState(null);
+  const [stageFilter, setStageFilter] = useState("");
+  const [communityFilter, setCommunityFilter] = useState("");
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
 
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -158,6 +157,64 @@ const SisterListPage = () => {
     return null;
   };
 
+  // Derived filters and sorting
+  const filteredSisters = useMemo(() => {
+    return (sisters || []).filter((s) => {
+      const matchesSearch = searchTerm
+        ? (s.birth_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (s.saint_name || "").toLowerCase().includes(searchTerm.toLowerCase())
+        : true;
+      const matchesStage = stageFilter ? s.current_stage === stageFilter : true;
+      const matchesCommunity = communityFilter
+        ? s.current_community_name === communityFilter
+        : true;
+      return matchesSearch && matchesStage && matchesCommunity;
+    });
+  }, [sisters, searchTerm, stageFilter, communityFilter]);
+
+  const sortedSisters = useMemo(() => {
+    const arr = [...filteredSisters];
+    if (!sortBy) return arr;
+
+    const compare = (a, b) => {
+      const dir = sortOrder === "asc" ? 1 : -1;
+      switch (sortBy) {
+        case "saint_name":
+          return dir * ((a.saint_name || "").localeCompare(b.saint_name || ""));
+        case "birth_name":
+          return dir * ((a.birth_name || "").localeCompare(b.birth_name || ""));
+        case "age":
+          return dir * ((calculateAge(a.date_of_birth) || 0) - (calculateAge(b.date_of_birth) || 0));
+        case "stage":
+          return dir * ((a.current_stage || "").localeCompare(b.current_stage || ""));
+        case "community":
+          return dir * ((a.current_community_name || "").localeCompare(b.current_community_name || ""));
+        default:
+          return 0;
+      }
+    };
+
+    return arr.sort(compare);
+  }, [filteredSisters, sortBy, sortOrder]);
+
+  const handleSort = (key) => {
+    if (sortBy === key) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(key);
+      setSortOrder("asc");
+    }
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortBy !== key) return <i className="fas fa-sort text-muted ms-1"></i>;
+    return sortOrder === "asc" ? (
+      <i className="fas fa-sort-up ms-1"></i>
+    ) : (
+      <i className="fas fa-sort-down ms-1"></i>
+    );
+  };
+
   // Render pagination
   const renderPagination = () => {
     if (pagination.totalPages <= 1) return null;
@@ -260,38 +317,49 @@ const SisterListPage = () => {
         ]}
       />
 
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <Button variant="primary" onClick={handleCreate}>
-          <i className="fas fa-plus me-2"></i>
-          Thêm Nữ Tu
-        </Button>
-      </div>
-
-      {/* Search & View Toggle */}
-      <SearchFilterBar
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder="Tìm kiếm theo tên, tên thánh..."
-        onReset={() => setSearchTerm("")}
-      >
-        <Col md={4}>
-          <ButtonGroup className="w-100">
-            <Button
-              variant={viewMode === "table" ? "primary" : "outline-secondary"}
-              onClick={() => setViewMode("table")}
-            >
-              <i className="fas fa-table me-1"></i> Bảng
-            </Button>
-            <Button
-              variant={viewMode === "grid" ? "primary" : "outline-secondary"}
-              onClick={() => setViewMode("grid")}
-            >
-              <i className="fas fa-th me-1"></i> Lưới
-            </Button>
-          </ButtonGroup>
+      {/* Search & Filter */}
+      <Row className="g-3 mb-4">
+        <Col md={6}>
+          <Form.Control
+            type="text"
+            placeholder="Tìm kiếm theo tên, tên thánh..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </Col>
-      </SearchFilterBar>
+        <Col md={3}>
+          <Form.Select
+            value={stageFilter}
+            onChange={(e) => setStageFilter(e.target.value)}
+          >
+            <option value="">Tất cả giai đoạn</option>
+            {Object.entries(stageLabels).map(([key, value]) => (
+              <option key={key} value={key}>
+                {value.label}
+              </option>
+            ))}
+          </Form.Select>
+        </Col>
+        <Col md={3}>
+          <Form.Select
+            value={communityFilter}
+            onChange={(e) => setCommunityFilter(e.target.value)}
+          >
+            <option value="">Tất cả cộng đoàn</option>
+            {Array.from(
+              new Set(
+                sisters
+                  .map((s) => s.current_community_name)
+                  .filter(Boolean)
+              )
+            ).map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </Form.Select>
+        </Col>
+      </Row>
 
       {/* Content */}
       {loading ? (
@@ -326,23 +394,51 @@ const SisterListPage = () => {
             </Button>
           )}
         </Alert>
-      ) : viewMode === "table" ? (
-        <Card>
+      ) : (
+        <Card className="shadow-sm" style={{ borderRadius: "12px" }}>
           <Card.Body className="p-0">
             <Table responsive hover className="mb-0">
-              <thead className="bg-light">
+              <thead
+                className="bg-light"
+                style={{ borderTopLeftRadius: "12px", borderTopRightRadius: "12px" }}
+              >
                 <tr>
                   <th>#</th>
-                  <th>Tên Thánh</th>
-                  <th>Họ và Tên</th>
-                  <th>Tuổi</th>
-                  <th>Giai đoạn</th>
-                  <th>Cộng đoàn</th>
+                  <th
+                    role="button"
+                    onClick={() => handleSort("saint_name")}
+                  >
+                    Tên Thánh {renderSortIcon("saint_name")}
+                  </th>
+                  <th
+                    role="button"
+                    onClick={() => handleSort("birth_name")}
+                  >
+                    Họ và Tên {renderSortIcon("birth_name")}
+                  </th>
+                  <th
+                    role="button"
+                    onClick={() => handleSort("age")}
+                  >
+                    Tuổi {renderSortIcon("age")}
+                  </th>
+                  <th
+                    role="button"
+                    onClick={() => handleSort("stage")}
+                  >
+                    Giai đoạn {renderSortIcon("stage")}
+                  </th>
+                  <th
+                    role="button"
+                    onClick={() => handleSort("community")}
+                  >
+                    Cộng đoàn {renderSortIcon("community")}
+                  </th>
                   <th className="text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {sisters.map((sister, index) => (
+                {sortedSisters.map((sister, index) => (
                   <tr key={`${sister.id}-${index}`}>
                     <td>
                       {(pagination.page - 1) * pagination.limit + index + 1}
@@ -392,100 +488,15 @@ const SisterListPage = () => {
             </Table>
           </Card.Body>
         </Card>
-      ) : (
-        <Row className="g-4">
-          {sisters.map((sister, index) => (
-            <Col key={`${sister.id}-${index}`} xs={12} sm={6} lg={4} xl={3}>
-              <Card className="h-100 shadow-sm">
-                <Card.Body className="text-center">
-                  {getPhotoUrl(sister) ? (
-                    <img
-                      src={getPhotoUrl(sister)}
-                      alt={sister.religious_name || sister.birth_name}
-                      className="rounded-circle mx-auto mb-3"
-                      style={{
-                        width: 80,
-                        height: 80,
-                        objectFit: "cover",
-                      }}
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.nextSibling.style.display = "flex";
-                      }}
-                    />
-                  ) : null}
-                  <div
-                    className="avatar-circle bg-primary text-white mx-auto mb-3"
-                    style={{
-                      width: 80,
-                      height: 80,
-                      borderRadius: "50%",
-                      display: getPhotoUrl(sister) ? "none" : "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "2rem",
-                    }}
-                  >
-                    {(sister.religious_name || sister.birth_name || "?")
-                      .charAt(0)
-                      .toUpperCase()}
-                  </div>
-                  <h5 className="mb-1">{sister.religious_name || "—"}</h5>
-                  <p className="text-muted mb-2">{sister.birth_name}</p>
-                  <Badge
-                    bg={getStageInfo(sister.current_stage).color}
-                    className="mb-2"
-                  >
-                    {getStageInfo(sister.current_stage).label}
-                  </Badge>
-                  <br />
-                  <Badge
-                    bg={sister.status === "active" ? "success" : "secondary"}
-                  >
-                    {sister.status === "active" ? "Đang hoạt động" : "Đã rời"}
-                  </Badge>
-                  <p className="small text-muted mt-2 mb-0">
-                    Mã: {sister.code || "N/A"}
-                  </p>
-                </Card.Body>
-                <Card.Footer className="bg-white text-center">
-                  <Button
-                    variant="outline-info"
-                    size="sm"
-                    className="me-1"
-                    onClick={() => handleView(sister)}
-                  >
-                    <i className="fas fa-eye"></i>
-                  </Button>
-                  <Button
-                    variant="outline-primary"
-                    size="sm"
-                    className="me-1"
-                    onClick={() => handleEdit(sister)}
-                  >
-                    <i className="fas fa-edit"></i>
-                  </Button>
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => handleDelete(sister)}
-                  >
-                    <i className="fas fa-trash"></i>
-                  </Button>
-                </Card.Footer>
-              </Card>
-            </Col>
-          ))}
-        </Row>
       )}
 
       {/* Pagination & Summary */}
-      {!loading && !error && sisters.length > 0 && (
+      {!loading && !error && sortedSisters.length > 0 && (
         <div className="d-flex justify-content-between align-items-center mt-4">
           <div className="text-muted">
             Hiển thị {(pagination.page - 1) * pagination.limit + 1} -{" "}
-            {Math.min(pagination.page * pagination.limit, pagination.total)} /{" "}
-            {pagination.total} nữ tu
+            {Math.min(pagination.page * pagination.limit, sortedSisters.length)} /{" "}
+            {sortedSisters.length} nữ tu
           </div>
           {renderPagination()}
         </div>
