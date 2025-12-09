@@ -15,6 +15,7 @@ import { communityService } from "@services";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
 import Breadcrumb from "@components/common/Breadcrumb";
 import DatePicker from "@components/forms/DatePicker";
+import "./CommunityDetailPage.css";
 
 const CommunityFormPage = () => {
   const { id } = useParams();
@@ -218,12 +219,10 @@ const CommunityFormPage = () => {
         </Alert>
       )}
 
-      <Card>
-        <Card.Header className="bg-white border-bottom">
-          <h5 className="mb-0">
-            <i className="fas fa-building me-2 text-primary"></i>
-            Thông tin Cộng Đoàn
-          </h5>
+      <Card className="health-info-card">
+        <Card.Header>
+          <i className="fas fa-building"></i>
+          <span>Thông tin Cộng Đoàn</span>
         </Card.Header>
         <Card.Body>
           <Form onSubmit={handleSubmit}>

@@ -118,12 +118,10 @@ const VocationJourneyDetailPage = () => {
       <Row className="g-4">
         {/* Left Column - Main Info */}
         <Col lg={8}>
-          <Card className="journey-detail-card mb-4">
-            <Card.Header className="bg-white border-bottom">
-              <h5 className="mb-0">
-                <i className="fas fa-info-circle me-2"></i>
-                Thông tin giai đoạn
-              </h5>
+          <Card className="health-info-card mb-4">
+            <Card.Header>
+              <i className="fas fa-info-circle"></i>
+              <span>Thông tin giai đoạn</span>
             </Card.Header>
             <Card.Body>
               <Row className="g-4">
@@ -226,12 +224,10 @@ const VocationJourneyDetailPage = () => {
 
           {/* Documents */}
           {journey.documents && journey.documents.length > 0 && (
-            <Card className="journey-detail-card">
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-file-alt me-2"></i>
-                  Tài liệu đính kèm ({journey.documents.length})
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header className="documents-header">
+                <i className="fas fa-file-alt"></i>
+                <span>Tài liệu đính kèm ({journey.documents.length})</span>
               </Card.Header>
               <Card.Body>
                 <ListGroup variant="flush">
@@ -278,12 +274,10 @@ const VocationJourneyDetailPage = () => {
 
         {/* Right Column - Sister Info */}
         <Col lg={4}>
-          <Card className="journey-detail-card">
-            <Card.Header className="bg-white border-bottom">
-              <h5 className="mb-0">
-                <i className="fas fa-user me-2"></i>
-                Thông tin Nữ Tu
-              </h5>
+          <Card className="health-info-card">
+            <Card.Header>
+              <i className="fas fa-user"></i>
+              <span>Thông tin Nữ Tu</span>
             </Card.Header>
             <Card.Body>
               <div className="text-center mb-3">
@@ -358,12 +352,10 @@ const VocationJourneyDetailPage = () => {
           </Card>
 
           {/* Timeline History */}
-          <Card className="journey-detail-card mt-4">
-            <Card.Header className="bg-white border-bottom">
-              <h5 className="mb-0">
-                <i className="fas fa-history me-2"></i>
-                Lịch sử cập nhật
-              </h5>
+          <Card className="health-info-card mt-4">
+            <Card.Header className="system-header">
+              <i className="fas fa-history"></i>
+              <span>Lịch sử cập nhật</span>
             </Card.Header>
             <Card.Body>
               <div className="history-list">

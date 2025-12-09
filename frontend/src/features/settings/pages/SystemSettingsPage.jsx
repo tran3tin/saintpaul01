@@ -175,10 +175,10 @@ const SystemSettingsPage = () => {
         <Row>
           <Col lg={6}>
             {/* Email Settings */}
-            <Card className="mb-4">
+            <Card className="health-info-card">
               <Card.Header>
                 <FaEnvelope className="me-2" />
-                Cấu hình Email (SMTP)
+                <span>Cấu hình Email (SMTP)</span>
               </Card.Header>
               <Card.Body>
                 <Row>
@@ -286,8 +286,11 @@ const SystemSettingsPage = () => {
             </Card>
 
             {/* Cache Settings */}
-            <Card className="mb-4">
-              <Card.Header>Cache</Card.Header>
+            <Card className="health-info-card">
+              <Card.Header className="system-header">
+                <FaTrash className="me-2" />
+                <span>Cache</span>
+              </Card.Header>
               <Card.Body>
                 <Form.Check
                   type="switch"
@@ -333,10 +336,10 @@ const SystemSettingsPage = () => {
 
           <Col lg={6}>
             {/* Security Settings */}
-            <Card className="mb-4">
-              <Card.Header>
+            <Card className="health-info-card">
+              <Card.Header className="documents-header">
                 <FaShieldAlt className="me-2" />
-                Bảo mật
+                <span>Bảo mật</span>
               </Card.Header>
               <Card.Body>
                 <Form.Group className="mb-3">

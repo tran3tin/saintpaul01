@@ -20,6 +20,7 @@ import FileUpload from "@components/forms/FileUpload/FileUpload";
 import { isValidEmail, isValidPhone } from "@utils/validators";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
 import Breadcrumb from "@components/common/Breadcrumb";
+import "./UserDetailPage.css";
 
 const UserFormPage = () => {
   const { id } = useParams();
@@ -321,12 +322,10 @@ const UserFormPage = () => {
         <Row className="g-4">
           <Col lg={8}>
             {/* Account Info */}
-            <Card className="mb-4">
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-user-circle me-2"></i>
-                  Thông tin tài khoản
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header>
+                <i className="fas fa-user-circle"></i>
+                <span>Thông tin tài khoản</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -413,12 +412,10 @@ const UserFormPage = () => {
             </Card>
 
             {/* Personal Info */}
-            <Card>
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-id-card me-2"></i>
-                  Thông tin cá nhân
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header className="documents-header">
+                <i className="fas fa-id-card"></i>
+                <span>Thông tin cá nhân</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -502,12 +499,13 @@ const UserFormPage = () => {
 
           <Col lg={4}>
             {/* Actions */}
-            <Card className="sticky-top" style={{ top: "20px" }}>
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-cog me-2"></i>
-                  Thao tác
-                </h5>
+            <Card
+              className="health-info-card sticky-top"
+              style={{ top: "20px" }}
+            >
+              <Card.Header className="system-header">
+                <i className="fas fa-cog"></i>
+                <span>Thao tác</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">

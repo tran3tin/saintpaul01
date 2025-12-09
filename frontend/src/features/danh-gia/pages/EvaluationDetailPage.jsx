@@ -162,17 +162,10 @@ const EvaluationDetailPage = () => {
         <Row className="g-4">
           <Col lg={8}>
             {/* Basic Info */}
-            <Card className="evaluation-info-card">
-              <Card.Header className="evaluation-header">
-                <h5>
-                  <i className="fas fa-clipboard-check me-2 text-accent"></i>
-                  {typeLabels[evaluationType] || "Đánh giá"}
-                </h5>
-                {evaluation.sister_name && (
-                  <small className="evaluation-subtitle">
-                    {evaluation.sister_name}
-                  </small>
-                )}
+            <Card className="health-info-card">
+              <Card.Header>
+                <i className="fas fa-clipboard-check"></i>
+                <span>{typeLabels[evaluationType] || "Đánh giá"}</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -206,12 +199,10 @@ const EvaluationDetailPage = () => {
 
             {/* Overall Rating */}
             {evaluation.overall_rating && (
-              <Card className="evaluation-info-card">
-                <Card.Header className="evaluation-header">
-                  <h5>
-                    <i className="fas fa-star me-2 text-accent"></i>
-                    Tổng điểm
-                  </h5>
+              <Card className="health-info-card">
+                <Card.Header>
+                  <i className="fas fa-star"></i>
+                  <span>Tổng điểm</span>
                 </Card.Header>
                 <Card.Body>
                   <div className="evaluation-rating-display">
@@ -232,12 +223,10 @@ const EvaluationDetailPage = () => {
             )}
 
             {/* Category Ratings */}
-            <Card className="evaluation-info-card">
-              <Card.Header className="evaluation-header">
-                <h5>
-                  <i className="fas fa-chart-bar me-2 text-accent"></i>
-                  Điểm theo tiêu chí
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header>
+                <i className="fas fa-chart-bar"></i>
+                <span>Điểm theo tiêu chí</span>
               </Card.Header>
               <Card.Body>
                 {categories.map(
@@ -267,12 +256,10 @@ const EvaluationDetailPage = () => {
             </Card>
 
             {/* Comments */}
-            <Card className="evaluation-info-card">
-              <Card.Header className="evaluation-header">
-                <h5>
-                  <i className="fas fa-comment-alt me-2 text-accent"></i>
-                  Nhận xét
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header className="diagnosis-header">
+                <i className="fas fa-comment-alt"></i>
+                <span>Nhận xét</span>
               </Card.Header>
               <Card.Body>
                 {evaluation.strengths && (
@@ -334,12 +321,10 @@ const EvaluationDetailPage = () => {
 
             {/* Documents */}
             {evaluation.documents && (
-              <Card className="evaluation-info-card">
-                <Card.Header className="evaluation-header subtle">
-                  <h6>
-                    <i className="fas fa-paperclip me-2 text-accent"></i>
-                    Tài liệu đính kèm
-                  </h6>
+              <Card className="health-info-card">
+                <Card.Header className="documents-header">
+                  <i className="fas fa-paperclip"></i>
+                  <span>Tài liệu đính kèm</span>
                 </Card.Header>
                 <Card.Body>
                   {(() => {
@@ -394,12 +379,10 @@ const EvaluationDetailPage = () => {
 
           {/* Right Column - Sister Info */}
           <Col lg={4}>
-            <Card className="evaluation-info-card">
-              <Card.Header className="evaluation-header">
-                <h5>
-                  <i className="fas fa-user me-2 text-accent"></i>
-                  Thông tin Nữ Tu
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header>
+                <i className="fas fa-user"></i>
+                <span>Thông tin Nữ Tu</span>
               </Card.Header>
               <Card.Body className="evaluation-sister-card">
                 <div className="evaluation-sister-avatar">
@@ -436,12 +419,10 @@ const EvaluationDetailPage = () => {
             </Card>
 
             {/* History */}
-            <Card className="evaluation-info-card">
-              <Card.Header className="evaluation-header subtle">
-                <h6>
-                  <i className="fas fa-history me-2 text-accent"></i>
-                  Lịch sử
-                </h6>
+            <Card className="health-info-card">
+              <Card.Header className="system-header">
+                <i className="fas fa-history"></i>
+                <span>Lịch sử</span>
               </Card.Header>
               <Card.Body>
                 <div className="evaluation-history-item">

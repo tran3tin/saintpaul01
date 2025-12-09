@@ -280,7 +280,10 @@ const DepartureListPage = () => {
                 <Form.Select
                   value={table.filters?.type || ""}
                   onChange={(e) =>
-                    table.updateFilters({ ...table.filters, type: e.target.value })
+                    table.updateFilters({
+                      ...table.filters,
+                      type: e.target.value,
+                    })
                   }
                   size="lg"
                 >
@@ -299,7 +302,10 @@ const DepartureListPage = () => {
                 <Form.Select
                   value={table.filters?.status || ""}
                   onChange={(e) =>
-                    table.updateFilters({ ...table.filters, status: e.target.value })
+                    table.updateFilters({
+                      ...table.filters,
+                      status: e.target.value,
+                    })
                   }
                   size="lg"
                 >

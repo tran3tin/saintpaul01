@@ -16,6 +16,7 @@ import Breadcrumb from "@components/common/Breadcrumb";
 import SearchableSelect from "@components/forms/SearchableSelect";
 import DatePicker from "@components/forms/DatePicker";
 import MultiFileUpload from "@components/forms/MultiFileUpload";
+import "./HealthRecordDetailPage.css";
 
 const HealthRecordFormPage = () => {
   const { id, sisterId } = useParams();
@@ -233,12 +234,10 @@ const HealthRecordFormPage = () => {
       <Form onSubmit={handleSubmit}>
         <Row className="g-4">
           <Col lg={8}>
-            <Card>
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-heartbeat me-2 text-danger"></i>
-                  Thông tin Khám bệnh
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header>
+                <i className="fas fa-heartbeat"></i>
+                <span>Thông tin Khám bệnh</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -399,29 +398,32 @@ const HealthRecordFormPage = () => {
                       />
                     </Form.Group>
                   </Col>
-
-                  <Col md={12}>
-                    <MultiFileUpload
-                      label="Tài liệu đính kèm"
-                      files={documents}
-                      onChange={setDocuments}
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      maxFiles={10}
-                      hint="Hỗ trợ PDF, Word, ảnh (tối đa 10 file)"
-                    />
-                  </Col>
                 </Row>
+              </Card.Body>
+            </Card>
+
+            <Card className="health-info-card">
+              <Card.Header className="documents-header">
+                <i className="fas fa-paperclip"></i>
+                <span>Tài liệu đính kèm</span>
+              </Card.Header>
+              <Card.Body>
+                <MultiFileUpload
+                  files={documents}
+                  onChange={setDocuments}
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  maxFiles={10}
+                  hint="Hỗ trợ PDF, Word, ảnh (tối đa 10 file)"
+                />
               </Card.Body>
             </Card>
           </Col>
 
           <Col lg={4}>
-            <Card>
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-chart-line me-2 text-info"></i>
-                  Chỉ số Sức khỏe
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header className="metrics-header">
+                <i className="fas fa-chart-line"></i>
+                <span>Chỉ số Sức khỏe</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -482,7 +484,11 @@ const HealthRecordFormPage = () => {
               </Card.Body>
             </Card>
 
-            <Card className="mt-4">
+            <Card className="health-info-card">
+              <Card.Header className="system-header">
+                <i className="fas fa-save"></i>
+                <span>Thao tác</span>
+              </Card.Header>
               <Card.Body>
                 <div className="d-grid gap-2">
                   <Button

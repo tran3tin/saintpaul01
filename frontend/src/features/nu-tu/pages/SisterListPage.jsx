@@ -375,7 +375,9 @@ const SisterListPage = () => {
                   <option value="">Tất cả</option>
                   {Array.from(
                     new Set(
-                      sisters.map((s) => s.current_community_name).filter(Boolean)
+                      sisters
+                        .map((s) => s.current_community_name)
+                        .filter(Boolean)
                     )
                   ).map((c) => (
                     <option key={c} value={c}>

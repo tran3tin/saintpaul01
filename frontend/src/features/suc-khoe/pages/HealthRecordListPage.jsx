@@ -267,7 +267,10 @@ const HealthRecordListPage = () => {
                 <Form.Select
                   value={table.filters?.year || ""}
                   onChange={(e) =>
-                    table.updateFilters({ ...table.filters, year: e.target.value })
+                    table.updateFilters({
+                      ...table.filters,
+                      year: e.target.value,
+                    })
                   }
                   size="lg"
                 >

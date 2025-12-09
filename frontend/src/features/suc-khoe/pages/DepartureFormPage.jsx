@@ -16,6 +16,7 @@ import Breadcrumb from "@components/common/Breadcrumb";
 import SearchableSelect from "@components/forms/SearchableSelect";
 import DatePicker from "@components/forms/DatePicker";
 import MultiFileUpload from "@components/forms/MultiFileUpload";
+import "./HealthRecordDetailPage.css";
 
 const DepartureFormPage = () => {
   const { id, sisterId } = useParams();
@@ -234,12 +235,10 @@ const DepartureFormPage = () => {
       <Form onSubmit={handleSubmit}>
         <Row className="g-4">
           <Col lg={8}>
-            <Card>
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-plane-departure me-2 text-primary"></i>
-                  Thông tin Đi vắng
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header>
+                <i className="fas fa-plane-departure"></i>
+                <span>Thông tin Đi vắng</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -369,12 +368,10 @@ const DepartureFormPage = () => {
           </Col>
 
           <Col lg={4}>
-            <Card className="mb-4">
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-phone me-2 text-success"></i>
-                  Thông tin Liên lạc
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header className="metrics-header">
+                <i className="fas fa-phone"></i>
+                <span>Thông tin Liên lạc</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -408,12 +405,10 @@ const DepartureFormPage = () => {
               </Card.Body>
             </Card>
 
-            <Card className="mb-4">
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-paperclip me-2 text-info"></i>
-                  Tài liệu đính kèm
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header className="documents-header">
+                <i className="fas fa-paperclip"></i>
+                <span>Tài liệu đính kèm</span>
               </Card.Header>
               <Card.Body>
                 <MultiFileUpload
@@ -427,12 +422,10 @@ const DepartureFormPage = () => {
               </Card.Body>
             </Card>
 
-            <Card className="mb-4">
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-sticky-note me-2 text-warning"></i>
-                  Ghi chú
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header className="system-header">
+                <i className="fas fa-sticky-note"></i>
+                <span>Ghi chú</span>
               </Card.Header>
               <Card.Body>
                 <Form.Group>
@@ -448,7 +441,11 @@ const DepartureFormPage = () => {
               </Card.Body>
             </Card>
 
-            <Card>
+            <Card className="health-info-card">
+              <Card.Header className="system-header">
+                <i className="fas fa-save"></i>
+                <span>Thao tác</span>
+              </Card.Header>
               <Card.Body>
                 <div className="d-grid gap-2">
                   <Button

@@ -229,7 +229,7 @@ const BackupSettingsPage = () => {
 
       <Row className="mb-4">
         <Col md={4}>
-          <Card className="h-100">
+          <Card className="health-info-card h-100">
             <Card.Body className="text-center">
               <FaHdd size={40} className="text-primary mb-3" />
               <h5>Dung lượng lưu trữ</h5>
@@ -246,7 +246,7 @@ const BackupSettingsPage = () => {
           </Card>
         </Col>
         <Col md={4}>
-          <Card className="h-100">
+          <Card className="health-info-card h-100">
             <Card.Body className="text-center">
               <FaDatabase size={40} className="text-success mb-3" />
               <h5>Tổng số bản sao lưu</h5>
@@ -255,7 +255,7 @@ const BackupSettingsPage = () => {
           </Card>
         </Col>
         <Col md={4}>
-          <Card className="h-100">
+          <Card className="health-info-card h-100">
             <Card.Body className="text-center">
               <FaHistory size={40} className="text-info mb-3" />
               <h5>Bản sao lưu gần nhất</h5>
@@ -269,8 +269,8 @@ const BackupSettingsPage = () => {
         </Col>
       </Row>
 
-      <Card>
-        <Card.Header className="d-flex justify-content-between align-items-center">
+      <Card className="health-info-card">
+        <Card.Header className="d-flex justify-content-between align-items-center documents-header">
           <span>Danh sách bản sao lưu</span>
           <div>
             <Button

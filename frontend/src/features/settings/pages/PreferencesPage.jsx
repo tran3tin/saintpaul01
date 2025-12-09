@@ -159,10 +159,10 @@ const PreferencesPage = () => {
         <Row>
           <Col lg={6}>
             {/* Display Preferences */}
-            <Card className="mb-4">
+            <Card className="health-info-card">
               <Card.Header>
                 <FaPalette className="me-2" />
-                Giao diện
+                <span>Giao diện</span>
               </Card.Header>
               <Card.Body>
                 <Form.Group className="mb-3">
@@ -215,8 +215,11 @@ const PreferencesPage = () => {
             </Card>
 
             {/* Dashboard Preferences */}
-            <Card className="mb-4">
-              <Card.Header>Trang chủ (Dashboard)</Card.Header>
+            <Card className="health-info-card">
+              <Card.Header className="documents-header">
+                <FaUserCog className="me-2" />
+                <span>Trang chủ (Dashboard)</span>
+              </Card.Header>
               <Card.Body>
                 <Form.Check
                   type="switch"
@@ -263,10 +266,10 @@ const PreferencesPage = () => {
 
           <Col lg={6}>
             {/* Notification Preferences */}
-            <Card className="mb-4">
-              <Card.Header>
+            <Card className="health-info-card">
+              <Card.Header className="system-header">
                 <FaBell className="me-2" />
-                Thông báo
+                <span>Thông báo</span>
               </Card.Header>
               <Card.Body>
                 <Form.Check

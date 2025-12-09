@@ -26,6 +26,7 @@ import TextArea from "@components/forms/TextArea";
 import FileUpload from "@components/forms/FileUpload";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
 import Breadcrumb from "@components/common/Breadcrumb";
+import "./VocationJourneyDetailPage.css";
 
 const VocationJourneyFormPage = () => {
   const { id } = useParams();
@@ -354,12 +355,10 @@ const VocationJourneyFormPage = () => {
       <Form onSubmit={handleSubmit}>
         <Row className="g-4">
           <Col lg={8}>
-            <Card>
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-info-circle me-2"></i>
-                  Thông tin hành trình
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header>
+                <i className="fas fa-info-circle"></i>
+                <span>Thông tin hành trình</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -563,12 +562,10 @@ const VocationJourneyFormPage = () => {
 
           {/* Documents */}
           <Col lg={4}>
-            <Card>
-              <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">
-                  <i className="fas fa-file-alt me-2"></i>
-                  Tài liệu đính kèm
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header className="documents-header">
+                <i className="fas fa-file-alt"></i>
+                <span>Tài liệu đính kèm</span>
               </Card.Header>
               <Card.Body>
                 <FileUpload
@@ -603,7 +600,11 @@ const VocationJourneyFormPage = () => {
             </Card>
 
             {/* Action Buttons */}
-            <Card className="mt-4">
+            <Card className="health-info-card mt-4">
+              <Card.Header className="system-header">
+                <i className="fas fa-check-circle"></i>
+                <span>Thao tác</span>
+              </Card.Header>
               <Card.Body>
                 <div className="d-grid gap-2">
                   <Button

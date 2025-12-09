@@ -24,6 +24,7 @@ import Breadcrumb from "@components/common/Breadcrumb";
 import MultiFileUpload from "@components/forms/MultiFileUpload";
 import DatePicker from "@components/forms/DatePicker";
 import SearchableSelect from "@components/forms/SearchableSelect";
+import "./EducationDetailPage.css";
 
 // Chuẩn hóa danh sách nữ tu, loại bỏ trùng lặp
 const normalizeSisters = (rawList = []) => {
@@ -251,12 +252,10 @@ const EducationFormPage = () => {
 
       <Row>
         <Col lg={8}>
-          <Card>
+          <Card className="health-info-card">
             <Card.Header>
-              <h5 className="mb-0">
-                <FaGraduationCap className="me-2" />
-                Thông tin Học vấn
-              </h5>
+              <FaGraduationCap className="me-2" />
+              <span>Thông tin Học vấn</span>
             </Card.Header>
             <Card.Body>
               {message.text && (
@@ -423,12 +422,10 @@ const EducationFormPage = () => {
                   />
                 </Form.Group>
 
-                <Card className="mb-3">
-                  <Card.Header className="bg-light">
-                    <h6 className="mb-0">
-                      <FaPaperclip className="me-2" />
-                      Tài liệu đính kèm
-                    </h6>
+                <Card className="health-info-card">
+                  <Card.Header className="documents-header">
+                    <FaPaperclip className="me-2" />
+                    <span>Tài liệu đính kèm</span>
                   </Card.Header>
                   <Card.Body>
                     <MultiFileUpload
@@ -472,8 +469,11 @@ const EducationFormPage = () => {
         </Col>
 
         <Col lg={4}>
-          <Card>
-            <Card.Header>Hướng dẫn</Card.Header>
+          <Card className="health-info-card">
+            <Card.Header className="system-header">
+              <FaGraduationCap className="me-2" />
+              <span>Hướng dẫn</span>
+            </Card.Header>
             <Card.Body>
               <ul className="mb-0">
                 <li className="mb-2">Các trường có dấu (*) là bắt buộc</li>

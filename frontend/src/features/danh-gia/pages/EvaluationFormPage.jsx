@@ -20,6 +20,7 @@ import Breadcrumb from "@components/common/Breadcrumb";
 import SearchableSelect from "@components/forms/SearchableSelect";
 import DatePicker from "@components/forms/DatePicker";
 import MultiFileUpload from "@components/forms/MultiFileUpload";
+import "./EvaluationDetailPage.css";
 
 const validationSchema = Yup.object({
   sister_id: Yup.number().required("Vui lòng chọn Nữ Tu"),
@@ -271,12 +272,10 @@ const EvaluationFormPage = () => {
         <Row className="g-4">
           {/* Basic Info */}
           <Col lg={8}>
-            <Card className="mb-4">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">
-                  <i className="fas fa-info-circle me-2"></i>
-                  Thông tin cơ bản
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header>
+                <i className="fas fa-info-circle"></i>
+                <span>Thông tin cơ bản</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -413,12 +412,10 @@ const EvaluationFormPage = () => {
             </Card>
 
             {/* Ratings */}
-            <Card className="mb-4">
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">
-                  <i className="fas fa-star me-2"></i>
-                  Điểm đánh giá (0-100)
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header>
+                <i className="fas fa-star"></i>
+                <span>Điểm đánh giá (0-100)</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -504,12 +501,10 @@ const EvaluationFormPage = () => {
             </Card>
 
             {/* Comments */}
-            <Card>
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">
-                  <i className="fas fa-comment-alt me-2"></i>
-                  Nhận xét
-                </h5>
+            <Card className="health-info-card">
+              <Card.Header className="documents-header">
+                <i className="fas fa-comment-alt"></i>
+                <span>Nhận xét</span>
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
@@ -586,12 +581,13 @@ const EvaluationFormPage = () => {
 
           {/* Sidebar */}
           <Col lg={4}>
-            <Card className="sticky-top" style={{ top: "1rem" }}>
-              <Card.Header className="bg-white">
-                <h5 className="mb-0">
-                  <i className="fas fa-save me-2"></i>
-                  Hành động
-                </h5>
+            <Card
+              className="health-info-card sticky-top"
+              style={{ top: "1rem" }}
+            >
+              <Card.Header className="system-header">
+                <i className="fas fa-save"></i>
+                <span>Hành động</span>
               </Card.Header>
               <Card.Body>
                 <div className="d-grid gap-2">
@@ -622,12 +618,10 @@ const EvaluationFormPage = () => {
             </Card>
 
             {/* Tips */}
-            <Card className="mt-3">
-              <Card.Header className="bg-white">
-                <h6 className="mb-0">
-                  <i className="fas fa-lightbulb me-2 text-warning"></i>
-                  Hướng dẫn
-                </h6>
+            <Card className="health-info-card">
+              <Card.Header className="system-header">
+                <i className="fas fa-lightbulb"></i>
+                <span>Hướng dẫn</span>
               </Card.Header>
               <Card.Body>
                 <ul className="mb-0 ps-3">

@@ -329,7 +329,10 @@ const MissionListPage = () => {
                 <Form.Select
                   value={table.filters?.field || ""}
                   onChange={(e) =>
-                    table.updateFilters({ ...table.filters, field: e.target.value })
+                    table.updateFilters({
+                      ...table.filters,
+                      field: e.target.value,
+                    })
                   }
                   size="lg"
                 >
@@ -349,7 +352,10 @@ const MissionListPage = () => {
                 <Form.Select
                   value={table.filters?.status || ""}
                   onChange={(e) =>
-                    table.updateFilters({ ...table.filters, status: e.target.value })
+                    table.updateFilters({
+                      ...table.filters,
+                      status: e.target.value,
+                    })
                   }
                   size="lg"
                 >

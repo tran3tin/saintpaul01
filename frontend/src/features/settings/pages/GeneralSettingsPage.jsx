@@ -113,8 +113,11 @@ const GeneralSettingsPage = () => {
       <Form onSubmit={handleSubmit}>
         <Row>
           <Col lg={6}>
-            <Card className="mb-4">
-              <Card.Header>Thông tin hệ thống</Card.Header>
+            <Card className="health-info-card">
+              <Card.Header>
+                <FaCog className="me-2" />
+                <span>Thông tin hệ thống</span>
+              </Card.Header>
               <Card.Body>
                 <Form.Group className="mb-3">
                   <Form.Label>Tên hệ thống</Form.Label>
@@ -188,8 +191,11 @@ const GeneralSettingsPage = () => {
           </Col>
 
           <Col lg={6}>
-            <Card className="mb-4">
-              <Card.Header>Thông tin Hội Dòng</Card.Header>
+            <Card className="health-info-card">
+              <Card.Header className="documents-header">
+                <FaCog className="me-2" />
+                <span>Thông tin Hội Dòng</span>
+              </Card.Header>
               <Card.Body>
                 <Form.Group className="mb-3">
                   <Form.Label>Tên Hội Dòng</Form.Label>

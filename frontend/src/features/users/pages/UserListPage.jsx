@@ -318,7 +318,10 @@ const UserListPage = () => {
                 <Form.Select
                   value={table.filters?.role || ""}
                   onChange={(e) =>
-                    table.updateFilters({ ...table.filters, role: e.target.value })
+                    table.updateFilters({
+                      ...table.filters,
+                      role: e.target.value,
+                    })
                   }
                   size="lg"
                 >
@@ -338,7 +341,10 @@ const UserListPage = () => {
                 <Form.Select
                   value={table.filters?.status || ""}
                   onChange={(e) =>
-                    table.updateFilters({ ...table.filters, status: e.target.value })
+                    table.updateFilters({
+                      ...table.filters,
+                      status: e.target.value,
+                    })
                   }
                   size="lg"
                 >

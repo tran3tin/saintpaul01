@@ -15,6 +15,7 @@ import {
 import { FaHistory, FaSearch, FaFilter, FaUser, FaClock } from "react-icons/fa";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import "./settings-common.css";
 
 const AuditLogPage = () => {
   const [logs, setLogs] = useState([]);
@@ -111,7 +112,7 @@ const AuditLogPage = () => {
   };
 
   return (
-    <Container fluid className="py-4">
+    <Container fluid className="py-4 settings-page">
       <Row className="mb-4">
         <Col>
           <h2 className="d-flex align-items-center gap-2">
@@ -122,7 +123,11 @@ const AuditLogPage = () => {
       </Row>
 
       {/* Filters */}
-      <Card className="mb-4">
+      <Card className="health-info-card">
+        <Card.Header className="documents-header">
+          <FaFilter className="me-2" />
+          <span>Bộ lọc</span>
+        </Card.Header>
         <Card.Body>
           <Row className="align-items-end">
             <Col md={3}>
@@ -196,7 +201,11 @@ const AuditLogPage = () => {
       </Card>
 
       {/* Logs Table */}
-      <Card>
+      <Card className="health-info-card">
+        <Card.Header className="system-header d-flex align-items-center">
+          <FaHistory className="me-2" />
+          <span>Danh sách nhật ký</span>
+        </Card.Header>
         <Card.Body>
           {loading ? (
             <div className="text-center py-4">Đang tải...</div>
