@@ -254,13 +254,13 @@ export const menuConfig = [
     id: "label-admin",
     type: "label",
     label: "Quản trị",
-    roles: ["admin"],
+    roles: ["admin", "superior_general"],
   },
   {
     id: "users",
     label: "Người dùng",
     icon: "fas fa-user-shield",
-    roles: ["admin"],
+    roles: ["admin", "superior_general"],
     children: [
       {
         id: "users-list",
@@ -293,7 +293,7 @@ export const menuConfig = [
     id: "settings",
     label: "Cài đặt",
     icon: "fas fa-cog",
-    roles: ["admin", "be_tren_tong"],
+    roles: ["admin", "superior_general"],
     children: [
       {
         id: "settings-index",
