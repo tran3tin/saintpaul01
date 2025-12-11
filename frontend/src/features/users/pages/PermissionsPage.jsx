@@ -515,7 +515,7 @@ const PermissionsPage = () => {
   }
 
   // Check if current user is admin
-  if (user?.role !== "admin") {
+  if (!user?.isAdmin && !user?.is_admin) {
     return (
       <Container fluid className="py-4">
         <Alert variant="danger">

@@ -9,13 +9,13 @@ import {
   Button,
   Form,
   Alert,
+  Table,
+  Spinner,
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
-import { userService, lookupService } from "@services";
+import { userService } from "@services";
 import { useForm } from "@hooks";
 import Input from "@components/forms/Input";
-import Select from "@components/forms/Select";
-import SearchableSelect from "@components/forms/SearchableSelect";
 import FileUpload from "@components/forms/FileUpload/FileUpload";
 import { isValidEmail, isValidPhone } from "@utils/validators";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
@@ -32,11 +32,12 @@ const UserFormPage = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [roles, setRoles] = useState([]);
   const [userStatuses, setUserStatuses] = useState([
     { value: "active", label: "Đang hoạt động" },
     { value: "inactive", label: "Đã khóa" },
   ]);
+  const [allPermissions, setAllPermissions] = useState({});
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
   const {
     values,
@@ -55,37 +56,26 @@ const UserFormPage = () => {
     full_name: "",
     email: "",
     phone: "",
-    role: "",
     status: "active",
     avatar: "",
   });
 
   useEffect(() => {
     console.log("UserFormPage mounted, userStatuses:", userStatuses);
-    fetchRoles();
+    fetchAllPermissions();
     if (isEditMode) {
       fetchUserData();
     }
   }, [id]);
 
-  const fetchRoles = async () => {
+  const fetchAllPermissions = async () => {
     try {
-      const response = await lookupService.getUserRoles();
-      if (response && response.success && response.data) {
-        setRoles(response.data);
-        console.log("Roles loaded:", response.data);
+      const response = await userService.getAllPermissions();
+      if (response.success) {
+        setAllPermissions(response.data); // Grouped by module
       }
     } catch (error) {
-      console.error("Error fetching roles:", error);
-      // Fallback to default roles if API fails
-      setRoles([
-        { value: "admin", label: "Quản trị viên" },
-        { value: "superior_general", label: "Bề trên Tổng Quyền" },
-        { value: "superior_provincial", label: "Bề trên Tỉnh Dòng" },
-        { value: "superior_community", label: "Bề trên Cộng đoàn" },
-        { value: "secretary", label: "Thư ký" },
-        { value: "viewer", label: "Người xem" },
-      ]);
+      console.error("Error fetching permissions:", error);
     }
   };
 
@@ -104,6 +94,12 @@ const UserFormPage = () => {
         }
         console.log("User data loaded:", userData);
         setValues(userData);
+
+        // Fetch user permissions
+        const permResponse = await userService.getUserPermissions(id);
+        if (permResponse.success) {
+          setSelectedPermissions(permResponse.data); // Array of permission IDs
+        }
       }
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -148,10 +144,6 @@ const UserFormPage = () => {
 
     if (values.phone && !isValidPhone(values.phone)) {
       newErrors.phone = "Số điện thoại không hợp lệ";
-    }
-
-    if (!values.role) {
-      newErrors.role = "Vai trò là bắt buộc";
     }
 
     return newErrors;
@@ -215,6 +207,11 @@ const UserFormPage = () => {
       console.log("API response:", response);
 
       if (response.success) {
+        const userId = isEditMode ? id : response.data.id;
+
+        // Update permissions
+        await userService.updateUserPermissions(userId, selectedPermissions);
+
         setSuccessMessage(
           isEditMode
             ? "Cập nhật người dùng thành công!"
@@ -223,7 +220,7 @@ const UserFormPage = () => {
 
         // Navigate sau 1 giây để user thấy thông báo
         setTimeout(() => {
-          navigate(`/users/${response.data.id}`);
+          navigate(`/users/${userId}`);
         }, 1000);
       } else {
         setError(response.error || "Có lỗi xảy ra");
@@ -273,6 +270,35 @@ const UserFormPage = () => {
       )
     ) {
       navigate(isEditMode ? `/users/${id}` : "/users");
+    }
+  };
+
+  const handlePermissionToggle = (permissionId) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(permissionId)
+        ? prev.filter((id) => id !== permissionId)
+        : [...prev, permissionId]
+    );
+  };
+
+  const handleModuleSelectAll = (module) => {
+    const modulePermissions = allPermissions[module] || [];
+    const modulePermissionIds = modulePermissions.map((p) => p.id);
+    const allSelected = modulePermissionIds.every((id) =>
+      selectedPermissions.includes(id)
+    );
+
+    if (allSelected) {
+      // Deselect all in this module
+      setSelectedPermissions((prev) =>
+        prev.filter((id) => !modulePermissionIds.includes(id))
+      );
+    } else {
+      // Select all in this module
+      setSelectedPermissions((prev) => [
+        ...prev.filter((id) => !modulePermissionIds.includes(id)),
+        ...modulePermissionIds,
+      ]);
     }
   };
 
@@ -329,7 +355,7 @@ const UserFormPage = () => {
               </Card.Header>
               <Card.Body>
                 <Row className="g-3">
-                  <Col md={6}>
+                  <Col md={12}>
                     <Input
                       label="Tên đăng nhập"
                       name="username"
@@ -340,22 +366,6 @@ const UserFormPage = () => {
                       touched={touched.username}
                       placeholder="Nhập tên đăng nhập"
                       disabled={isEditMode}
-                      required
-                    />
-                  </Col>
-
-                  <Col md={6}>
-                    <SearchableSelect
-                      label="Vai trò"
-                      name="role"
-                      value={values.role}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={errors.role}
-                      touched={touched.role}
-                      placeholder="Nhập để tìm vai trò..."
-                      maxDisplayItems={5}
-                      options={roles}
                       required
                     />
                   </Col>
@@ -495,6 +505,123 @@ const UserFormPage = () => {
                 </Row>
               </Card.Body>
             </Card>
+
+            {/* Permissions */}
+            <Card className="permissions-card">
+              <Card.Header className="bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">
+                  <i className="fas fa-shield-alt me-2"></i>
+                  Phân quyền
+                </h5>
+                <small className="text-muted">
+                  <i className="fas fa-info-circle me-1"></i>
+                  {selectedPermissions.length} quyền được chọn
+                </small>
+              </Card.Header>
+              <Card.Body className="p-0">
+                {Object.keys(allPermissions).length === 0 ? (
+                  <div className="p-4 text-center text-muted">
+                    <Spinner animation="border" size="sm" className="me-2" />
+                    Đang tải quyền...
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <Table className="permissions-table mb-0" hover>
+                      <thead>
+                        <tr>
+                          <th className="module-column">Module / Quyền</th>
+                          <th
+                            className="text-center"
+                            style={{ width: "120px" }}
+                          >
+                            Cấp quyền
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(allPermissions).map(
+                          ([module, permissions]) => {
+                            const modulePermissionIds = permissions.map(
+                              (p) => p.id
+                            );
+                            const allSelected = modulePermissionIds.every(
+                              (id) => selectedPermissions.includes(id)
+                            );
+                            const someSelected =
+                              !allSelected &&
+                              modulePermissionIds.some((id) =>
+                                selectedPermissions.includes(id)
+                              );
+
+                            return (
+                              <React.Fragment key={module}>
+                                {/* Module Header Row */}
+                                <tr className="module-row">
+                                  <td>
+                                    <strong>
+                                      <i className="fas fa-folder-open me-2 text-warning"></i>
+                                      {module}
+                                    </strong>
+                                    <span className="text-muted small ms-2">
+                                      ({permissions.length} quyền)
+                                    </span>
+                                  </td>
+                                  <td className="text-center">
+                                    <Form.Check
+                                      type="checkbox"
+                                      checked={allSelected}
+                                      ref={(el) => {
+                                        if (el) el.indeterminate = someSelected;
+                                      }}
+                                      onChange={() =>
+                                        handleModuleSelectAll(module)
+                                      }
+                                      title={`Chọn tất cả quyền ${module}`}
+                                      className="module-checkbox"
+                                    />
+                                  </td>
+                                </tr>
+                                {/* Permission Rows */}
+                                {permissions.map((permission) => (
+                                  <tr key={permission.id}>
+                                    <td className="permission-name ps-4">
+                                      <div className="d-flex align-items-center">
+                                        <i
+                                          className="fas fa-key text-muted me-2"
+                                          style={{ width: "20px" }}
+                                        ></i>
+                                        <span>{permission.displayName}</span>
+                                      </div>
+                                      {permission.description && (
+                                        <small className="text-muted d-block ms-4 ps-2">
+                                          {permission.description}
+                                        </small>
+                                      )}
+                                    </td>
+                                    <td className="text-center">
+                                      <Form.Check
+                                        type="checkbox"
+                                        checked={selectedPermissions.includes(
+                                          permission.id
+                                        )}
+                                        onChange={() =>
+                                          handlePermissionToggle(permission.id)
+                                        }
+                                        className="permission-checkbox"
+                                      />
+                                    </td>
+                                  </tr>
+                                ))}
+                              </React.Fragment>
+                            );
+                          }
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
           </Col>
 
           <Col lg={4}>
@@ -510,15 +637,21 @@ const UserFormPage = () => {
               <Card.Body>
                 <Row className="g-3">
                   <Col xs={12}>
-                    <Select
-                      label="Trạng thái"
-                      name="status"
-                      value={values.status}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      options={userStatuses}
-                      placeholder="Chọn trạng thái"
-                    />
+                    <Form.Group>
+                      <Form.Label>Trạng thái</Form.Label>
+                      <Form.Select
+                        name="status"
+                        value={values.status}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      >
+                        {userStatuses.map((status) => (
+                          <option key={status.value} value={status.value}>
+                            {status.label}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
                   </Col>
 
                   <Col xs={12}>

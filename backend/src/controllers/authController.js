@@ -18,7 +18,7 @@ const buildToken = (user) =>
     {
       id: user.id,
       username: user.username,
-      role: user.role,
+      is_admin: user.is_admin,
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
@@ -40,7 +40,7 @@ const register = async (req, res) => {
   // }
 
   try {
-    const { username, password, email, role } = req.body;
+    const { username, password, email } = req.body;
 
     const existingUser = await UserModel.findByUsername(username);
     if (existingUser) {
@@ -60,7 +60,7 @@ const register = async (req, res) => {
       username,
       password: hashedPassword,
       email,
-      role: role || "viewer", // Default to viewer if not specified
+      is_admin: 0,
       is_active: 1,
     });
 
@@ -132,11 +132,19 @@ const login = async (req, res) => {
     const token = buildToken(user);
     await UserModel.updateLastLogin(user.id);
 
+    // Get user permissions
+    const permissionsData = await UserModel.getPermissions(user.id);
+    const permissions = permissionsData.map((p) => p.name); // Array of permission names
+
     return res.status(200).json({
       success: true,
       data: {
         token,
-        user: sanitizeUser({ ...user, last_login: new Date() }),
+        user: sanitizeUser({
+          ...user,
+          last_login: new Date(),
+          permissions: permissions,
+        }),
       },
       message: "Đăng nhập thành công",
     });

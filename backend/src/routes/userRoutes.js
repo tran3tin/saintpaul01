@@ -1,7 +1,11 @@
 const express = require("express");
 const { body } = require("express-validator");
 const userController = require("../controllers/userController");
-const { authenticateToken, authorize } = require("../middlewares/auth");
+const {
+  authenticateToken,
+  authorize,
+  checkPermission,
+} = require("../middlewares/auth");
 const {
   validateUserCreate,
   handleValidationErrors,
@@ -17,24 +21,35 @@ router.use(authenticateToken);
 router.put("/profile", userController.updateProfile);
 router.post("/change-password", userController.changePassword);
 
-router.get("/", adminOnly, userController.getAllUsers);
+// Permission routes
+router.get(
+  "/permissions/all",
+  checkPermission("users.create"),
+  userController.getAllPermissions
+);
+
+router.get("/", checkPermission("users.view"), userController.getAllUsers);
 router.get("/:id", userController.getUserById);
 
 router.post(
   "/",
-  adminOnly,
+  checkPermission("users.create"),
   validateUserCreate,
   handleValidationErrors,
   userController.createUser
 );
 
-router.put("/:id", userController.updateUser);
+router.put("/:id", checkPermission("users.edit"), userController.updateUser);
 
-router.delete("/:id", adminOnly, userController.deleteUser);
+router.delete(
+  "/:id",
+  checkPermission("users.delete"),
+  userController.deleteUser
+);
 
 router.post(
   "/:id/reset-password",
-  adminOnly,
+  checkPermission("users.edit"),
   body("newPassword")
     .notEmpty()
     .withMessage("newPassword is required")
@@ -44,8 +59,24 @@ router.post(
   userController.resetPassword
 );
 
-router.post("/:id/toggle-status", adminOnly, userController.toggleUserStatus);
+router.post(
+  "/:id/toggle-status",
+  checkPermission("users.edit"),
+  userController.toggleUserStatus
+);
 
 router.get("/:id/activities", userController.getUserActivities);
+
+// User permissions management
+router.get(
+  "/:id/permissions",
+  checkPermission("users.view"),
+  userController.getUserPermissions
+);
+router.put(
+  "/:id/permissions",
+  checkPermission("users.manage_permissions"),
+  userController.updateUserPermissions
+);
 
 module.exports = router;

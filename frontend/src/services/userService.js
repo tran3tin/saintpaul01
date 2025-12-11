@@ -272,6 +272,69 @@ const userService = {
       };
     }
   },
+
+  /**
+   * Get all available permissions (grouped by module)
+   * @returns {Promise}
+   */
+  getAllPermissions: async () => {
+    try {
+      const response = await api.get("/users/permissions/all");
+      return {
+        success: true,
+        data: response.data, // Already grouped by module
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi tải danh sách quyền",
+      };
+    }
+  },
+
+  /**
+   * Get permissions for a user
+   * @param {string|number} userId
+   * @returns {Promise}
+   */
+  getUserPermissions: async (userId) => {
+    try {
+      const response = await api.get(`/users/${userId}/permissions`);
+      return {
+        success: true,
+        data: response.data, // Array of permission IDs
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi tải quyền người dùng",
+      };
+    }
+  },
+
+  /**
+   * Update permissions for a user
+   * @param {string|number} userId
+   * @param {Array<number>} permissionIds
+   * @returns {Promise}
+   */
+  updateUserPermissions: async (userId, permissionIds) => {
+    try {
+      const response = await api.put(`/users/${userId}/permissions`, {
+        permissionIds,
+      });
+      return {
+        success: true,
+        data: response,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Lỗi khi cập nhật quyền người dùng",
+      };
+    }
+  },
 };
 
 export default userService;

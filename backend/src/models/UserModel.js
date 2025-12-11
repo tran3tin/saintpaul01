@@ -10,13 +10,13 @@ class UserModel extends BaseModel {
       "full_name",
       "phone",
       "avatar",
-      "role",
+      "is_admin",
       "last_login",
       "is_active",
       "created_at",
       "updated_at",
     ];
-    this.requiredFields = ["username", "password", "email", "role"];
+    this.requiredFields = ["username", "password", "email"];
   }
 
   validateData(data = {}, { partial = false } = {}) {
@@ -78,6 +78,115 @@ class UserModel extends BaseModel {
       [now, id]
     );
     return this.findById(id);
+  }
+
+  /**
+   * Check if user is admin
+   */
+  async isAdmin(userId) {
+    if (!userId) return false;
+    const sql = `SELECT is_admin FROM ${this.tableName} WHERE ${this.primaryKey} = ?`;
+    const rows = await this.executeQuery(sql, [userId]);
+    return rows.length > 0 && rows[0].is_admin === 1;
+  }
+
+  /**
+   * Get user permissions (admin gets all)
+   */
+  async getPermissions(userId) {
+    if (!userId) return [];
+
+    // Check if admin first
+    const isAdmin = await this.isAdmin(userId);
+
+    if (isAdmin) {
+      // Admin has all permissions
+      const sql = "SELECT * FROM permissions WHERE is_active = 1";
+      return await this.executeQuery(sql);
+    }
+
+    // Regular user - get assigned permissions
+    const sql = `
+      SELECT p.*
+      FROM permissions p
+      INNER JOIN user_permissions up ON p.id = up.permission_id
+      WHERE up.user_id = ? AND p.is_active = 1
+    `;
+
+    return await this.executeQuery(sql, [userId]);
+  }
+
+  /**
+   * Assign permissions to user
+   */
+  async assignPermissions(userId, permissionIds, grantedBy) {
+    // Don't allow changing admin permissions
+    const isAdmin = await this.isAdmin(userId);
+    if (isAdmin) {
+      throw new Error("Không thể thay đổi quyền của admin");
+    }
+
+    // Get connection for transaction
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      // Remove old permissions
+      await connection.execute(
+        "DELETE FROM user_permissions WHERE user_id = ?",
+        [userId]
+      );
+
+      // Add new permissions
+      if (permissionIds && permissionIds.length > 0) {
+        const values = permissionIds.map((permId) => [
+          userId,
+          permId,
+          grantedBy,
+        ]);
+        await connection.query(
+          "INSERT INTO user_permissions (user_id, permission_id, granted_by) VALUES ?",
+          [values]
+        );
+      }
+
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
+  /**
+   * Check if user can be deleted
+   */
+  async canDelete(userId) {
+    const isAdmin = await this.isAdmin(userId);
+    if (isAdmin) {
+      return { canDelete: false, reason: "Không thể xóa tài khoản admin" };
+    }
+    return { canDelete: true };
+  }
+
+  /**
+   * Get user with permissions
+   */
+  async findByIdWithPermissions(userId) {
+    const user = await this.findById(userId);
+    if (!user) return null;
+
+    const permissions = await this.getPermissions(userId);
+    return {
+      ...user,
+      permissions: permissions.map((p) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        category: p.category,
+      })),
+    };
   }
 }
 

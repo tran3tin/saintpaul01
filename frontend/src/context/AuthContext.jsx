@@ -5,24 +5,14 @@ import authService from "@services/authService";
 
 const AuthContext = createContext(null);
 
-// Role labels mapping
-const ROLE_LABELS = {
-  admin: "Quản trị viên",
-  superior_general: "Bề Trên Tổng",
-  superior_provincial: "Bề Trên Tỉnh",
-  superior_community: "Bề Trên Cộng Đoàn",
-  secretary: "Thư ký",
-  viewer: "Người xem",
-};
-
 // Helper to validate user data structure - defined outside component
 const isValidUserData = (data) => {
   // Valid user must NOT have password field
   // If it has password, it's form data not user data
   if (!data || typeof data !== "object") return false;
   if (data.password !== undefined) return false;
-  // Must have at least one of: id, role, username
-  return !!(data.id || data.role || data.username);
+  // Must have at least one of: id, username
+  return !!(data.id || data.username);
 };
 
 // Get initial user from localStorage (runs BEFORE first render)
@@ -36,9 +26,9 @@ const getInitialUser = () => {
 
       // Validate the data
       if (isValidUserData(parsed)) {
-        // Add role_label if not present
-        if (!parsed.role_label && parsed.role) {
-          parsed.role_label = ROLE_LABELS[parsed.role] || parsed.role;
+        // Ensure isAdmin is set properly
+        if (parsed.isAdmin === undefined && parsed.is_admin !== undefined) {
+          parsed.isAdmin = parsed.is_admin === 1;
         }
         return parsed;
       } else {
@@ -76,15 +66,14 @@ export const AuthProvider = ({ children }) => {
       console.log("📡 Backend response:", response);
 
       if (response.success && response.data?.token && response.data?.user) {
-        // Add role_label to user data
+        // User permissions are already included from backend (as permission names)
         const userData = {
           ...response.data.user,
-          role_label:
-            ROLE_LABELS[response.data.user.role] || response.data.user.role,
+          isAdmin: response.data.user.is_admin === 1,
+          // permissions is already an array of permission names from backend
         };
 
-        // authService đã lưu token và user vào localStorage
-        // Cập nhật lại với role_label
+        // Save to localStorage
         localStorage.setItem("user", JSON.stringify(userData));
         console.log("✅ Login successful:", userData.username);
 
@@ -140,10 +129,6 @@ export const AuthProvider = ({ children }) => {
   const updateUser = useCallback((userData) => {
     setUser((prev) => {
       const newUser = { ...prev, ...userData };
-      // Add role_label if role changed
-      if (userData.role && !userData.role_label) {
-        newUser.role_label = ROLE_LABELS[userData.role] || userData.role;
-      }
       localStorage.setItem("user", JSON.stringify(newUser));
       return newUser;
     });
@@ -156,7 +141,6 @@ export const AuthProvider = ({ children }) => {
       if (response.success && response.data) {
         const userData = {
           ...response.data,
-          role_label: ROLE_LABELS[response.data.role] || response.data.role,
         };
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
@@ -168,20 +152,36 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Check permission
+  // Check permission by permission name
   const hasPermission = useCallback(
-    (roles) => {
-      if (!roles || roles.length === 0) return true;
+    (permissionName) => {
       if (!user) return false;
-      return roles.includes(user.role);
+      // Admin has all permissions
+      if (user.isAdmin) return true;
+      if (!user.permissions || user.permissions.length === 0) return false;
+
+      // Check if permission name is in the array
+      return user.permissions.includes(permissionName);
     },
     [user]
   );
 
   // Check if user is admin
   const isAdmin = useCallback(() => {
-    return user?.role === "admin";
+    return user?.isAdmin === true;
   }, [user]);
+
+  // Legacy hasPermission for roles (for backward compatibility)
+  const hasRole = useCallback(
+    (roles) => {
+      if (!roles || roles.length === 0) return true;
+      if (!user) return false;
+
+      // Only admin users have roles now
+      return user.isAdmin || user.is_admin === 1;
+    },
+    [user]
+  );
 
   const value = {
     user,
@@ -192,6 +192,7 @@ export const AuthProvider = ({ children }) => {
     updateUser,
     refreshUser,
     hasPermission,
+    hasRole, // Legacy role check for backward compatibility
     isAdmin,
   };
 

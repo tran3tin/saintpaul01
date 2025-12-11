@@ -20,7 +20,7 @@ import "./Sidebar.css";
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, hasPermission: authHasPermission, hasRole } = useAuth();
   const [expandedGroups, setExpandedGroups] = useState([]);
   const [activeMenu, setActiveMenu] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -82,9 +82,21 @@ const Sidebar = ({ isOpen, onClose }) => {
   };
 
   // Check if user has permission to see menu
-  const hasPermission = (roles) => {
+  const hasMenuPermission = (menuItem) => {
+    // Admin users can see everything
+    if (user?.isAdmin || user?.is_admin === 1) {
+      return true;
+    }
+
+    // Check permission first (new system)
+    if (menuItem.permission) {
+      return authHasPermission(menuItem.permission);
+    }
+
+    // Fallback to role check (legacy system)
+    const roles = menuItem.roles;
     if (!roles || roles.length === 0) return true;
-    return roles.includes(user?.role);
+    return hasRole(roles);
   };
 
   // Filter menu by search (exclude dividers and labels)
@@ -110,7 +122,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   // Filter menu by permission and search
   const filteredMenu = filterMenu(
-    menuConfig.filter((item) => hasPermission(item.roles))
+    menuConfig.filter((item) => hasMenuPermission(item))
   );
 
   // Render menu items

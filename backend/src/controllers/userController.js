@@ -54,7 +54,8 @@ const ensureAdmin = (req, res) => {
     return false;
   }
 
-  if (req.user.role !== "admin") {
+  // Check isAdmin (set by authenticateToken middleware)
+  if (!req.user.isAdmin) {
     res.status(403).json({ message: "Admin access required" });
     return false;
   }
@@ -67,7 +68,8 @@ const canManageUser = (req, targetUserId) => {
     return false;
   }
 
-  if (req.user.role === "admin") {
+  // Admin can manage all users
+  if (req.user.isAdmin) {
     return true;
   }
 
@@ -623,6 +625,126 @@ const getUserActivities = async (req, res) => {
   }
 };
 
+/**
+ * Get all available permissions (grouped by module)
+ */
+const getAllPermissions = async (req, res) => {
+  try {
+    const permissions = await UserModel.executeQuery(`
+      SELECT id, name, display_name as displayName, description, module
+      FROM permissions
+      WHERE is_active = 1
+      ORDER BY module, name
+    `);
+
+    // Group by module
+    const grouped = permissions.reduce((acc, perm) => {
+      if (!acc[perm.module]) {
+        acc[perm.module] = [];
+      }
+      acc[perm.module].push({
+        id: perm.id,
+        name: perm.name,
+        displayName: perm.displayName,
+        description: perm.description,
+      });
+      return acc;
+    }, {});
+
+    return res.status(200).json({
+      success: true,
+      data: grouped,
+    });
+  } catch (error) {
+    console.error("getAllPermissions error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Không thể lấy danh sách quyền",
+    });
+  }
+};
+
+/**
+ * Update user permissions
+ */
+const updateUserPermissions = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { permissionIds } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID người dùng là bắt buộc",
+      });
+    }
+
+    // Check if user exists
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy người dùng",
+      });
+    }
+
+    // Check if can modify
+    const canDelete = await UserModel.canDelete(id);
+    if (!canDelete.canDelete) {
+      return res.status(403).json({
+        success: false,
+        message: canDelete.reason,
+      });
+    }
+
+    // Assign permissions
+    await UserModel.assignPermissions(id, permissionIds || [], req.user.id);
+
+    // Log audit
+    await logAudit(req, "UPDATE_PERMISSIONS", id, null, { permissionIds });
+
+    return res.status(200).json({
+      success: true,
+      message: "Cập nhật quyền thành công",
+    });
+  } catch (error) {
+    console.error("updateUserPermissions error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Không thể cập nhật quyền",
+    });
+  }
+};
+
+/**
+ * Get user permissions
+ */
+const getUserPermissions = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID người dùng là bắt buộc",
+      });
+    }
+
+    const permissions = await UserModel.getPermissions(id);
+
+    return res.status(200).json({
+      success: true,
+      data: permissions,
+    });
+  } catch (error) {
+    console.error("getUserPermissions error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Không thể lấy quyền người dùng",
+    });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -634,4 +756,7 @@ module.exports = {
   updateProfile,
   changePassword,
   getUserActivities,
+  getAllPermissions,
+  updateUserPermissions,
+  getUserPermissions,
 };
