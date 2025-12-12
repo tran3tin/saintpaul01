@@ -688,15 +688,6 @@ const updateUserPermissions = async (req, res) => {
       });
     }
 
-    // Check if can modify
-    const canDelete = await UserModel.canDelete(id);
-    if (!canDelete.canDelete) {
-      return res.status(403).json({
-        success: false,
-        message: canDelete.reason,
-      });
-    }
-
     // Assign permissions
     await UserModel.assignPermissions(id, permissionIds || [], req.user.id);
 

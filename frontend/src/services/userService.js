@@ -181,6 +181,29 @@ const userService = {
   },
 
   /**
+   * Reset user password (admin only)
+   * @param {string|number} id
+   * @param {string} newPassword
+   * @returns {Promise}
+   */
+  resetPassword: async (id, newPassword) => {
+    try {
+      const response = await api.post(`/users/${id}/reset-password`, {
+        newPassword,
+      });
+      return {
+        success: true,
+        data: response,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || "Lỗi khi đặt lại mật khẩu",
+      };
+    }
+  },
+
+  /**
    * Update profile
    * @param {object} data
    * @returns {Promise}

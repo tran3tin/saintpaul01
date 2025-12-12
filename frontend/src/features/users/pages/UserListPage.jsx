@@ -14,6 +14,7 @@ import {
   Form,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { userService } from "@services";
 import { useTable, useDebounce } from "@hooks";
 import { UserForm, UserFilter } from "../components";
@@ -89,14 +90,14 @@ const UserListPage = () => {
       try {
         const response = await userService.delete(user.id);
         if (response.success) {
-          alert(response.message || "Đã xóa người dùng thành công");
+          toast.success(response.message || "Đã xóa người dùng thành công");
           fetchUsers();
         } else {
-          alert(response.error || "Không thể xóa người dùng");
+          toast.error(response.error || "Không thể xóa người dùng");
         }
       } catch (error) {
         console.error("Error deleting user:", error);
-        alert("Có lỗi xảy ra khi xóa người dùng");
+        toast.error("Có lỗi xảy ra khi xóa người dùng");
       }
     }
   };
@@ -108,26 +109,43 @@ const UserListPage = () => {
 
   const handleConfirmResetPassword = async () => {
     try {
-      await userService.resetPassword(resetPasswordUser.id);
+      const response = await userService.resetPassword(resetPasswordUser.id);
       setShowResetPassword(false);
       setResetPasswordUser(null);
-      alert("Mật khẩu mới đã được gửi qua email");
+      if (response.success) {
+        toast.success("Mật khẩu mới đã được gửi qua email");
+      } else {
+        toast.error(response.error || "Không thể đặt lại mật khẩu");
+      }
     } catch (error) {
       console.error("Error resetting password:", error);
+      toast.error("Có lỗi xảy ra khi đặt lại mật khẩu");
     }
   };
 
   const handleSubmit = async (values) => {
     try {
+      let response;
       if (selectedUser) {
-        await userService.update(selectedUser.id, values);
+        response = await userService.update(selectedUser.id, values);
+        if (response.success) {
+          toast.success("Cập nhật người dùng thành công!");
+        } else {
+          toast.error(response.error || "Không thể cập nhật người dùng");
+        }
       } else {
-        await userService.create(values);
+        response = await userService.create(values);
+        if (response.success) {
+          toast.success("Tạo người dùng thành công!");
+        } else {
+          toast.error(response.error || "Không thể tạo người dùng");
+        }
       }
       setShowForm(false);
       fetchUsers();
     } catch (error) {
       console.error("Error saving user:", error);
+      toast.error("Có lỗi xảy ra khi lưu người dùng");
     }
   };
 

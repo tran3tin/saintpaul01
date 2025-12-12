@@ -9,6 +9,7 @@ class BaseModel {
     this.tableName = tableName;
     this.primaryKey = primaryKey;
     this.softDeleteColumn = softDeleteColumn;
+    this.pool = pool; // Make pool accessible to child classes
   }
 
   buildWhereClause(conditions = {}, includeSoftDeleteFilter = true) {

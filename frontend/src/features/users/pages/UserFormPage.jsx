@@ -13,6 +13,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { userService } from "@services";
 import { useForm } from "@hooks";
 import Input from "@components/forms/Input";
@@ -83,8 +84,10 @@ const UserFormPage = () => {
     try {
       setLoading(true);
       const response = await userService.getById(id);
-      if (response.success) {
-        const userData = { ...response.data };
+      console.log("Fetched user response:", response);
+
+      if (response.success && response.data && response.data.user) {
+        const userData = { ...response.data.user };
         // Map is_active từ backend (0/1) sang status cho frontend ('active'/'inactive')
         if (userData.is_active !== undefined) {
           userData.status =
@@ -98,8 +101,11 @@ const UserFormPage = () => {
         // Fetch user permissions
         const permResponse = await userService.getUserPermissions(id);
         if (permResponse.success) {
-          setSelectedPermissions(permResponse.data); // Array of permission IDs
+          const permIds = permResponse.data.map((p) => p.permission_id || p.id);
+          setSelectedPermissions(permIds);
         }
+      } else {
+        setError(response.error || "Không thể tải dữ liệu người dùng");
       }
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -170,7 +176,9 @@ const UserFormPage = () => {
       });
 
       // Hiển thị thông báo lỗi chung
-      setError("Vui lòng kiểm tra lại thông tin đã nhập");
+      const errorMsg = "Vui lòng kiểm tra lại thông tin đã nhập";
+      setError(errorMsg);
+      toast.error(errorMsg);
 
       // Scroll to top để thấy thông báo lỗi
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -212,18 +220,21 @@ const UserFormPage = () => {
         // Update permissions
         await userService.updateUserPermissions(userId, selectedPermissions);
 
-        setSuccessMessage(
-          isEditMode
-            ? "Cập nhật người dùng thành công!"
-            : "Tạo người dùng thành công!"
-        );
+        const successMsg = isEditMode
+          ? "Cập nhật người dùng thành công!"
+          : "Tạo người dùng thành công!";
+
+        setSuccessMessage(successMsg);
+        toast.success(successMsg);
 
         // Navigate sau 1 giây để user thấy thông báo
         setTimeout(() => {
           navigate(`/users/${userId}`);
         }, 1000);
       } else {
-        setError(response.error || "Có lỗi xảy ra");
+        const errorMsg = response.error || "Có lỗi xảy ra";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (error) {
       console.error("Error saving user:", error);
@@ -241,19 +252,20 @@ const UserFormPage = () => {
         }
 
         // Hiển thị message chung
-        if (data.message) {
-          setError(data.message);
-        } else {
-          setError("Có lỗi xảy ra khi lưu người dùng");
-        }
+        const errorMsg = data.message || "Có lỗi xảy ra khi lưu người dùng";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } else if (error.request) {
         // Request được gửi nhưng không nhận được response
-        setError(
-          "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng!"
-        );
+        const errorMsg =
+          "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng!";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } else {
         // Lỗi khác
-        setError(error.message || "Có lỗi xảy ra khi lưu người dùng");
+        const errorMsg = error.message || "Có lỗi xảy ra khi lưu người dùng";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
 
       // Scroll to top để thấy thông báo lỗi

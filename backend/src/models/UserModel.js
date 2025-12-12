@@ -120,12 +120,6 @@ class UserModel extends BaseModel {
    * Assign permissions to user
    */
   async assignPermissions(userId, permissionIds, grantedBy) {
-    // Don't allow changing admin permissions
-    const isAdmin = await this.isAdmin(userId);
-    if (isAdmin) {
-      throw new Error("Không thể thay đổi quyền của admin");
-    }
-
     // Get connection for transaction
     const connection = await this.pool.getConnection();
     try {

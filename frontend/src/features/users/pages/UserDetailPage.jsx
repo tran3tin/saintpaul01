@@ -10,6 +10,8 @@ import {
   Badge,
   ListGroup,
   Table,
+  Modal,
+  Form,
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -27,6 +29,11 @@ const UserDetailPage = () => {
   const [activities, setActivities] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [loadingPermissions, setLoadingPermissions] = useState(false);
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     fetchUserDetail();
@@ -115,19 +122,53 @@ const UserDetailPage = () => {
     }
   };
 
-  const handleResetPassword = async () => {
-    if (window.confirm("Bạn có chắc chắn muốn đặt lại mật khẩu?")) {
-      try {
-        const response = await userService.resetPassword(id);
-        if (response.success) {
-          toast.success("Mật khẩu mới đã được gửi qua email");
-        } else {
-          toast.error(response.error || "Không thể đặt lại mật khẩu");
-        }
-      } catch (error) {
-        console.error("Error resetting password:", error);
-        toast.error("Có lỗi xảy ra khi đặt lại mật khẩu");
+  const handleResetPassword = () => {
+    setShowResetPasswordModal(true);
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordError("");
+  };
+
+  const handleCloseResetPasswordModal = () => {
+    setShowResetPasswordModal(false);
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordError("");
+  };
+
+  const handleConfirmResetPassword = async () => {
+    // Validation
+    if (!newPassword) {
+      setPasswordError("Vui lòng nhập mật khẩu mới");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError("Mật khẩu phải có ít nhất 6 ký tự");
+      return;
+    }
+    if (!confirmPassword) {
+      setPasswordError("Vui lòng xác nhận mật khẩu");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Mật khẩu xác nhận không khớp");
+      return;
+    }
+
+    try {
+      setResetting(true);
+      const response = await userService.resetPassword(id, newPassword);
+      if (response.success) {
+        toast.success("Đặt lại mật khẩu thành công");
+        handleCloseResetPasswordModal();
+      } else {
+        toast.error(response.error || "Không thể đặt lại mật khẩu");
       }
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      toast.error("Có lỗi xảy ra khi đặt lại mật khẩu");
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -357,7 +398,6 @@ const UserDetailPage = () => {
                   </ListGroup.Item>
                 )}
               </ListGroup>
-              d
             </Card.Body>
           </Card>
         </Col>
@@ -508,6 +548,97 @@ const UserDetailPage = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Reset Password Modal */}
+      <Modal
+        show={showResetPasswordModal}
+        onHide={handleCloseResetPasswordModal}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className="fas fa-key me-2"></i>
+            Đặt lại mật khẩu
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="text-muted mb-3">
+            Đặt lại mật khẩu cho người dùng <strong>{user?.full_name}</strong>
+          </p>
+          {passwordError && (
+            <div className="alert alert-danger" role="alert">
+              <i className="fas fa-exclamation-circle me-2"></i>
+              {passwordError}
+            </div>
+          )}
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>
+                Mật khẩu mới <span className="text-danger">*</span>
+              </Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Nhập mật khẩu mới"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                disabled={resetting}
+                autoFocus
+              />
+              <Form.Text className="text-muted">
+                Mật khẩu phải có ít nhất 6 ký tự
+              </Form.Text>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>
+                Xác nhận mật khẩu mới <span className="text-danger">*</span>
+              </Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Nhập lại mật khẩu mới"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                disabled={resetting}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={handleCloseResetPasswordModal}
+            disabled={resetting}
+          >
+            Hủy
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleConfirmResetPassword}
+            disabled={resetting}
+          >
+            {resetting ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Đang xử lý...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-check me-2"></i>
+                Xác nhận
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
