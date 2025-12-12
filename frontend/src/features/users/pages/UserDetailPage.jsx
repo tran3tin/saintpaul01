@@ -25,10 +25,13 @@ const UserDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [activities, setActivities] = useState([]);
+  const [permissions, setPermissions] = useState([]);
+  const [loadingPermissions, setLoadingPermissions] = useState(false);
 
   useEffect(() => {
     fetchUserDetail();
     fetchUserActivities();
+    fetchUserPermissions();
   }, [id]);
 
   const fetchUserDetail = async () => {
@@ -73,6 +76,21 @@ const UserDetailPage = () => {
       }
     } catch (error) {
       console.error("Error fetching activities:", error);
+    }
+  };
+
+  const fetchUserPermissions = async () => {
+    try {
+      setLoadingPermissions(true);
+      const response = await userService.getUserPermissions(id);
+      console.log("Permissions response:", response);
+      if (response.success) {
+        setPermissions(response.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching permissions:", error);
+    } finally {
+      setLoadingPermissions(false);
     }
   };
 
@@ -355,25 +373,38 @@ const UserDetailPage = () => {
               </h5>
             </Card.Header>
             <Card.Body>
-              <Row className="g-3">
-                {user.permissions && user.permissions.length > 0 ? (
-                  user.permissions.map((permission, index) => (
-                    <Col key={index} md={6}>
-                      <div className="permission-item">
-                        <i className="fas fa-check-circle text-success me-2"></i>
-                        <span>{permission.name}</span>
-                      </div>
-                    </Col>
-                  ))
-                ) : (
-                  <Col xs={12}>
-                    <div className="text-center text-muted py-3">
-                      <i className="fas fa-info-circle me-2"></i>
-                      Chưa có quyền hạn được gán
-                    </div>
-                  </Col>
-                )}
-              </Row>
+              {loadingPermissions ? (
+                <div className="text-center py-3">
+                  <LoadingSpinner size="small" />
+                </div>
+              ) : permissions && permissions.length > 0 ? (
+                <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                  <Row className="g-3">
+                    {permissions.map((permission, index) => (
+                      <Col key={index} md={6}>
+                        <div className="permission-item">
+                          <i className="fas fa-check-circle text-success me-2"></i>
+                          <span>
+                            {permission.module_name ? (
+                              <>
+                                <strong>{permission.module_name}:</strong>{" "}
+                                {permission.name || permission.permission_name}
+                              </>
+                            ) : (
+                              permission.name || permission.permission_name
+                            )}
+                          </span>
+                        </div>
+                      </Col>
+                    ))}
+                  </Row>
+                </div>
+              ) : (
+                <div className="text-center text-muted py-3">
+                  <i className="fas fa-info-circle me-2"></i>
+                  Chưa có quyền hạn được gán
+                </div>
+              )}
             </Card.Body>
           </Card>
 
@@ -434,33 +465,35 @@ const UserDetailPage = () => {
             </Card.Header>
             <Card.Body>
               {activities.length > 0 ? (
-                <div className="table-responsive">
-                  <Table hover className="activity-table">
-                    <thead>
-                      <tr>
-                        <th>Thời gian</th>
-                        <th>Hoạt động</th>
-                        <th>Chi tiết</th>
-                        <th>IP</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activities.map((activity) => (
-                        <tr key={activity.id}>
-                          <td>{formatDate(activity.created_at)}</td>
-                          <td>
-                            <Badge bg={getActivityBadge(activity.action).bg}>
-                              {activity.action_label}
-                            </Badge>
-                          </td>
-                          <td>{activity.description}</td>
-                          <td>
-                            <code>{activity.ip_address}</code>
-                          </td>
+                <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                  <div className="table-responsive">
+                    <Table hover className="activity-table">
+                      <thead>
+                        <tr>
+                          <th>Thời gian</th>
+                          <th>Hoạt động</th>
+                          <th>Chi tiết</th>
+                          <th>IP</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </Table>
+                      </thead>
+                      <tbody>
+                        {activities.map((activity) => (
+                          <tr key={activity.id}>
+                            <td>{formatDate(activity.created_at)}</td>
+                            <td>
+                              <Badge bg={getActivityBadge(activity.action).bg}>
+                                {activity.action_label}
+                              </Badge>
+                            </td>
+                            <td>{activity.description}</td>
+                            <td>
+                              <code>{activity.ip_address}</code>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center text-muted py-5">
