@@ -87,7 +87,6 @@ import {
   UserListPage,
   UserDetailPage,
   UserFormPage,
-  PermissionsPage,
   ProfilePage,
 } from "@features/users";
 
@@ -281,7 +280,6 @@ const AppRoutes = () => {
           <Route path="/users/create" element={<UserFormPage />} />
           <Route path="/users/:id" element={<UserDetailPage />} />
           <Route path="/users/:id/edit" element={<UserFormPage />} />
-          <Route path="/users/permissions" element={<PermissionsPage />} />
 
           {/* Profile */}
           <Route path="/profile" element={<ProfilePage />} />

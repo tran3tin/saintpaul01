@@ -274,12 +274,6 @@ export const menuConfig = [
         icon: "fas fa-user-plus",
         path: "/users/create",
       },
-      {
-        id: "users-permissions",
-        label: "Phân quyền",
-        icon: "fas fa-key",
-        path: "/users/permissions",
-      },
     ],
   },
   {

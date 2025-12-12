@@ -75,8 +75,32 @@ router.get(
 );
 router.put(
   "/:id/permissions",
-  checkPermission("users.manage_permissions"),
+  checkPermission("users.assign_permissions"),
   userController.updateUserPermissions
+);
+
+// User communities management
+router.get(
+  "/:id/communities",
+  checkPermission("users.view"),
+  userController.getUserCommunities
+);
+router.post(
+  "/:id/communities",
+  checkPermission("users.assign_communities"),
+  userController.assignCommunities
+);
+router.delete(
+  "/:id/communities/:communityId",
+  checkPermission("users.remove_communities"),
+  userController.removeCommunity
+);
+
+// Update data scope
+router.put(
+  "/:id/data-scope",
+  checkPermission("users.update"),
+  userController.updateDataScope
 );
 
 module.exports = router;

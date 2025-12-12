@@ -131,21 +131,6 @@ const UserListPage = () => {
     }
   };
 
-  const usersByRole = {
-    admin: (users || []).filter((u) => u.role === "admin"),
-    superior_general: (users || []).filter(
-      (u) => u.role === "superior_general"
-    ),
-    superior_provincial: (users || []).filter(
-      (u) => u.role === "superior_provincial"
-    ),
-    superior_community: (users || []).filter(
-      (u) => u.role === "superior_community"
-    ),
-    secretary: (users || []).filter((u) => u.role === "secretary"),
-    viewer: (users || []).filter((u) => u.role === "viewer"),
-  };
-
   const activeUsers = (users || []).filter((u) => u.status === "active");
   const inactiveUsers = (users || []).filter((u) => u.status === "inactive");
 
@@ -163,18 +148,6 @@ const UserListPage = () => {
     );
   };
 
-  const roleLabel = (role) => {
-    const map = {
-      admin: "Quản trị viên",
-      superior_general: "Tổng quyền",
-      superior_provincial: "Bề trên Tỉnh",
-      superior_community: "Bề trên Cộng đoàn",
-      secretary: "Thư ký",
-      viewer: "Người xem",
-    };
-    return map[role] || role || "-";
-  };
-
   const sortedUsers = useMemo(() => {
     const items = [...(users || [])];
 
@@ -186,8 +159,6 @@ const UserListPage = () => {
           return item.username || "";
         case "email":
           return item.email || "";
-        case "role":
-          return item.role || "";
         case "status":
           return item.status || "";
         case "created_at":
@@ -234,7 +205,7 @@ const UserListPage = () => {
 
       {/* Statistics */}
       <Row className="g-3 mb-4">
-        <Col xs={6} md={3}>
+        <Col xs={12} md={4}>
           <Card className="stat-card">
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center">
@@ -249,7 +220,7 @@ const UserListPage = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col xs={6} md={3}>
+        <Col xs={12} md={4}>
           <Card className="stat-card">
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center">
@@ -264,22 +235,7 @@ const UserListPage = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col xs={6} md={3}>
-          <Card className="stat-card">
-            <Card.Body>
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <small className="text-muted">Quản trị viên</small>
-                  <h4 className="mb-0">{usersByRole.admin.length}</h4>
-                </div>
-                <div className="stat-icon bg-danger">
-                  <i className="fas fa-user-shield"></i>
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col xs={6} md={3}>
+        <Col xs={12} md={4}>
           <Card className="stat-card">
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center">
@@ -312,30 +268,7 @@ const UserListPage = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={3}>
-              <Form.Group>
-                <Form.Label>Vai trò</Form.Label>
-                <Form.Select
-                  value={table.filters?.role || ""}
-                  onChange={(e) =>
-                    table.updateFilters({
-                      ...table.filters,
-                      role: e.target.value,
-                    })
-                  }
-                  size="lg"
-                >
-                  <option value="">Tất cả</option>
-                  <option value="admin">Quản trị viên</option>
-                  <option value="superior_general">Tổng quyền</option>
-                  <option value="superior_provincial">Bề trên Tỉnh</option>
-                  <option value="superior_community">Bề trên Cộng đoàn</option>
-                  <option value="secretary">Thư ký</option>
-                  <option value="viewer">Người xem</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            <Col md={3}>
+            <Col md={4}>
               <Form.Group>
                 <Form.Label>Trạng thái</Form.Label>
                 <Form.Select
@@ -354,7 +287,7 @@ const UserListPage = () => {
                 </Form.Select>
               </Form.Group>
             </Col>
-            <Col md={2}>
+            <Col md={4}>
               <Button
                 variant="outline-secondary"
                 className="w-100"
@@ -420,13 +353,6 @@ const UserListPage = () => {
                       </th>
                       <th
                         role="button"
-                        onClick={() => handleSort("role")}
-                        className="text-nowrap"
-                      >
-                        Vai trò {renderSortIcon("role")}
-                      </th>
-                      <th
-                        role="button"
                         onClick={() => handleSort("status")}
                         className="text-nowrap"
                       >
@@ -457,7 +383,6 @@ const UserListPage = () => {
                           </td>
                           <td>{user.username || "-"}</td>
                           <td>{user.email || "-"}</td>
-                          <td>{roleLabel(user.role)}</td>
                           <td>
                             <Badge bg={isActive ? "success" : "secondary"}>
                               {isActive ? "Đang hoạt động" : "Đã khóa"}
