@@ -270,8 +270,8 @@ const UserDetailPage = () => {
 
           {/* Contact Info */}
           <Card className="user-detail-card mt-4">
-            <Card.Header className="bg-white border-bottom">
-              <h5 className="mb-0">
+            <Card.Header className="bg-primary text-white border-0">
+              <h5 className="mb-0 text-white">
                 <i className="fas fa-address-card me-2"></i>
                 Thông tin liên hệ
               </h5>
@@ -304,8 +304,8 @@ const UserDetailPage = () => {
 
           {/* Account Info */}
           <Card className="user-detail-card mt-4">
-            <Card.Header className="bg-white border-bottom">
-              <h5 className="mb-0">
+            <Card.Header className="bg-primary text-white border-0">
+              <h5 className="mb-0 text-white">
                 <i className="fas fa-info-circle me-2"></i>
                 Thông tin tài khoản
               </h5>
@@ -339,6 +339,7 @@ const UserDetailPage = () => {
                   </ListGroup.Item>
                 )}
               </ListGroup>
+              d
             </Card.Body>
           </Card>
         </Col>
@@ -347,8 +348,8 @@ const UserDetailPage = () => {
         <Col lg={8}>
           {/* Permissions */}
           <Card className="user-detail-card mb-4">
-            <Card.Header className="bg-white border-bottom">
-              <h5 className="mb-0">
+            <Card.Header className="bg-primary text-white border-0">
+              <h5 className="mb-0 text-white">
                 <i className="fas fa-shield-alt me-2"></i>
                 Quyền hạn
               </h5>
@@ -425,8 +426,8 @@ const UserDetailPage = () => {
 
           {/* Activity Log */}
           <Card className="user-detail-card">
-            <Card.Header className="bg-white border-bottom">
-              <h5 className="mb-0">
+            <Card.Header className="bg-primary text-white border-0">
+              <h5 className="mb-0 text-white">
                 <i className="fas fa-history me-2"></i>
                 Lịch sử hoạt động
               </h5>

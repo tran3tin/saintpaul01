@@ -131,8 +131,12 @@ const UserListPage = () => {
     }
   };
 
-  const activeUsers = (users || []).filter((u) => u.status === "active");
-  const inactiveUsers = (users || []).filter((u) => u.status === "inactive");
+  const activeUsers = (users || []).filter(
+    (u) => u.is_active === 1 || u.is_active === true
+  );
+  const inactiveUsers = (users || []).filter(
+    (u) => u.is_active === 0 || u.is_active === false
+  );
 
   const handleSort = (key) => {
     table.handleSort(key);
@@ -272,18 +276,18 @@ const UserListPage = () => {
               <Form.Group>
                 <Form.Label>Trạng thái</Form.Label>
                 <Form.Select
-                  value={table.filters?.status || ""}
+                  value={table.filters?.is_active || ""}
                   onChange={(e) =>
                     table.updateFilters({
                       ...table.filters,
-                      status: e.target.value,
+                      is_active: e.target.value,
                     })
                   }
                   size="lg"
                 >
                   <option value="">Tất cả</option>
-                  <option value="active">Đang hoạt động</option>
-                  <option value="inactive">Đã khóa</option>
+                  <option value="1">Đang hoạt động</option>
+                  <option value="0">Đã khóa</option>
                 </Form.Select>
               </Form.Group>
             </Col>
@@ -370,7 +374,8 @@ const UserListPage = () => {
                   </thead>
                   <tbody>
                     {sortedUsers.map((user, index) => {
-                      const isActive = user.status === "active";
+                      const isActive =
+                        user.is_active === 1 || user.is_active === true;
                       return (
                         <tr key={user.id}>
                           <td>

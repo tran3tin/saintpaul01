@@ -745,6 +745,219 @@ const getUserPermissions = async (req, res) => {
   }
 };
 
+/**
+ * Get user communities
+ */
+const getUserCommunities = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID người dùng là bắt buộc",
+      });
+    }
+
+    const communities = await UserModel.executeQuery(
+      `SELECT c.* 
+       FROM communities c
+       INNER JOIN user_communities uc ON uc.community_id = c.id
+       WHERE uc.user_id = ?
+       ORDER BY c.name`,
+      [id]
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: communities,
+    });
+  } catch (error) {
+    console.error("getUserCommunities error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Không thể lấy danh sách cộng đoàn",
+    });
+  }
+};
+
+/**
+ * Assign communities to user
+ */
+const assignCommunities = async (req, res) => {
+  try {
+    if (!ensureAdmin(req, res)) {
+      return;
+    }
+
+    const { id } = req.params;
+    const { community_ids } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID người dùng là bắt buộc",
+      });
+    }
+
+    if (!community_ids || !Array.isArray(community_ids)) {
+      return res.status(400).json({
+        success: false,
+        message: "Danh sách cộng đoàn không hợp lệ",
+      });
+    }
+
+    // Check if user exists
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy người dùng",
+      });
+    }
+
+    // Delete existing assignments
+    await UserModel.executeQuery(
+      "DELETE FROM user_communities WHERE user_id = ?",
+      [id]
+    );
+
+    // Insert new assignments
+    if (community_ids.length > 0) {
+      const values = community_ids.map((cid) => [id, cid, req.user.id]);
+      await UserModel.executeQuery(
+        `INSERT INTO user_communities (user_id, community_id, granted_by) VALUES ?`,
+        [values]
+      );
+    }
+
+    // Clear scope cache
+    const { clearScopeCache } = require("../middlewares/dataScope");
+    clearScopeCache(id);
+
+    // Log audit
+    await logAudit(req, "ASSIGN_COMMUNITIES", id, null, { community_ids });
+
+    return res.status(200).json({
+      success: true,
+      message: "Gán cộng đoàn thành công",
+    });
+  } catch (error) {
+    console.error("assignCommunities error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Không thể gán cộng đoàn",
+    });
+  }
+};
+
+/**
+ * Remove community from user
+ */
+const removeCommunity = async (req, res) => {
+  try {
+    if (!ensureAdmin(req, res)) {
+      return;
+    }
+
+    const { id, communityId } = req.params;
+
+    if (!id || !communityId) {
+      return res.status(400).json({
+        success: false,
+        message: "Thiếu thông tin",
+      });
+    }
+
+    await UserModel.executeQuery(
+      "DELETE FROM user_communities WHERE user_id = ? AND community_id = ?",
+      [id, communityId]
+    );
+
+    // Clear scope cache
+    const { clearScopeCache } = require("../middlewares/dataScope");
+    clearScopeCache(id);
+
+    // Log audit
+    await logAudit(req, "REMOVE_COMMUNITY", id, null, { communityId });
+
+    return res.status(200).json({
+      success: true,
+      message: "Đã gỡ khỏi cộng đoàn",
+    });
+  } catch (error) {
+    console.error("removeCommunity error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Không thể gỡ cộng đoàn",
+    });
+  }
+};
+
+/**
+ * Update user data scope
+ */
+const updateDataScope = async (req, res) => {
+  try {
+    if (!ensureAdmin(req, res)) {
+      return;
+    }
+
+    const { id } = req.params;
+    const { data_scope } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID người dùng là bắt buộc",
+      });
+    }
+
+    if (!["all", "community", "own"].includes(data_scope)) {
+      return res.status(400).json({
+        success: false,
+        message: "data_scope không hợp lệ (all/community/own)",
+      });
+    }
+
+    // Check if user exists
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy người dùng",
+      });
+    }
+
+    // Update data_scope
+    await UserModel.update(id, { data_scope });
+
+    // Clear scope cache
+    const { clearScopeCache } = require("../middlewares/dataScope");
+    clearScopeCache(id);
+
+    // Log audit
+    await logAudit(
+      req,
+      "UPDATE_DATA_SCOPE",
+      id,
+      { data_scope: user.data_scope },
+      { data_scope }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Cập nhật phạm vi dữ liệu thành công",
+    });
+  } catch (error) {
+    console.error("updateDataScope error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Không thể cập nhật phạm vi dữ liệu",
+    });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -759,4 +972,8 @@ module.exports = {
   getAllPermissions,
   updateUserPermissions,
   getUserPermissions,
+  getUserCommunities,
+  assignCommunities,
+  removeCommunity,
+  updateDataScope,
 };
