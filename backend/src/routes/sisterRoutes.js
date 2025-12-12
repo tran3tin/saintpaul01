@@ -1,6 +1,7 @@
 const express = require("express");
 const sisterController = require("../controllers/sisterController");
-const { authenticateToken, authorize } = require("../middlewares/auth");
+const { authenticateToken, checkPermission } = require("../middlewares/auth");
+const { attachDataScope } = require("../middlewares/dataScope");
 const {
   validateSisterCreate,
   validateSisterUpdate,
@@ -12,13 +13,6 @@ const { cacheMiddleware } = require("../middlewares/cache");
 
 const router = express.Router();
 
-const editorRoles = [
-  "admin",
-  "secretary",
-  "superior_general",
-  "superior_provincial",
-];
-
 const logSisterAction = (action) =>
   logAction({
     action,
@@ -27,15 +21,31 @@ const logSisterAction = (action) =>
     getNewValue: (req, res) => (res.locals.payload ? res.locals.payload : null),
   });
 
+// Apply authentication and data scope to all routes
 router.use(authenticateToken);
+router.use(attachDataScope);
 
-router.get("/", sisterController.getAllSisters);
-router.get("/search", sisterController.searchSisters);
-router.get("/:id", sisterController.getSisterById);
+// View routes - require sisters.view permission
+router.get(
+  "/",
+  checkPermission("sisters.view_list"),
+  sisterController.getAllSisters
+);
+router.get(
+  "/search",
+  checkPermission("sisters.view_list"),
+  sisterController.searchSisters
+);
+router.get(
+  "/:id",
+  checkPermission("sisters.view_detail"),
+  sisterController.getSisterById
+);
 
+// Create route
 router.post(
   "/",
-  authorize(...editorRoles),
+  checkPermission("sisters.create"),
   validateSisterCreate,
   handleValidationErrors,
   (req, res, next) => {
@@ -46,9 +56,10 @@ router.post(
   logSisterAction("CREATE")
 );
 
+// Update route
 router.put(
   "/:id",
-  authorize(...editorRoles),
+  checkPermission("sisters.update_basic"),
   validateSisterUpdate,
   handleValidationErrors,
   (req, res, next) => {
@@ -60,9 +71,10 @@ router.put(
   logSisterAction("UPDATE")
 );
 
+// Delete route
 router.delete(
   "/:id",
-  authorize(...editorRoles),
+  checkPermission("sisters.delete"),
   (req, res, next) => {
     res.locals.auditAction = "DELETE";
     next();
@@ -71,25 +83,28 @@ router.delete(
   logSisterAction("DELETE")
 );
 
+// Photo upload
 router.post(
   "/:id/photo",
-  authorize(...editorRoles),
+  checkPermission("sisters.upload_avatar"),
   uploadPhoto,
   sisterController.updateSisterPhoto,
   logSisterAction("UPLOAD_PHOTO")
 );
 
+// Document upload
 router.post(
   "/:id/documents",
-  authorize(...editorRoles),
+  checkPermission("sisters.upload_documents"),
   uploadDocuments,
   sisterController.uploadSisterDocuments,
   logSisterAction("UPLOAD_DOCUMENTS")
 );
 
+// Delete document
 router.delete(
   "/:id/documents/:docIndex",
-  authorize(...editorRoles),
+  checkPermission("sisters.upload_documents"),
   sisterController.deleteSisterDocument,
   logSisterAction("DELETE_DOCUMENT")
 );

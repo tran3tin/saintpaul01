@@ -1,6 +1,7 @@
 const express = require("express");
 const communityController = require("../controllers/communityController");
-const { authenticateToken, authorize } = require("../middlewares/auth");
+const { authenticateToken, checkPermission } = require("../middlewares/auth");
+const { attachDataScope } = require("../middlewares/dataScope");
 const {
   validateCommunityCreate,
   handleValidationErrors,
@@ -9,23 +10,29 @@ const { cacheMiddleware } = require("../middlewares/cache");
 
 const router = express.Router();
 
-const editorRoles = [
-  "admin",
-  "superior_general",
-  "superior_provincial",
-  "superior_community",
-  "secretary",
-];
-
 router.use(authenticateToken);
+router.use(attachDataScope);
 
-router.get("/", cacheMiddleware(600), communityController.getAllCommunities);
-router.get("/:id", communityController.getCommunityById);
-router.get("/:id/members", communityController.getCommunityMembers);
+router.get(
+  "/",
+  cacheMiddleware(600),
+  checkPermission("communities.view_list"),
+  communityController.getAllCommunities
+);
+router.get(
+  "/:id",
+  checkPermission("communities.view_detail"),
+  communityController.getCommunityById
+);
+router.get(
+  "/:id/members",
+  checkPermission("communities.view_assignments"),
+  communityController.getCommunityMembers
+);
 
 router.post(
   "/",
-  authorize(...editorRoles),
+  checkPermission("communities.create"),
   validateCommunityCreate,
   handleValidationErrors,
   communityController.createCommunity
@@ -33,7 +40,7 @@ router.post(
 
 router.put(
   "/:id",
-  authorize(...editorRoles),
+  checkPermission("communities.update"),
   validateCommunityCreate,
   handleValidationErrors,
   communityController.updateCommunity
@@ -41,26 +48,26 @@ router.put(
 
 router.delete(
   "/:id",
-  authorize(...editorRoles),
+  checkPermission("communities.delete"),
   communityController.deleteCommunity
 );
 
 // Member management routes
 router.post(
   "/:id/members",
-  authorize(...editorRoles),
+  checkPermission("communities.assign_sister"),
   communityController.addMember
 );
 
 router.put(
   "/:id/members/:memberId",
-  authorize(...editorRoles),
+  checkPermission("communities.assign_sister"),
   communityController.updateMemberRole
 );
 
 router.delete(
   "/:id/members/:memberId",
-  authorize(...editorRoles),
+  checkPermission("communities.remove_sister"),
   communityController.removeMember
 );
 

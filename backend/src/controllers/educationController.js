@@ -3,6 +3,7 @@ const path = require("path");
 const EducationModel = require("../models/EducationModel");
 const SisterModel = require("../models/SisterModel");
 const AuditLogModel = require("../models/AuditLogModel");
+const { applyScopeFilter, checkScopeAccess } = require("../utils/scopeHelper");
 
 const viewerRoles = [
   "admin",
@@ -50,12 +51,26 @@ const logAudit = async (req, action, recordId, oldValue, newValue) => {
 
 const getEducationBySister = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) return;
-
     const { sisterId } = req.params;
     const sister = await SisterModel.findById(sisterId);
     if (!sister) {
       return res.status(404).json({ message: "Sister not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      sisterId,
+      "sisters",
+      async (sisterRecord) => sisterRecord.current_community_id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You don't have permission to view this sister's education records",
+      });
     }
 
     const education = await EducationModel.findBySisterId(sisterId);
@@ -72,8 +87,6 @@ const getEducationBySister = async (req, res) => {
 
 const getEducationById = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) return;
-
     const { id } = req.params;
     const education = await EducationModel.findById(id);
     if (!education) {
@@ -101,8 +114,6 @@ const getEducationById = async (req, res) => {
 
 const addEducation = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) return;
-
     const {
       sister_id: sisterId,
       level,
@@ -144,8 +155,6 @@ const addEducation = async (req, res) => {
 
 const updateEducation = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) return;
-
     const { id } = req.params;
     const existing = await EducationModel.findById(id);
     if (!existing) {
@@ -188,8 +197,6 @@ const removeCertificateFile = (certificateUrl) => {
 
 const deleteEducation = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) return;
-
     const { id } = req.params;
     const existing = await EducationModel.findById(id);
     if (!existing) {
@@ -218,8 +225,6 @@ const deleteEducation = async (req, res) => {
 
 const uploadCertificate = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) return;
-
     const { id } = req.params;
     const education = await EducationModel.findById(id);
     if (!education) {
@@ -252,12 +257,35 @@ const uploadCertificate = async (req, res) => {
 
 const getStatisticsByLevel = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) return;
+    const whereClauses = [];
+    const params = [];
+
+    // Apply data scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      whereClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    }
+
+    const whereClause = whereClauses.length
+      ? `WHERE ${whereClauses.join(" AND ")}`
+      : "";
 
     const stats = await EducationModel.executeQuery(
-      `SELECT level, COUNT(*) AS total
-       FROM education
-       GROUP BY level`
+      `SELECT e.level, COUNT(*) AS total
+       FROM education e
+       INNER JOIN sisters s ON e.sister_id = s.id
+       ${whereClause}
+       GROUP BY e.level`,
+      params
     );
 
     return res.status(200).json({ data: stats });
@@ -271,8 +299,6 @@ const getStatisticsByLevel = async (req, res) => {
 
 const getAllEducation = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) return;
-
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const limit = Math.min(
       Math.max(parseInt(req.query.limit, 10) || 10, 1),
@@ -281,25 +307,43 @@ const getAllEducation = async (req, res) => {
     const offset = (page - 1) * limit;
     const { search, level, status } = req.query;
 
-    let whereClause = "1=1";
+    const whereClauses = ["1=1"];
     const params = [];
 
     if (search) {
-      whereClause +=
-        " AND (s.birth_name LIKE ? OR s.saint_name LIKE ? OR e.institution LIKE ? OR e.major LIKE ?)";
+      whereClauses.push(
+        "(s.birth_name LIKE ? OR s.saint_name LIKE ? OR e.institution LIKE ? OR e.major LIKE ?)"
+      );
       const searchPattern = `%${search}%`;
       params.push(searchPattern, searchPattern, searchPattern, searchPattern);
     }
 
     if (level) {
-      whereClause += " AND e.level = ?";
+      whereClauses.push("e.level = ?");
       params.push(level);
     }
 
     if (status) {
-      whereClause += " AND e.status = ?";
+      whereClauses.push("e.status = ?");
       params.push(status);
     }
+
+    // Apply data scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      whereClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    }
+
+    const whereClause = whereClauses.join(" AND ");
 
     // Get total count
     const countResult = await EducationModel.executeQuery(

@@ -1,6 +1,7 @@
 const HealthRecordModel = require("../models/HealthRecordModel");
 const SisterModel = require("../models/SisterModel");
 const AuditLogModel = require("../models/AuditLogModel");
+const { applyScopeFilter, checkScopeAccess } = require("../utils/scopeHelper");
 const { logSensitiveAccess } = require("../middlewares/auditLog");
 
 const privilegedRoles = ["admin", "superior_general", "superior_provincial"];

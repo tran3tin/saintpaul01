@@ -4,6 +4,7 @@ const SisterModel = require("../models/SisterModel");
 const CommunityAssignmentModel = require("../models/CommunityAssignmentModel");
 const AuditLogModel = require("../models/AuditLogModel");
 const UserModel = require("../models/UserModel");
+const { applyScopeFilter, checkScopeAccess } = require("../utils/scopeHelper");
 
 const globalAccessRoles = ["admin", "superior_general", "superior_provincial"];
 const communityRole = "superior_community";

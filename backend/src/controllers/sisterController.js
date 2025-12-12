@@ -5,6 +5,7 @@ const VocationJourneyModel = require("../models/VocationJourneyModel");
 const CommunityAssignmentModel = require("../models/CommunityAssignmentModel");
 const MissionModel = require("../models/MissionModel");
 const AuditLogModel = require("../models/AuditLogModel");
+const { applyScopeFilter, checkScopeAccess } = require("../utils/scopeHelper");
 
 const UPLOADS_ROOT = path.resolve(__dirname, "../uploads");
 
@@ -122,10 +123,6 @@ const buildFilters = ({
 
 const getAllSisters = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, permittedViewerRoles)) {
-      return;
-    }
-
     const { page, limit, offset } = getPagination(req);
     const minAge = req.query.minAge
       ? parseInt(req.query.minAge, 10)
@@ -156,6 +153,22 @@ const getAllSisters = async (req, res) => {
         .replace(/\bcode\b/g, "s.code")
         .replace(/\bdate_of_birth\b/g, "s.date_of_birth");
     });
+
+    // Apply data scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        userIdField: "s.id",
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      prefixedClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    }
 
     const whereClause = prefixedClauses.length
       ? `WHERE ${prefixedClauses.join(" AND ")}`
@@ -226,14 +239,25 @@ const getAllSisters = async (req, res) => {
 
 const getSisterById = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, permittedViewerRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const sister = await SisterModel.findById(id);
     if (!sister) {
       return res.status(404).json({ message: "Sister not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "sisters",
+      async (sisterRecord) => sisterRecord.current_community_id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to view this sister's details",
+      });
     }
 
     const [profile, currentCommunity, currentMission] = await Promise.all([
@@ -299,14 +323,25 @@ const createSister = async (req, res) => {
 
 const updateSister = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, permittedEditorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const existing = await SisterModel.findById(id);
     if (!existing) {
       return res.status(404).json({ message: "Sister not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "sisters",
+      async (sisterRecord) => sisterRecord.current_community_id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to update this sister",
+      });
     }
 
     const allowedFields = [
@@ -390,14 +425,25 @@ const updateSister = async (req, res) => {
 
 const deleteSister = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, permittedEditorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const sister = await SisterModel.findById(id);
     if (!sister) {
       return res.status(404).json({ message: "Sister not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "sisters",
+      async (sisterRecord) => sisterRecord.current_community_id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to delete this sister",
+      });
     }
 
     // Use 'left' status as defined in database ENUM('active','left')
@@ -432,14 +478,25 @@ const removeOldPhoto = (photoUrl) => {
 
 const updateSisterPhoto = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, permittedEditorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const sister = await SisterModel.findById(id);
     if (!sister) {
       return res.status(404).json({ message: "Sister not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "sisters",
+      async (sisterRecord) => sisterRecord.current_community_id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to update this sister's photo",
+      });
     }
 
     if (!req.file) {
@@ -465,14 +522,26 @@ const updateSisterPhoto = async (req, res) => {
 
 const uploadSisterDocuments = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, permittedEditorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const sister = await SisterModel.findById(id);
     if (!sister) {
       return res.status(404).json({ message: "Sister not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "sisters",
+      async (sisterRecord) => sisterRecord.current_community_id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You don't have permission to upload documents for this sister",
+      });
     }
 
     if (!req.files || req.files.length === 0) {
@@ -523,14 +592,26 @@ const uploadSisterDocuments = async (req, res) => {
 
 const deleteSisterDocument = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, permittedEditorRoles)) {
-      return;
-    }
-
     const { id, docIndex } = req.params;
     const sister = await SisterModel.findById(id);
     if (!sister) {
       return res.status(404).json({ message: "Sister not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "sisters",
+      async (sisterRecord) => sisterRecord.current_community_id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You don't have permission to delete documents for this sister",
+      });
     }
 
     let documents = [];

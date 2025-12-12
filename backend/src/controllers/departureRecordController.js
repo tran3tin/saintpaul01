@@ -1,6 +1,7 @@
 const DepartureRecordModel = require("../models/DepartureRecordModel");
 const SisterModel = require("../models/SisterModel");
 const AuditLogModel = require("../models/AuditLogModel");
+const { applyScopeFilter, checkScopeAccess } = require("../utils/scopeHelper");
 
 const viewerRoles = [
   "admin",

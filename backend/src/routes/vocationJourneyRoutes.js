@@ -1,6 +1,7 @@
 const express = require("express");
 const vocationJourneyController = require("../controllers/vocationJourneyController");
-const { authenticateToken, authorize } = require("../middlewares/auth");
+const { authenticateToken, checkPermission } = require("../middlewares/auth");
+const { attachDataScope } = require("../middlewares/dataScope");
 const {
   validateVocationJourneyCreate,
   handleValidationErrors,
@@ -8,44 +9,53 @@ const {
 
 const router = express.Router();
 
-const editorRoles = [
-  "admin",
-  "superior_general",
-  "superior_provincial",
-  "superior_community",
-  "secretary",
-];
-
 router.use(authenticateToken);
+router.use(attachDataScope);
 
 // Get all journeys with pagination
-router.get("/", vocationJourneyController.getAllJourneys);
+router.get(
+  "/",
+  checkPermission("vocation.view_list"),
+  vocationJourneyController.getAllJourneys
+);
 
 // Statistics - must be before /:id
-router.get("/statistics", vocationJourneyController.getStatisticsByStage);
+router.get(
+  "/statistics",
+  checkPermission("vocation.view_list"),
+  vocationJourneyController.getStatisticsByStage
+);
 
 // Get journeys by sister - must be before /:id
-router.get("/sister/:sisterId", vocationJourneyController.getJourneyBySister);
+router.get(
+  "/sister/:sisterId",
+  checkPermission("vocation.view_list"),
+  vocationJourneyController.getJourneyBySister
+);
 
 // Get journey by ID - must be after specific routes
-router.get("/:id", vocationJourneyController.getJourneyById);
+router.get(
+  "/:id",
+  checkPermission("vocation.view_detail"),
+  vocationJourneyController.getJourneyById
+);
 
 // Create new journey with sister_id in body
 router.post(
   "/",
-  authorize(...editorRoles),
+  checkPermission("vocation.create"),
   vocationJourneyController.createJourney
 );
 
 router.put(
   "/:stageId",
-  authorize(...editorRoles),
+  checkPermission("vocation.update"),
   vocationJourneyController.updateJourneyStage
 );
 
 router.delete(
   "/:stageId",
-  authorize(...editorRoles),
+  checkPermission("vocation.update"),
   vocationJourneyController.deleteJourneyStage
 );
 

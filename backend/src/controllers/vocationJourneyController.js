@@ -1,6 +1,7 @@
 const VocationJourneyModel = require("../models/VocationJourneyModel");
 const SisterModel = require("../models/SisterModel");
 const AuditLogModel = require("../models/AuditLogModel");
+const { applyScopeFilter, checkScopeAccess } = require("../utils/scopeHelper");
 
 const viewerRoles = [
   "admin",

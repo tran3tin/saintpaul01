@@ -1,36 +1,54 @@
 const express = require("express");
 const missionController = require("../controllers/missionController");
-const { authenticateToken, authorize } = require("../middlewares/auth");
+const { authenticateToken, checkPermission } = require("../middlewares/auth");
+const { attachDataScope } = require("../middlewares/dataScope");
 
 const router = express.Router();
 
-const editorRoles = [
-  "admin",
-  "superior_general",
-  "superior_provincial",
-  "superior_community",
-  "secretary",
-];
-
 router.use(authenticateToken);
+router.use(attachDataScope);
 
-router.get("/", missionController.getAllMissions);
-router.get("/sister/:sisterId", missionController.getMissionsBySister);
-router.get("/field/:field", missionController.getSistersByMissionField);
-router.get("/:id", missionController.getMissionById);
+router.get(
+  "/",
+  checkPermission("missions.view_list"),
+  missionController.getAllMissions
+);
+router.get(
+  "/sister/:sisterId",
+  checkPermission("missions.view_list"),
+  missionController.getMissionsBySister
+);
+router.get(
+  "/field/:field",
+  checkPermission("missions.view_list"),
+  missionController.getSistersByMissionField
+);
+router.get(
+  "/:id",
+  checkPermission("missions.view_detail"),
+  missionController.getMissionById
+);
 
-router.post("/", authorize(...editorRoles), missionController.createMission);
+router.post(
+  "/",
+  checkPermission("missions.create"),
+  missionController.createMission
+);
 
-router.put("/:id", authorize(...editorRoles), missionController.updateMission);
+router.put(
+  "/:id",
+  checkPermission("missions.update"),
+  missionController.updateMission
+);
 router.delete(
   "/:id",
-  authorize(...editorRoles),
+  checkPermission("missions.delete"),
   missionController.deleteMission
 );
 
 router.post(
   "/:id/end",
-  authorize(...editorRoles),
+  checkPermission("missions.update"),
   missionController.endMission
 );
 

@@ -21,13 +21,30 @@ const authenticateToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    // Get user details including permissions and scope info
+    const db = require("../config/database");
+    const [users] = await db.query(
+      `SELECT id, username, is_admin, is_super_admin, data_scope 
+       FROM users WHERE id = ?`,
+      [decoded.id]
+    );
+
+    if (!users || users.length === 0) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const user = users[0];
+
     // Get user permissions
     const permissions = await UserModel.getPermissions(decoded.id);
-    const isAdmin = await UserModel.isAdmin(decoded.id);
+    const isAdmin = user.is_admin === 1;
+    const isSuperAdmin = user.is_super_admin === 1;
 
     req.user = {
       ...decoded,
       isAdmin,
+      is_super_admin: isSuperAdmin,
+      data_scope: user.data_scope,
       permissions: permissions.map((p) => p.name),
     };
 
@@ -56,12 +73,17 @@ const authorize =
  */
 const checkPermission = (requiredPermission) => {
   return (req, res, next) => {
-    // Admin bypass all checks
+    // Super admin bypasses ALL permission checks
+    if (req.user && req.user.is_super_admin) {
+      return next();
+    }
+
+    // Regular admin bypass all checks
     if (req.user && req.user.isAdmin) {
       return next();
     }
 
-    // Check if user has required permission
+    // Check if user has the specific required permission
     if (
       !req.user ||
       !req.user.permissions ||

@@ -2,6 +2,7 @@ const CommunityModel = require("../models/CommunityModel");
 const CommunityAssignmentModel = require("../models/CommunityAssignmentModel");
 const AuditLogModel = require("../models/AuditLogModel");
 const { clearCacheForResource } = require("../middlewares/cache");
+const { applyScopeFilter, checkScopeAccess } = require("../utils/scopeHelper");
 
 const viewerRoles = [
   "admin",
@@ -105,20 +106,35 @@ const isCodeExists = async (code, excludeId = null) => {
 
 const getAllCommunities = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) {
-      return;
-    }
-
     const { page, limit, offset } = getPagination(req);
     const { status } = req.query;
 
-    let whereClause = "";
+    const whereClauses = [];
     const params = [];
 
     if (status && status !== "all") {
-      whereClause = "WHERE c.status = ?";
+      whereClauses.push("c.status = ?");
       params.push(status);
     }
+
+    // Apply data scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "c",
+      {
+        communityIdField: "c.id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      whereClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    }
+
+    const whereClause = whereClauses.length
+      ? `WHERE ${whereClauses.join(" AND ")}`
+      : "";
 
     const totalRows = await CommunityModel.executeQuery(
       `SELECT COUNT(*) AS total FROM communities c ${whereClause}`,
@@ -156,14 +172,25 @@ const getAllCommunities = async (req, res) => {
 
 const getCommunityById = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const community = await CommunityModel.findById(id);
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "communities",
+      async () => id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to view this community",
+      });
     }
 
     const members = await CommunityModel.getMembersList(id);
@@ -182,10 +209,6 @@ const getCommunityById = async (req, res) => {
 
 const createCommunity = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const payload = { ...req.body };
 
     // Auto-generate code if not provided
@@ -216,14 +239,25 @@ const createCommunity = async (req, res) => {
 
 const updateCommunity = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const existing = await CommunityModel.findById(id);
     if (!existing) {
       return res.status(404).json({ message: "Community not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "communities",
+      async () => id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to update this community",
+      });
     }
 
     const payload = { ...req.body };
@@ -253,14 +287,25 @@ const updateCommunity = async (req, res) => {
 
 const deleteCommunity = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const existing = await CommunityModel.findById(id);
     if (!existing) {
       return res.status(404).json({ message: "Community not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "communities",
+      async () => id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to delete this community",
+      });
     }
 
     const memberCountRows = await CommunityAssignmentModel.executeQuery(
@@ -293,14 +338,25 @@ const deleteCommunity = async (req, res) => {
 
 const getCommunityMembers = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const community = await CommunityModel.findById(id);
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "communities",
+      async () => id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to view this community's members",
+      });
     }
 
     const members = await CommunityModel.getMembersList(id);
@@ -316,10 +372,6 @@ const getCommunityMembers = async (req, res) => {
 // Add member to community
 const addMember = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const {
       sister_id,
@@ -335,6 +387,21 @@ const addMember = async (req, res) => {
     const community = await CommunityModel.findById(id);
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "communities",
+      async () => id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to add members to this community",
+      });
     }
 
     // Validate required fields
@@ -374,16 +441,28 @@ const addMember = async (req, res) => {
 // Remove member from community
 const removeMember = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const { id, memberId } = req.params;
 
     // Check if community exists
     const community = await CommunityModel.findById(id);
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "communities",
+      async () => id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You don't have permission to remove members from this community",
+      });
     }
 
     // Check if assignment exists
@@ -411,10 +490,6 @@ const removeMember = async (req, res) => {
 // Update member role in community
 const updateMemberRole = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const { id, memberId } = req.params;
     const { role, start_date, end_date, decision_number, notes } = req.body;
 
@@ -422,6 +497,22 @@ const updateMemberRole = async (req, res) => {
     const community = await CommunityModel.findById(id);
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
+    }
+
+    // Check scope access
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      id,
+      "communities",
+      async () => id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You don't have permission to update members in this community",
+      });
     }
 
     // Check if assignment exists

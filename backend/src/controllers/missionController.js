@@ -1,6 +1,7 @@
 const MissionModel = require("../models/MissionModel");
 const SisterModel = require("../models/SisterModel");
 const AuditLogModel = require("../models/AuditLogModel");
+const { applyScopeFilter, checkScopeAccess } = require("../utils/scopeHelper");
 
 const viewerRoles = [
   "admin",
@@ -50,19 +51,39 @@ const logAudit = async (req, action, recordId, oldValue, newValue) => {
 
 const getAllMissions = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) {
-      return;
+    const { field } = req.query;
+    const whereClauses = [];
+    const params = [];
+
+    if (field) {
+      whereClauses.push("m.field = ?");
+      params.push(field);
     }
 
-    const { field } = req.query;
-    const filterClause = field ? "WHERE field = ?" : "";
-    const params = field ? [field] : [];
+    // Apply data scope filter - missions are related to sisters
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      whereClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    }
+
+    const whereClause = whereClauses.length
+      ? `WHERE ${whereClauses.join(" AND ")}`
+      : "";
 
     const missions = await MissionModel.executeQuery(
       `SELECT m.*, s.saint_name as religious_name, s.birth_name as sister_name
        FROM missions m
        INNER JOIN sisters s ON s.id = m.sister_id
-       ${filterClause}
+       ${whereClause}
        ORDER BY m.start_date DESC`,
       params
     );
@@ -76,14 +97,25 @@ const getAllMissions = async (req, res) => {
 
 const getMissionsBySister = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) {
-      return;
-    }
-
     const { sisterId } = req.params;
     const sister = await SisterModel.findById(sisterId);
     if (!sister) {
       return res.status(404).json({ message: "Sister not found" });
+    }
+
+    // Check scope access for the sister
+    const hasAccess = await checkScopeAccess(
+      req.userScope,
+      sisterId,
+      "sisters",
+      async (sisterRecord) => sisterRecord.current_community_id
+    );
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to view this sister's missions",
+      });
     }
 
     const missions = await MissionModel.findBySisterId(sisterId);
@@ -98,10 +130,6 @@ const getMissionsBySister = async (req, res) => {
 
 const getMissionById = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const missions = await MissionModel.executeQuery(
       `SELECT m.*, 
@@ -141,10 +169,6 @@ const getMissionById = async (req, res) => {
 
 const createMission = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const {
       sister_id: sisterId,
       field,
@@ -168,7 +192,10 @@ const createMission = async (req, res) => {
     }
 
     // Validate date range
-    if (normalizedEndDate && new Date(normalizedEndDate) < new Date(startDate)) {
+    if (
+      normalizedEndDate &&
+      new Date(normalizedEndDate) < new Date(startDate)
+    ) {
       return res
         .status(400)
         .json({ message: "end_date must be after start_date" });
@@ -195,10 +222,6 @@ const createMission = async (req, res) => {
 
 const updateMission = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const existingRows = await MissionModel.executeQuery(
       "SELECT * FROM missions WHERE id = ?",
@@ -207,6 +230,24 @@ const updateMission = async (req, res) => {
     const mission = existingRows[0];
     if (!mission) {
       return res.status(404).json({ message: "Mission not found" });
+    }
+
+    // Check scope access - check if user has access to the sister of this mission
+    const sister = await SisterModel.findById(mission.sister_id);
+    if (sister) {
+      const hasAccess = await checkScopeAccess(
+        req.userScope,
+        mission.sister_id,
+        "sisters",
+        async (sisterRecord) => sisterRecord.current_community_id
+      );
+
+      if (!hasAccess) {
+        return res.status(403).json({
+          success: false,
+          message: "You don't have permission to update this mission",
+        });
+      }
     }
 
     const allowedFields = [
@@ -265,10 +306,6 @@ const updateMission = async (req, res) => {
 
 const endMission = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const existingRows = await MissionModel.executeQuery(
       "SELECT * FROM missions WHERE id = ?",
@@ -277,6 +314,24 @@ const endMission = async (req, res) => {
     const mission = existingRows[0];
     if (!mission) {
       return res.status(404).json({ message: "Mission not found" });
+    }
+
+    // Check scope access
+    const sister = await SisterModel.findById(mission.sister_id);
+    if (sister) {
+      const hasAccess = await checkScopeAccess(
+        req.userScope,
+        mission.sister_id,
+        "sisters",
+        async (sisterRecord) => sisterRecord.current_community_id
+      );
+
+      if (!hasAccess) {
+        return res.status(403).json({
+          success: false,
+          message: "You don't have permission to end this mission",
+        });
+      }
     }
 
     const { end_date: endDate } = req.body;
@@ -294,22 +349,41 @@ const endMission = async (req, res) => {
 
 const getSistersByMissionField = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, viewerRoles)) {
-      return;
-    }
-
     const { field } = req.params;
     if (!field) {
       return res.status(400).json({ message: "Mission field is required" });
     }
 
+    const whereClauses = [
+      "m.field = ?",
+      "(m.end_date IS NULL OR m.end_date >= CURDATE())",
+    ];
+    const params = [field];
+
+    // Apply data scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      whereClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    }
+
+    const whereClause = `WHERE ${whereClauses.join(" AND ")}`;
+
     const sisters = await MissionModel.executeQuery(
       `SELECT DISTINCT s.id, s.code, s.religious_name, m.field
        FROM missions m
        INNER JOIN sisters s ON s.id = m.sister_id
-       WHERE m.field = ? AND (m.end_date IS NULL OR m.end_date >= CURDATE())
+       ${whereClause}
        ORDER BY s.religious_name`,
-      [field]
+      params
     );
 
     return res.status(200).json({ data: sisters });
@@ -323,10 +397,6 @@ const getSistersByMissionField = async (req, res) => {
 
 const deleteMission = async (req, res) => {
   try {
-    if (!ensurePermission(req, res, editorRoles)) {
-      return;
-    }
-
     const { id } = req.params;
     const existingRows = await MissionModel.executeQuery(
       "SELECT * FROM missions WHERE id = ?",

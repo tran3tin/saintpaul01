@@ -1,6 +1,7 @@
 const express = require("express");
 const educationController = require("../controllers/educationController");
-const { authenticateToken, authorize } = require("../middlewares/auth");
+const { authenticateToken, checkPermission } = require("../middlewares/auth");
+const { attachDataScope } = require("../middlewares/dataScope");
 const {
   validateEducationCreate,
   handleValidationErrors,
@@ -9,26 +10,35 @@ const { uploadDocument } = require("../middlewares/upload");
 
 const router = express.Router();
 
-const editorRoles = [
-  "admin",
-  "superior_general",
-  "superior_provincial",
-  "superior_community",
-  "secretary",
-];
-
 router.use(authenticateToken);
+router.use(attachDataScope);
 
 // List all education records
-router.get("/", educationController.getAllEducation);
+router.get(
+  "/",
+  checkPermission("education.view_list"),
+  educationController.getAllEducation
+);
 
-router.get("/sister/:sisterId", educationController.getEducationBySister);
-router.get("/statistics/level", educationController.getStatisticsByLevel);
-router.get("/:id", educationController.getEducationById);
+router.get(
+  "/sister/:sisterId",
+  checkPermission("education.view_list"),
+  educationController.getEducationBySister
+);
+router.get(
+  "/statistics/level",
+  checkPermission("education.view_list"),
+  educationController.getStatisticsByLevel
+);
+router.get(
+  "/:id",
+  checkPermission("education.view_detail"),
+  educationController.getEducationById
+);
 
 router.post(
   "/",
-  authorize(...editorRoles),
+  checkPermission("education.create"),
   validateEducationCreate,
   handleValidationErrors,
   educationController.addEducation
@@ -36,19 +46,19 @@ router.post(
 
 router.put(
   "/:id",
-  authorize(...editorRoles),
+  checkPermission("education.update"),
   educationController.updateEducation
 );
 
 router.delete(
   "/:id",
-  authorize(...editorRoles),
+  checkPermission("education.delete"),
   educationController.deleteEducation
 );
 
 router.post(
   "/:id/certificate",
-  authorize(...editorRoles),
+  checkPermission("education.create"),
   uploadDocument,
   educationController.uploadCertificate
 );

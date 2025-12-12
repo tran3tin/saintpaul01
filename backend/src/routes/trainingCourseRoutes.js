@@ -1,6 +1,7 @@
 const express = require("express");
 const trainingCourseController = require("../controllers/trainingCourseController");
-const { authenticateToken, authorize } = require("../middlewares/auth");
+const { authenticateToken, checkPermission } = require("../middlewares/auth");
+const { attachDataScope } = require("../middlewares/dataScope");
 const {
   validateTrainingCourseCreate,
   handleValidationErrors,
@@ -8,22 +9,23 @@ const {
 
 const router = express.Router();
 
-const editorRoles = [
-  "admin",
-  "superior_general",
-  "superior_provincial",
-  "superior_community",
-  "secretary",
-];
-
 router.use(authenticateToken);
+router.use(attachDataScope);
 
-router.get("/", trainingCourseController.getAllCourses);
-router.get("/sister/:sisterId", trainingCourseController.getCoursesBySister);
+router.get(
+  "/",
+  checkPermission("training.view_list"),
+  trainingCourseController.getAllCourses
+);
+router.get(
+  "/sister/:sisterId",
+  checkPermission("training.view_list"),
+  trainingCourseController.getCoursesBySister
+);
 
 router.post(
   "/",
-  authorize(...editorRoles),
+  checkPermission("training.create"),
   validateTrainingCourseCreate,
   handleValidationErrors,
   trainingCourseController.addCourse
@@ -31,13 +33,13 @@ router.post(
 
 router.put(
   "/:id",
-  authorize(...editorRoles),
+  checkPermission("training.update"),
   trainingCourseController.updateCourse
 );
 
 router.delete(
   "/:id",
-  authorize(...editorRoles),
+  checkPermission("training.delete"),
   trainingCourseController.deleteCourse
 );
 
