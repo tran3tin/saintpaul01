@@ -15,6 +15,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { userService } from "@services";
+import { communityService } from "@services";
 import { useForm } from "@hooks";
 import Input from "@components/forms/Input";
 import FileUpload from "@components/forms/FileUpload/FileUpload";
@@ -39,6 +40,8 @@ const UserFormPage = () => {
   ]);
   const [allPermissions, setAllPermissions] = useState({});
   const [selectedPermissions, setSelectedPermissions] = useState([]);
+  const [allCommunities, setAllCommunities] = useState([]);
+  const [selectedCommunities, setSelectedCommunities] = useState([]);
 
   const {
     values,
@@ -64,6 +67,7 @@ const UserFormPage = () => {
   useEffect(() => {
     console.log("UserFormPage mounted, userStatuses:", userStatuses);
     fetchAllPermissions();
+    fetchAllCommunities();
     if (isEditMode) {
       fetchUserData();
     }
@@ -77,6 +81,18 @@ const UserFormPage = () => {
       }
     } catch (error) {
       console.error("Error fetching permissions:", error);
+    }
+  };
+
+  const fetchAllCommunities = async () => {
+    try {
+      const response = await communityService.getList();
+      if (response.success || response.data) {
+        const communities = response.data?.items || response.data || [];
+        setAllCommunities(communities);
+      }
+    } catch (error) {
+      console.error("Error fetching communities:", error);
     }
   };
 
@@ -95,6 +111,9 @@ const UserFormPage = () => {
               ? "active"
               : "inactive";
         }
+        // Ensure optional fields are never null to avoid React warnings
+        userData.phone = userData.phone || "";
+        userData.avatar = userData.avatar || "";
         console.log("User data loaded:", userData);
         setValues(userData);
 
@@ -103,6 +122,13 @@ const UserFormPage = () => {
         if (permResponse.success) {
           const permIds = permResponse.data.map((p) => p.permission_id || p.id);
           setSelectedPermissions(permIds);
+        }
+
+        // Fetch user communities
+        const commResponse = await userService.getUserCommunities(id);
+        if (commResponse.success) {
+          const commIds = commResponse.data.map((c) => c.id);
+          setSelectedCommunities(commIds);
         }
       } else {
         setError(response.error || "Không thể tải dữ liệu người dùng");
@@ -220,21 +246,26 @@ const UserFormPage = () => {
         // Update permissions
         await userService.updateUserPermissions(userId, selectedPermissions);
 
-        const successMsg = isEditMode
-          ? "Cập nhật người dùng thành công!"
-          : "Tạo người dùng thành công!";
+        // Update communities
+        await userService.updateUserCommunities(userId, selectedCommunities);
 
+        // Hiển thị thông báo thành công
+        const successMsg = isEditMode
+          ? "Cập nhật người dùng thành công"
+          : "Tạo người dùng mới thành công";
         setSuccessMessage(successMsg);
         toast.success(successMsg);
 
-        // Navigate sau 1 giây để user thấy thông báo
+        // Navigate sau 1.5 giây để user thấy thông báo
         setTimeout(() => {
           navigate(`/users/${userId}`);
-        }, 1000);
+        }, 1500);
       } else {
         const errorMsg = response.error || "Có lỗi xảy ra";
         setError(errorMsg);
         toast.error(errorMsg);
+        // Scroll to top để thấy thông báo lỗi
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (error) {
       console.error("Error saving user:", error);
@@ -311,6 +342,24 @@ const UserFormPage = () => {
         ...prev.filter((id) => !modulePermissionIds.includes(id)),
         ...modulePermissionIds,
       ]);
+    }
+  };
+
+  const handleCommunityToggle = (communityId) => {
+    if (selectedCommunities.includes(communityId)) {
+      setSelectedCommunities(
+        selectedCommunities.filter((id) => id !== communityId)
+      );
+    } else {
+      setSelectedCommunities([...selectedCommunities, communityId]);
+    }
+  };
+
+  const handleCommunitySelectAll = () => {
+    if (selectedCommunities.length === allCommunities.length) {
+      setSelectedCommunities([]);
+    } else {
+      setSelectedCommunities(allCommunities.map((c) => c.id));
     }
   };
 
@@ -515,6 +564,87 @@ const UserFormPage = () => {
                     )}
                   </Col>
                 </Row>
+              </Card.Body>
+            </Card>
+
+            {/* Communities */}
+            <Card className="permissions-card">
+              <Card.Header className="bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">
+                  <i className="fas fa-users me-2"></i>
+                  Phân quyền Cộng đoàn
+                </h5>
+                <small className="text-muted">
+                  <i className="fas fa-info-circle me-1"></i>
+                  {selectedCommunities.length} cộng đoàn được chọn
+                </small>
+              </Card.Header>
+              <Card.Body className="p-0">
+                {allCommunities.length === 0 ? (
+                  <div className="p-4 text-center text-muted">
+                    <Spinner animation="border" size="sm" className="me-2" />
+                    Đang tải cộng đoàn...
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <Table className="permissions-table mb-0" hover>
+                      <thead>
+                        <tr>
+                          <th>Tên Cộng đoàn</th>
+                          <th
+                            className="text-center"
+                            style={{ width: "120px" }}
+                          >
+                            <Form.Check
+                              type="checkbox"
+                              checked={
+                                selectedCommunities.length ===
+                                allCommunities.length
+                              }
+                              onChange={handleCommunitySelectAll}
+                              label="Chọn tất cả"
+                            />
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allCommunities.map((community) => (
+                          <tr key={community.id}>
+                            <td>
+                              <div className="d-flex align-items-center">
+                                <i
+                                  className="fas fa-home text-muted me-2"
+                                  style={{ width: "20px" }}
+                                ></i>
+                                <div>
+                                  <span>{community.name}</span>
+                                  {community.location && (
+                                    <small className="text-muted d-block">
+                                      <i className="fas fa-map-marker-alt me-1"></i>
+                                      {community.location}
+                                    </small>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="text-center">
+                              <Form.Check
+                                type="checkbox"
+                                checked={selectedCommunities.includes(
+                                  community.id
+                                )}
+                                onChange={() =>
+                                  handleCommunityToggle(community.id)
+                                }
+                                className="permission-checkbox"
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
+                )}
               </Card.Body>
             </Card>
 

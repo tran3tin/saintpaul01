@@ -29,6 +29,8 @@ const UserDetailPage = () => {
   const [activities, setActivities] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [loadingPermissions, setLoadingPermissions] = useState(false);
+  const [communities, setCommunities] = useState([]);
+  const [loadingCommunities, setLoadingCommunities] = useState(false);
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -39,6 +41,7 @@ const UserDetailPage = () => {
     fetchUserDetail();
     fetchUserActivities();
     fetchUserPermissions();
+    fetchUserCommunities();
   }, [id]);
 
   const fetchUserDetail = async () => {
@@ -98,6 +101,21 @@ const UserDetailPage = () => {
       console.error("Error fetching permissions:", error);
     } finally {
       setLoadingPermissions(false);
+    }
+  };
+
+  const fetchUserCommunities = async () => {
+    try {
+      setLoadingCommunities(true);
+      const response = await userService.getUserCommunities(id);
+      console.log("Communities response:", response);
+      if (response.success) {
+        setCommunities(response.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching communities:", error);
+    } finally {
+      setLoadingCommunities(false);
     }
   };
 
@@ -404,6 +422,51 @@ const UserDetailPage = () => {
 
         {/* Right Column - Permissions & Activities */}
         <Col lg={8}>
+          {/* Communities */}
+          <Card className="user-detail-card mb-4">
+            <Card.Header className="bg-primary text-white border-0">
+              <h5 className="mb-0 text-white">
+                <i className="fas fa-users me-2"></i>
+                Cộng đoàn
+              </h5>
+            </Card.Header>
+            <Card.Body>
+              {loadingCommunities ? (
+                <div className="text-center py-3">
+                  <LoadingSpinner size="small" />
+                </div>
+              ) : communities && communities.length > 0 ? (
+                <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                  <Row className="g-3">
+                    {communities.map((community, index) => (
+                      <Col key={index} md={6}>
+                        <div className="permission-item">
+                          <i className="fas fa-home text-primary me-2"></i>
+                          <div>
+                            <span className="fw-semibold">
+                              {community.name}
+                            </span>
+                            {community.location && (
+                              <small className="text-muted d-block ms-4">
+                                <i className="fas fa-map-marker-alt me-1"></i>
+                                {community.location}
+                              </small>
+                            )}
+                          </div>
+                        </div>
+                      </Col>
+                    ))}
+                  </Row>
+                </div>
+              ) : (
+                <div className="text-center text-muted py-3">
+                  <i className="fas fa-info-circle me-2"></i>
+                  Chưa được phân quyền cộng đoàn nào
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+
           {/* Permissions */}
           <Card className="user-detail-card mb-4">
             <Card.Header className="bg-primary text-white border-0">

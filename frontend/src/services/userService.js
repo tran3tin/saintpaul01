@@ -204,6 +204,52 @@ const userService = {
   },
 
   /**
+   * Get communities for a user
+   * @param {string|number} userId
+   * @returns {Promise}
+   */
+  getUserCommunities: async (userId) => {
+    try {
+      const response = await api.get(`/users/${userId}/communities`);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Lỗi khi tải cộng đoàn người dùng",
+      };
+    }
+  },
+
+  /**
+   * Update communities for a user
+   * @param {string|number} userId
+   * @param {Array<number>} communityIds
+   * @returns {Promise}
+   */
+  updateUserCommunities: async (userId, communityIds) => {
+    try {
+      const response = await api.post(`/users/${userId}/communities`, {
+        community_ids: communityIds,
+      });
+      return {
+        success: true,
+        data: response,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          "Lỗi khi cập nhật cộng đoàn người dùng",
+      };
+    }
+  },
+
+  /**
    * Update profile
    * @param {object} data
    * @returns {Promise}
