@@ -157,9 +157,12 @@ const VocationJourneyFormPage = () => {
           start_date: response.data.start_date
             ? response.data.start_date.split("T")[0]
             : "",
-          end_date: response.data.end_date
-            ? response.data.end_date.split("T")[0]
-            : "",
+          // Ignore invalid end_date (before 1900)
+          end_date:
+            response.data.end_date &&
+            new Date(response.data.end_date).getFullYear() >= 1900
+              ? response.data.end_date.split("T")[0]
+              : "",
         };
         console.log("Setting values:", journeyData);
         updateValues(journeyData);
@@ -195,6 +198,8 @@ const VocationJourneyFormPage = () => {
     e.preventDefault();
 
     const validationErrors = validate();
+    console.log("Validation errors:", validationErrors);
+    console.log("Form values:", values);
     if (Object.keys(validationErrors).length > 0) {
       validateForm(validationErrors);
       return;

@@ -91,21 +91,12 @@ class UserModel extends BaseModel {
   }
 
   /**
-   * Get user permissions (admin gets all)
+   * Get user permissions - pure permission-based system
    */
   async getPermissions(userId) {
     if (!userId) return [];
 
-    // Check if admin first
-    const isAdmin = await this.isAdmin(userId);
-
-    if (isAdmin) {
-      // Admin has all permissions
-      const sql = "SELECT * FROM permissions WHERE is_active = 1";
-      return await this.executeQuery(sql);
-    }
-
-    // Regular user - get assigned permissions
+    // Get only assigned permissions from user_permissions table
     const sql = `
       SELECT p.*
       FROM permissions p
@@ -131,22 +122,23 @@ class UserModel extends BaseModel {
         [userId]
       );
 
-      // Add new permissions
+      // Add new permissions one by one (mysql2 doesn't support bulk insert with VALUES ?)
       if (permissionIds && permissionIds.length > 0) {
-        const values = permissionIds.map((permId) => [
-          userId,
-          permId,
-          grantedBy,
-        ]);
-        await connection.query(
-          "INSERT INTO user_permissions (user_id, permission_id, granted_by) VALUES ?",
-          [values]
-        );
+        for (const permId of permissionIds) {
+          await connection.execute(
+            "INSERT INTO user_permissions (user_id, permission_id, granted_by) VALUES (?, ?, ?)",
+            [userId, permId, grantedBy]
+          );
+        }
       }
 
       await connection.commit();
+      console.log(
+        `Assigned ${permissionIds?.length || 0} permissions to user ${userId}`
+      );
     } catch (error) {
       await connection.rollback();
+      console.error("Error assigning permissions:", error);
       throw error;
     } finally {
       connection.release();

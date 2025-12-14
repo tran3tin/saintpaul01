@@ -18,9 +18,7 @@ const buildToken = (user) =>
     {
       id: user.id,
       username: user.username,
-      is_admin: user.is_admin,
       data_scope: user.data_scope,
-      is_super_admin: user.is_super_admin,
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }

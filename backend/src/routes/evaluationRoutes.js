@@ -34,7 +34,7 @@ router.post(
 
 router.put(
   "/:id",
-  checkPermission("evaluations.update"),
+  checkPermission("evaluations.edit"),
   evaluationController.updateEvaluation
 );
 

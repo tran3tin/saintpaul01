@@ -14,12 +14,12 @@ router.use(attachDataScope);
 
 router.get(
   "/",
-  checkPermission("training.view_list"),
+  checkPermission("training.view"),
   trainingCourseController.getAllCourses
 );
 router.get(
   "/sister/:sisterId",
-  checkPermission("training.view_list"),
+  checkPermission("training.view"),
   trainingCourseController.getCoursesBySister
 );
 
@@ -33,7 +33,7 @@ router.post(
 
 router.put(
   "/:id",
-  checkPermission("training.update"),
+  checkPermission("training.edit"),
   trainingCourseController.updateCourse
 );
 

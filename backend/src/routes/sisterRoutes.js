@@ -59,7 +59,7 @@ router.post(
 // Update route
 router.put(
   "/:id",
-  checkPermission("sisters.update_basic"),
+  checkPermission("sisters.edit"),
   validateSisterUpdate,
   handleValidationErrors,
   (req, res, next) => {

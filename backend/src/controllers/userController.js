@@ -54,9 +54,16 @@ const ensureAdmin = (req, res) => {
     return false;
   }
 
-  // Check isAdmin (set by authenticateToken middleware)
-  if (!req.user.isAdmin) {
-    res.status(403).json({ message: "Admin access required" });
+  // Permission-based check - user must have users.manage_permissions permission
+  if (
+    !req.user.permissions ||
+    !req.user.permissions.includes("users.manage_permissions")
+  ) {
+    res
+      .status(403)
+      .json({
+        message: "Permission denied - requires users.manage_permissions",
+      });
     return false;
   }
 
@@ -68,8 +75,11 @@ const canManageUser = (req, targetUserId) => {
     return false;
   }
 
-  // Admin can manage all users
-  if (req.user.isAdmin) {
+  // User with users.manage_permissions permission can manage all users
+  if (
+    req.user.permissions &&
+    req.user.permissions.includes("users.manage_permissions")
+  ) {
     return true;
   }
 

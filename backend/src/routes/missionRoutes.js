@@ -37,7 +37,7 @@ router.post(
 
 router.put(
   "/:id",
-  checkPermission("missions.update"),
+  checkPermission("missions.edit"),
   missionController.updateMission
 );
 router.delete(
@@ -48,7 +48,7 @@ router.delete(
 
 router.post(
   "/:id/end",
-  checkPermission("missions.update"),
+  checkPermission("missions.edit"),
   missionController.endMission
 );
 

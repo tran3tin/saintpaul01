@@ -18,14 +18,14 @@ router.get(
 // Routes with specific paths must come before /:id
 router.get(
   "/sister/:sisterId",
-  checkPermission("health.view_basic"),
+  checkPermission("health.view_list"),
   healthRecordController.healthRecordAccessLogger,
   healthRecordController.getHealthRecordBySister
 );
 
 router.get(
   "/sister/:sisterId/summary",
-  checkPermission("health.view_basic"),
+  checkPermission("health.view_list"),
   healthRecordController.healthRecordAccessLogger,
   healthRecordController.getGeneralHealthStatus
 );
@@ -33,7 +33,7 @@ router.get(
 // Get health record by ID (must come after specific paths)
 router.get(
   "/:id",
-  checkPermission("health.view_full"),
+  checkPermission("health.view_detail"),
   healthRecordController.getHealthRecordById
 );
 
@@ -45,7 +45,7 @@ router.post(
 
 router.put(
   "/:id",
-  checkPermission("health.update"),
+  checkPermission("health.edit"),
   healthRecordController.updateHealthRecord
 );
 

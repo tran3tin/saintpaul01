@@ -24,20 +24,8 @@ const ensurePermission = (req, res) => {
     return false;
   }
 
-  // Check if user is admin or super admin - they have all permissions
-  if (
-    req.user.isAdmin ||
-    req.user.is_admin === 1 ||
-    req.user.is_super_admin === 1
-  ) {
-    return true;
-  }
-
-  if (!viewerRoles.includes(req.user.role)) {
-    res.status(403).json({ message: "Forbidden" });
-    return false;
-  }
-
+  // Permission-based access control - no admin bypass
+  // Actual permission checking done by checkPermission middleware in routes
   return true;
 };
 

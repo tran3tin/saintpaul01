@@ -24,7 +24,7 @@ const authenticateToken = async (req, res, next) => {
     // Get user details including permissions and scope info
     const db = require("../config/database");
     const [users] = await db.query(
-      `SELECT id, username, is_admin, is_super_admin, data_scope 
+      `SELECT id, username, data_scope 
        FROM users WHERE id = ?`,
       [decoded.id]
     );
@@ -37,13 +37,9 @@ const authenticateToken = async (req, res, next) => {
 
     // Get user permissions
     const permissions = await UserModel.getPermissions(decoded.id);
-    const isAdmin = user.is_admin === 1;
-    const isSuperAdmin = user.is_super_admin === 1;
 
     req.user = {
       ...decoded,
-      isAdmin,
-      is_super_admin: isSuperAdmin,
       data_scope: user.data_scope,
       permissions: permissions.map((p) => p.name),
     };
@@ -70,29 +66,16 @@ const authorize =
 
 /**
  * Check if user has required permission
+ * Permission-based only - no admin bypass
  */
 const checkPermission = (requiredPermission) => {
   return (req, res, next) => {
     console.log(`[CheckPermission] Required: ${requiredPermission}`);
     console.log(`[CheckPermission] User:`, {
       id: req.user?.id,
-      isAdmin: req.user?.isAdmin,
-      is_super_admin: req.user?.is_super_admin,
       permissionCount: req.user?.permissions?.length,
       hasRequired: req.user?.permissions?.includes(requiredPermission),
     });
-
-    // Super admin bypasses ALL permission checks
-    if (req.user && req.user.is_super_admin) {
-      console.log(`[CheckPermission] ✅ Super admin bypass`);
-      return next();
-    }
-
-    // Regular admin bypass all checks
-    if (req.user && req.user.isAdmin) {
-      console.log(`[CheckPermission] ✅ Admin bypass`);
-      return next();
-    }
 
     // Check if user has the specific required permission
     if (

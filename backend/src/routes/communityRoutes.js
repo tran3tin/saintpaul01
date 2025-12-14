@@ -6,7 +6,6 @@ const {
   validateCommunityCreate,
   handleValidationErrors,
 } = require("../middlewares/validation");
-const { cacheMiddleware } = require("../middlewares/cache");
 
 const router = express.Router();
 
@@ -15,7 +14,6 @@ router.use(attachDataScope);
 
 router.get(
   "/",
-  cacheMiddleware(600),
   checkPermission("communities.view_list"),
   communityController.getAllCommunities
 );
@@ -26,7 +24,7 @@ router.get(
 );
 router.get(
   "/:id/members",
-  checkPermission("communities.view_assignments"),
+  checkPermission("communities.view_list"),
   communityController.getCommunityMembers
 );
 
@@ -40,7 +38,7 @@ router.post(
 
 router.put(
   "/:id",
-  checkPermission("communities.update"),
+  checkPermission("communities.edit"),
   validateCommunityCreate,
   handleValidationErrors,
   communityController.updateCommunity
@@ -55,19 +53,19 @@ router.delete(
 // Member management routes
 router.post(
   "/:id/members",
-  checkPermission("communities.assign_sister"),
+  checkPermission("communities.assign"),
   communityController.addMember
 );
 
 router.put(
   "/:id/members/:memberId",
-  checkPermission("communities.assign_sister"),
+  checkPermission("communities.assign"),
   communityController.updateMemberRole
 );
 
 router.delete(
   "/:id/members/:memberId",
-  checkPermission("communities.remove_sister"),
+  checkPermission("communities.assign"),
   communityController.removeMember
 );
 

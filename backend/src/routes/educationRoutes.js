@@ -46,7 +46,7 @@ router.post(
 
 router.put(
   "/:id",
-  checkPermission("education.update"),
+  checkPermission("education.edit"),
   educationController.updateEducation
 );
 

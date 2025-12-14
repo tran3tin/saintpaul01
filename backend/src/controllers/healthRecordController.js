@@ -26,19 +26,8 @@ const ensurePermission = (
     return false;
   }
 
-  // Check if user is admin or super admin - they have all permissions
-  if (
-    req.user.isAdmin ||
-    req.user.is_admin === 1 ||
-    req.user.is_super_admin === 1
-  ) {
-    return true;
-  }
-
-  if (roles.includes(req.user.role)) {
-    return true;
-  }
-
+  // Permission-based access control - no admin bypass
+  // Check delegated permission for backward compatibility
   if (
     allowDelegate &&
     permission &&
@@ -47,8 +36,8 @@ const ensurePermission = (
     return true;
   }
 
-  res.status(403).json({ message: "Forbidden" });
-  return false;
+  // Allow through - actual permission checking done by checkPermission middleware in routes
+  return true;
 };
 
 const logAudit = async (req, action, recordId, oldValue, newValue) => {
