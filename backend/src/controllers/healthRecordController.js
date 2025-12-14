@@ -26,6 +26,15 @@ const ensurePermission = (
     return false;
   }
 
+  // Check if user is admin or super admin - they have all permissions
+  if (
+    req.user.isAdmin ||
+    req.user.is_admin === 1 ||
+    req.user.is_super_admin === 1
+  ) {
+    return true;
+  }
+
   if (roles.includes(req.user.role)) {
     return true;
   }
@@ -253,22 +262,92 @@ const getAllHealthRecords = async (req, res) => {
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    const result = await HealthRecordModel.findAllWithSister({
-      limit: parseInt(limit),
-      offset,
-      search,
-      sortBy,
-      sortOrder,
-    });
+    // Apply data scope filter
+    const whereClauses = ["1=1"];
+    const params = [];
+
+    if (search) {
+      whereClauses.push(`(
+        s.saint_name LIKE ? OR
+        s.birth_name LIKE ? OR
+        s.code LIKE ? OR
+        hr.diagnosis LIKE ? OR
+        hr.checkup_place LIKE ?
+      )`);
+      const searchPattern = `%${search}%`;
+      params.push(
+        searchPattern,
+        searchPattern,
+        searchPattern,
+        searchPattern,
+        searchPattern
+      );
+    }
+
+    // Add scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      whereClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    }
+
+    const whereClause = whereClauses.join(" AND ");
+
+    // Count total
+    const countSql = `
+      SELECT COUNT(*) as total 
+      FROM health_records hr
+      LEFT JOIN sisters s ON hr.sister_id = s.id
+      WHERE ${whereClause}
+    `;
+    const countResult = await HealthRecordModel.executeQuery(countSql, params);
+    const total = countResult[0]?.total || 0;
+
+    // Get items
+    const allowedSortColumns = [
+      "id",
+      "checkup_date",
+      "general_health",
+      "created_at",
+      "updated_at",
+    ];
+    const safeSort = allowedSortColumns.includes(sortBy)
+      ? sortBy
+      : "created_at";
+    const safeOrder = sortOrder.toLowerCase() === "asc" ? "ASC" : "DESC";
+
+    const sql = `
+      SELECT 
+        hr.*,
+        s.code as sister_code,
+        s.saint_name as sister_religious_name,
+        s.birth_name as sister_birth_name,
+        s.saint_name as sister_saint_name
+      FROM health_records hr
+      LEFT JOIN sisters s ON hr.sister_id = s.id
+      WHERE ${whereClause}
+      ORDER BY hr.${safeSort} ${safeOrder}
+      LIMIT ? OFFSET ?
+    `;
+    params.push(parseInt(limit), offset);
+    const items = await HealthRecordModel.executeQuery(sql, params);
 
     return res.status(200).json({
       success: true,
-      data: result.items,
+      data: items,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total: result.total,
-        totalPages: Math.ceil(result.total / parseInt(limit)),
+        total: total,
+        totalPages: Math.ceil(total / parseInt(limit)),
       },
     });
   } catch (error) {

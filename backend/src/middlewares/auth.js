@@ -73,13 +73,24 @@ const authorize =
  */
 const checkPermission = (requiredPermission) => {
   return (req, res, next) => {
+    console.log(`[CheckPermission] Required: ${requiredPermission}`);
+    console.log(`[CheckPermission] User:`, {
+      id: req.user?.id,
+      isAdmin: req.user?.isAdmin,
+      is_super_admin: req.user?.is_super_admin,
+      permissionCount: req.user?.permissions?.length,
+      hasRequired: req.user?.permissions?.includes(requiredPermission),
+    });
+
     // Super admin bypasses ALL permission checks
     if (req.user && req.user.is_super_admin) {
+      console.log(`[CheckPermission] ✅ Super admin bypass`);
       return next();
     }
 
     // Regular admin bypass all checks
     if (req.user && req.user.isAdmin) {
+      console.log(`[CheckPermission] ✅ Admin bypass`);
       return next();
     }
 
@@ -89,6 +100,7 @@ const checkPermission = (requiredPermission) => {
       !req.user.permissions ||
       !req.user.permissions.includes(requiredPermission)
     ) {
+      console.log(`[CheckPermission] ❌ Access denied`);
       return res.status(403).json({
         success: false,
         message: "Bạn không có quyền thực hiện thao tác này",
@@ -96,6 +108,7 @@ const checkPermission = (requiredPermission) => {
       });
     }
 
+    console.log(`[CheckPermission] ✅ Permission granted`);
     next();
   };
 };

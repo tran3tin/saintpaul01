@@ -31,6 +31,15 @@ const ensurePermission = (req, res, allowedRoles) => {
     return false;
   }
 
+  // Check if user is admin or super admin - they have all permissions
+  if (
+    req.user.isAdmin ||
+    req.user.is_admin === 1 ||
+    req.user.is_super_admin === 1
+  ) {
+    return true;
+  }
+
   if (!allowedRoles.includes(req.user.role)) {
     res.status(403).json({ message: "Forbidden" });
     return false;
@@ -154,18 +163,32 @@ const getAllSisters = async (req, res) => {
         .replace(/\bdate_of_birth\b/g, "s.date_of_birth");
     });
 
-    // Apply data scope filter
-    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
-      req.userScope,
-      "s",
-      {
-        userIdField: "s.id",
-        communityIdField: "s.current_community_id",
-        useJoin: false,
-      }
-    );
+    // Apply data scope filter - USE community_assignments instead of current_community_id
+    const {
+      whereClause: scopeWhere,
+      params: scopeParams,
+      needsJoin,
+    } = applyScopeFilter(req.userScope, "s", {
+      communityJoinTable: "community_assignments",
+      communityJoinColumn: "sister_id",
+      communityIdColumn: "ca.community_id",
+      currentOnly: true, // Only current assignments (end_date IS NULL)
+      useJoin: true, // Use JOIN with community_assignments
+    });
 
-    if (scopeWhere) {
+    console.log("[SisterController] userScope:", req.userScope);
+    console.log("[SisterController] scopeWhere:", scopeWhere);
+    console.log("[SisterController] scopeParams:", scopeParams);
+    console.log("[SisterController] needsJoin:", needsJoin);
+
+    // Build JOIN clause for community_assignments if needed
+    let joinClause = "";
+    if (needsJoin && scopeWhere) {
+      joinClause =
+        "INNER JOIN community_assignments ca ON s.id = ca.sister_id AND (ca.end_date IS NULL OR ca.end_date >= CURDATE())";
+      prefixedClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    } else if (scopeWhere) {
       prefixedClauses.push(scopeWhere);
       params.push(...scopeParams);
     }
@@ -175,7 +198,7 @@ const getAllSisters = async (req, res) => {
       : "";
 
     const totalRows = await SisterModel.executeQuery(
-      `SELECT COUNT(*) AS total FROM sisters s ${whereClause}`,
+      `SELECT COUNT(DISTINCT s.id) AS total FROM sisters s ${joinClause} ${whereClause}`,
       params
     );
     const total = totalRows[0] ? totalRows[0].total : 0;
@@ -183,12 +206,13 @@ const getAllSisters = async (req, res) => {
     // JOIN with communities and vocation_journey to get current stage and community
     // Ưu tiên giai đoạn chưa kết thúc (end_date IS NULL), sau đó lấy giai đoạn mới nhất
     const rows = await SisterModel.executeQuery(
-      `SELECT s.*, 
+      `SELECT DISTINCT s.*, 
               c.name AS current_community_name,
               vj_latest.stage AS current_stage_from_journey,
               vj_latest.community_id AS current_community_id_from_journey,
               c_journey.name AS current_community_name_from_journey
        FROM sisters s 
+       ${joinClause}
        LEFT JOIN communities c ON s.current_community_id = c.id
        LEFT JOIN (
          SELECT vj1.sister_id, vj1.stage, vj1.community_id
@@ -205,7 +229,6 @@ const getAllSisters = async (req, res) => {
        ) vj_latest ON s.id = vj_latest.sister_id
        LEFT JOIN communities c_journey ON vj_latest.community_id = c_journey.id
        ${whereClause} 
-       GROUP BY s.id
        ORDER BY s.created_at DESC 
        LIMIT ? OFFSET ?`,
       [...params, limit, offset]

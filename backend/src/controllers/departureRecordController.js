@@ -25,6 +25,15 @@ const ensurePermission = (req, res, allowedRoles) => {
     return false;
   }
 
+  // Check if user is admin or super admin - they have all permissions
+  if (
+    req.user.isAdmin ||
+    req.user.is_admin === 1 ||
+    req.user.is_super_admin === 1
+  ) {
+    return true;
+  }
+
   if (!allowedRoles.includes(req.user.role)) {
     res.status(403).json({ message: "Forbidden" });
     return false;
@@ -58,14 +67,75 @@ const getDepartureRecords = async (req, res) => {
 
     const { page = 1, limit = 10, search = "", sister_id } = req.query;
 
-    const result = await DepartureRecordModel.findAll({
-      page: parseInt(page),
-      limit: parseInt(limit),
-      search,
-      sister_id: sister_id ? parseInt(sister_id) : null,
-    });
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const whereClauses = [];
+    const params = [];
 
-    return res.status(200).json(result);
+    if (sister_id) {
+      whereClauses.push("d.sister_id = ?");
+      params.push(parseInt(sister_id));
+    }
+
+    if (search) {
+      whereClauses.push(
+        "(s.saint_name LIKE ? OR s.birth_name LIKE ? OR d.destination LIKE ? OR d.reason LIKE ?)"
+      );
+      const searchPattern = `%${search}%`;
+      params.push(searchPattern, searchPattern, searchPattern, searchPattern);
+    }
+
+    // Add scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      whereClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    }
+
+    const whereSQL =
+      whereClauses.length > 0
+        ? `WHERE ${whereClauses.join(" AND ")}`
+        : "WHERE 1=1";
+
+    // Count total
+    const countSQL = `
+      SELECT COUNT(*) as total 
+      FROM departure_records d
+      LEFT JOIN sisters s ON d.sister_id = s.id
+      ${whereSQL}
+    `;
+    const countResult = await DepartureRecordModel.executeQuery(
+      countSQL,
+      params
+    );
+    const total = countResult[0]?.total || 0;
+
+    // Get items
+    const dataSQL = `
+      SELECT d.*, 
+             s.saint_name, s.birth_name, s.code as sister_code
+      FROM departure_records d
+      LEFT JOIN sisters s ON d.sister_id = s.id
+      ${whereSQL}
+      ORDER BY d.departure_date DESC
+      LIMIT ? OFFSET ?
+    `;
+    const items = await DepartureRecordModel.executeQuery(dataSQL, [
+      ...params,
+      parseInt(limit),
+      offset,
+    ]);
+
+    return res
+      .status(200)
+      .json({ items, total, page: parseInt(page), limit: parseInt(limit) });
   } catch (error) {
     console.error("getDepartureRecords error:", error.message);
     return res

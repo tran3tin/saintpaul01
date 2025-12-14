@@ -25,6 +25,15 @@ const ensurePermission = (req, res, roles) => {
     return false;
   }
 
+  // Check if user is admin or super admin - they have all permissions
+  if (
+    req.user.isAdmin ||
+    req.user.is_admin === 1 ||
+    req.user.is_super_admin === 1
+  ) {
+    return true;
+  }
+
   if (!roles.includes(req.user.role)) {
     res.status(403).json({ message: "Forbidden" });
     return false;
@@ -169,28 +178,43 @@ const getAllCourses = async (req, res) => {
   try {
     if (!ensurePermission(req, res, viewerRoles)) return;
 
-    const filters = [];
+    const filters = ["1=1"];
     const params = [];
 
     if (req.query.year) {
-      filters.push("(YEAR(start_date) = ? OR YEAR(end_date) = ?)");
+      filters.push("(YEAR(tc.start_date) = ? OR YEAR(tc.end_date) = ?)");
       params.push(req.query.year, req.query.year);
     }
 
     if (req.query.organizer) {
-      filters.push("organizer LIKE ?");
+      filters.push("tc.organizer LIKE ?");
       params.push(`%${req.query.organizer}%`);
     }
 
     if (req.query.name) {
-      filters.push("course_name LIKE ?");
+      filters.push("tc.course_name LIKE ?");
       params.push(`%${req.query.name}%`);
     }
 
-    const whereClause = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+    // Add scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      filters.push(scopeWhere);
+      params.push(...scopeParams);
+    }
+
+    const whereClause = `WHERE ${filters.join(" AND ")}`;
 
     const courses = await TrainingCourseModel.executeQuery(
-      `SELECT tc.*, s.religious_name
+      `SELECT tc.*, s.saint_name as religious_name, s.birth_name
        FROM training_courses tc
        INNER JOIN sisters s ON s.id = tc.sister_id
        ${whereClause}

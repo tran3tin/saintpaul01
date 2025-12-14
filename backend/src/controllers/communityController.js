@@ -26,6 +26,15 @@ const ensurePermission = (req, res, roles) => {
     return false;
   }
 
+  // Check if user is admin or super admin - they have all permissions
+  if (
+    req.user.isAdmin ||
+    req.user.is_admin === 1 ||
+    req.user.is_super_admin === 1
+  ) {
+    return true;
+  }
+
   if (!roles.includes(req.user.role)) {
     res.status(403).json({ message: "Forbidden" });
     return false;

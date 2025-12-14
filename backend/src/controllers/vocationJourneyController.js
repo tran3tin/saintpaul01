@@ -24,6 +24,14 @@ const ensurePermission = (req, res, roles) => {
     res.status(401).json({ message: "Unauthorized" });
     return false;
   }
+  // Check if user is admin or super admin - they have all permissions
+  if (
+    req.user.isAdmin ||
+    req.user.is_admin === 1 ||
+    req.user.is_super_admin === 1
+  ) {
+    return true;
+  }
   if (!roles.includes(req.user.role)) {
     res.status(403).json({ message: "Forbidden" });
     return false;
@@ -65,26 +73,44 @@ const getAllJourneys = async (req, res) => {
     const offset = (page - 1) * limit;
 
     // Build query with filters
-    let whereClause = "1=1";
+    const whereClauses = ["1=1"];
     const params = [];
 
     if (req.query.sister_id) {
-      whereClause += " AND vj.sister_id = ?";
+      whereClauses.push("vj.sister_id = ?");
       params.push(parseInt(req.query.sister_id, 10));
     }
 
     if (req.query.stage) {
-      whereClause += " AND vj.stage = ?";
+      whereClauses.push("vj.stage = ?");
       params.push(req.query.stage);
     }
 
     // Search by sister name, location, etc.
     if (req.query.search) {
       const searchTerm = `%${req.query.search}%`;
-      whereClause +=
-        " AND (s.birth_name LIKE ? OR s.saint_name LIKE ? OR s.code LIKE ? OR vj.location LIKE ?)";
+      whereClauses.push(
+        "(s.birth_name LIKE ? OR s.saint_name LIKE ? OR s.code LIKE ? OR vj.location LIKE ?)"
+      );
       params.push(searchTerm, searchTerm, searchTerm, searchTerm);
     }
+
+    // Add scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      whereClauses.push(scopeWhere);
+      params.push(...scopeParams);
+    }
+
+    const whereClause = whereClauses.join(" AND ");
 
     // Build ORDER BY clause
     let orderByClause = "vj.start_date DESC"; // default

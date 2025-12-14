@@ -162,6 +162,21 @@ const getEvaluations = async (req, res) => {
       params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
     }
 
+    // Add scope filter
+    const { whereClause: scopeWhere, params: scopeParams } = applyScopeFilter(
+      req.userScope,
+      "s",
+      {
+        communityIdField: "s.current_community_id",
+        useJoin: false,
+      }
+    );
+
+    if (scopeWhere) {
+      sql += ` AND (${scopeWhere})`;
+      params.push(...scopeParams);
+    }
+
     // Add sorting
     const validSortFields = [
       "evaluation_date",
@@ -209,11 +224,10 @@ const getEvaluations = async (req, res) => {
       };
     });
 
-    // Count total
-    let countSql = `SELECT COUNT(*) as total 
+    // Get total count for pagination (with same filters)
+    let countSql = `SELECT COUNT(*) as total
                     FROM evaluations e 
                     LEFT JOIN sisters s ON e.sister_id = s.id 
-                    LEFT JOIN sisters ev ON CAST(e.evaluator AS UNSIGNED) = ev.id
                     WHERE 1=1`;
     const countParams = [];
 
@@ -221,18 +235,15 @@ const getEvaluations = async (req, res) => {
       countSql += ` AND (
         e.period LIKE ? OR 
         s.saint_name LIKE ? OR 
-        s.birth_name LIKE ? OR
-        ev.saint_name LIKE ? OR 
-        ev.birth_name LIKE ?
+        s.birth_name LIKE ?
       )`;
       const searchTerm = `%${search.trim()}%`;
-      countParams.push(
-        searchTerm,
-        searchTerm,
-        searchTerm,
-        searchTerm,
-        searchTerm
-      );
+      countParams.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    if (scopeWhere) {
+      countSql += ` AND (${scopeWhere})`;
+      countParams.push(...scopeParams);
     }
 
     const countResult = await EvaluationModel.executeQuery(
@@ -243,17 +254,19 @@ const getEvaluations = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data: {
-        items: formattedEvaluations,
-        total,
+      data: formattedEvaluations,
+      pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        totalPages: Math.ceil(total / limit),
+        total,
+        totalPages: Math.ceil(total / parseInt(limit)),
       },
     });
   } catch (error) {
-    console.error("getEvaluations error:", error.message);
-    return res.status(500).json({ message: "Failed to fetch evaluations" });
+    console.error("getEvaluations error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch evaluations" });
   }
 };
 

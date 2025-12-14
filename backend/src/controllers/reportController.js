@@ -7,6 +7,7 @@ const MissionModel = require("../models/MissionModel");
 const EducationModel = require("../models/EducationModel");
 const DepartureRecordModel = require("../models/DepartureRecordModel");
 const AuditLogModel = require("../models/AuditLogModel");
+const { applyScopeFilter } = require("../utils/scopeHelper");
 
 const viewerRoles = [
   "admin",
@@ -21,6 +22,15 @@ const ensurePermission = (req, res) => {
   if (!req.user) {
     res.status(401).json({ message: "Unauthorized" });
     return false;
+  }
+
+  // Check if user is admin or super admin - they have all permissions
+  if (
+    req.user.isAdmin ||
+    req.user.is_admin === 1 ||
+    req.user.is_super_admin === 1
+  ) {
+    return true;
   }
 
   if (!viewerRoles.includes(req.user.role)) {
