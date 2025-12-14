@@ -1,6 +1,7 @@
 // src/features/users/pages/UserFormPage.jsx
 
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@context/AuthContext";
 import {
   Container,
   Row,
@@ -28,6 +29,8 @@ const UserFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = !!id;
+  const { user, updateUser } = useAuth();
+  const canViewCommunities = user?.permissions?.includes("communities.view_list");
 
   const [loading, setLoading] = useState(isEditMode);
   const [submitting, setSubmitting] = useState(false);
@@ -67,11 +70,15 @@ const UserFormPage = () => {
   useEffect(() => {
     console.log("UserFormPage mounted, userStatuses:", userStatuses);
     fetchAllPermissions();
-    fetchAllCommunities();
+    if (canViewCommunities) {
+      fetchAllCommunities();
+    } else {
+      setAllCommunities([]);
+    }
     if (isEditMode) {
       fetchUserData();
     }
-  }, [id]);
+  }, [id, canViewCommunities]);
 
   const fetchAllPermissions = async () => {
     try {
@@ -92,7 +99,12 @@ const UserFormPage = () => {
         setAllCommunities(communities);
       }
     } catch (error) {
-      console.error("Error fetching communities:", error);
+      // Silent fail for 403 - user doesn't have permission to view communities
+      // This is expected when communities permission is not granted
+      if (error.response?.status !== 403) {
+        console.error("Error fetching communities:", error);
+      }
+      setAllCommunities([]);
     }
   };
 
@@ -248,6 +260,18 @@ const UserFormPage = () => {
 
         // Update communities
         await userService.updateUserCommunities(userId, selectedCommunities);
+
+        // If editing current user, update localStorage with new permissions
+        if (isEditMode && user?.id === parseInt(id)) {
+          // Get permission names from selected permission IDs
+          const allPermList = Object.values(allPermissions).flat();
+          const newPermissionNames = selectedPermissions.map(permId => {
+            const perm = allPermList.find(p => p.id === permId);
+            return perm?.name;
+          }).filter(Boolean);
+          
+          updateUser({ permissions: newPermissionNames });
+        }
 
         // Hiển thị thông báo thành công
         const successMsg = isEditMode
