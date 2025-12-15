@@ -17,14 +17,15 @@ export const usePermission = () => {
   const hasPermission = (permission) => {
     if (!user) return false;
 
-    // Admin has all permissions
-    if (user.role === "admin") return true;
-
     // Check if user has the specific permission
     if (user.permissions && Array.isArray(user.permissions)) {
-      return user.permissions.some(
-        (p) => p.key === permission || p.name === permission
-      );
+      return user.permissions.some((p) => {
+        // Handle both string permissions and object permissions
+        if (typeof p === "string") {
+          return p === permission;
+        }
+        return p.key === permission || p.name === permission;
+      });
     }
 
     return false;

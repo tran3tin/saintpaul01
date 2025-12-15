@@ -1,9 +1,10 @@
 // src/guards/PermissionGuard.jsx
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Navigate } from "react-router-dom";
 import { usePermission } from "@hooks";
 import { ForbiddenPage } from "@pages/errors";
+import { toast } from "react-toastify";
 
 /**
  * PermissionGuard - Protect routes based on permissions
@@ -20,7 +21,7 @@ const PermissionGuard = ({
   permissions,
   roles,
   requireAll = false,
-  redirectTo = "/dashboard",
+  redirectTo = "/thong-tin",
   showForbidden = true,
 }) => {
   const {
@@ -30,41 +31,53 @@ const PermissionGuard = ({
     hasRole,
     hasAnyRole,
   } = usePermission();
+  const toastShownRef = useRef(false);
 
   // Check role-based access
-  if (roles) {
-    const rolesArray = Array.isArray(roles) ? roles : [roles];
-    const hasRequiredRole = hasAnyRole(rolesArray);
-
-    if (!hasRequiredRole) {
-      return showForbidden ? (
-        <ForbiddenPage />
-      ) : (
-        <Navigate to={redirectTo} replace />
-      );
+  const checkRoleAccess = () => {
+    if (roles) {
+      const rolesArray = Array.isArray(roles) ? roles : [roles];
+      return hasAnyRole(rolesArray);
     }
-  }
+    return true;
+  };
 
   // Check permission-based access
-  if (permissions) {
-    const permissionsArray = Array.isArray(permissions)
-      ? permissions
-      : [permissions];
+  const checkPermissionAccess = () => {
+    if (permissions) {
+      const permissionsArray = Array.isArray(permissions)
+        ? permissions
+        : [permissions];
 
-    let hasRequiredPermission;
-    if (requireAll) {
-      hasRequiredPermission = hasAllPermissions(permissionsArray);
-    } else {
-      hasRequiredPermission = hasAnyPermission(permissionsArray);
+      if (requireAll) {
+        return hasAllPermissions(permissionsArray);
+      } else {
+        return hasAnyPermission(permissionsArray);
+      }
     }
+    return true;
+  };
 
-    if (!hasRequiredPermission) {
-      return showForbidden ? (
-        <ForbiddenPage />
-      ) : (
-        <Navigate to={redirectTo} replace />
-      );
+  const hasRoleAccess = checkRoleAccess();
+  const hasPermissionAccess = checkPermissionAccess();
+  const hasAccess = hasRoleAccess && hasPermissionAccess;
+
+  // Show toast only once when access denied
+  useEffect(() => {
+    if (!hasAccess && !toastShownRef.current) {
+      toastShownRef.current = true;
+      toast.error("Bạn không có quyền truy cập trang này", {
+        toastId: "permission-denied",
+      });
     }
+  }, [hasAccess]);
+
+  if (!hasAccess) {
+    return showForbidden ? (
+      <ForbiddenPage />
+    ) : (
+      <Navigate to={redirectTo} replace />
+    );
   }
 
   // Render children if authorized

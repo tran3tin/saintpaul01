@@ -13,7 +13,7 @@ const ForbiddenPage = () => {
   };
 
   const handleGoHome = () => {
-    navigate("/dashboard");
+    navigate("/thong-tin");
   };
 
   return (

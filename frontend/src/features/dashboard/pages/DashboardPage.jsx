@@ -3,22 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { useAuth } from "@context";
+import { dashboardService } from "@services";
 import StatsOverview from "../components/StatsOverview";
 import RecentActivities from "../components/RecentActivities/RecentActivities";
 import QuickActions from "../components/QuickActions/QuickActions";
-
-// Mock data for demo
-const mockStats = {
-  totalSisters: 156,
-  activeSisters: 142,
-  totalCommunities: 12,
-  averageAge: 45,
-};
 
 const DashboardPage = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
+  const [activities, setActivities] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -27,15 +21,20 @@ const DashboardPage = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API call
-      // const response = await reportService.getOverview();
-      // if (response.success) {
-      //   setStats(response.data);
-      // }
 
-      // Mock data for demo
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setStats(mockStats);
+      // Fetch stats and activities in parallel
+      const [statsResponse, activitiesResponse] = await Promise.all([
+        dashboardService.getStats(),
+        dashboardService.getRecentActivities(100),
+      ]);
+
+      if (statsResponse.success) {
+        setStats(statsResponse.data);
+      }
+
+      if (activitiesResponse.success) {
+        setActivities(activitiesResponse.data);
+      }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -70,7 +69,7 @@ const DashboardPage = () => {
       {/* Recent Activities & Quick Actions */}
       <Row className="g-4 mt-2">
         <Col lg={8}>
-          <RecentActivities />
+          <RecentActivities activities={activities} />
         </Col>
         <Col lg={4}>
           <QuickActions />

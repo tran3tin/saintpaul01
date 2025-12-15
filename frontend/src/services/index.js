@@ -19,3 +19,4 @@ export { default as lookupService } from "./lookupService";
 export { default as chatbotService } from "./chatbotService";
 export { default as uploadService } from "./uploadService";
 export { default as postService } from "./postService";
+export { default as dashboardService } from "./dashboardService";

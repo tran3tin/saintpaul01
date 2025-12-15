@@ -1,39 +1,12 @@
 // src/features/dashboard/components/RecentActivities/RecentActivities.jsx
 
 import React from "react";
-import { Card, ListGroup, Badge } from "react-bootstrap";
+import { Card, ListGroup } from "react-bootstrap";
 import { formatRelativeTime } from "@utils";
 
-const RecentActivities = () => {
-  const activities = [
-    {
-      id: 1,
-      type: "create",
-      message: "Thêm mới nữ tu Maria Nguyễn Thị A",
-      user: "Admin",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      icon: "fas fa-user-plus",
-      color: "success",
-    },
-    {
-      id: 2,
-      type: "update",
-      message: "Cập nhật thông tin hành trình",
-      user: "Bề trên Tổng",
-      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
-      icon: "fas fa-edit",
-      color: "primary",
-    },
-    {
-      id: 3,
-      type: "delete",
-      message: "Xóa bản ghi sức khỏe",
-      user: "Admin",
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      icon: "fas fa-trash",
-      color: "danger",
-    },
-  ];
+const RecentActivities = ({ activities = [] }) => {
+  // If no activities from props, show placeholder
+  const displayActivities = activities.length > 0 ? activities : [];
 
   return (
     <Card className="h-100">
@@ -44,31 +17,48 @@ const RecentActivities = () => {
         </h5>
       </Card.Header>
       <Card.Body className="p-0">
-        <ListGroup variant="flush">
-          {activities.map((activity) => (
-            <ListGroup.Item key={activity.id} className="border-0">
-              <div className="d-flex align-items-start">
-                <div
-                  className={`activity-icon bg-${activity.color} bg-opacity-10 text-${activity.color} me-3`}
+        {displayActivities.length === 0 ? (
+          <div className="text-center py-5 text-muted">
+            <i className="fas fa-clock fa-3x mb-3 opacity-50"></i>
+            <p className="mb-0">Chưa có hoạt động nào</p>
+          </div>
+        ) : (
+          <div style={{ maxHeight: "500px", overflowY: "auto" }}>
+            <ListGroup variant="flush">
+              {displayActivities.map((activity) => (
+                <ListGroup.Item
+                  key={activity.id}
+                  className="border-0 border-bottom"
                 >
-                  <i className={activity.icon}></i>
-                </div>
-                <div className="flex-grow-1">
-                  <p className="mb-1">{activity.message}</p>
-                  <small className="text-muted">
-                    {activity.user} • {formatRelativeTime(activity.timestamp)}
-                  </small>
-                </div>
-              </div>
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
+                  <div className="d-flex align-items-start">
+                    <div
+                      className={`activity-icon bg-${activity.type} bg-opacity-10 text-${activity.type} me-3`}
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "10px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <i className={activity.icon}></i>
+                    </div>
+                    <div className="flex-grow-1">
+                      <p className="mb-1">{activity.message}</p>
+                      <small className="text-muted">
+                        {activity.user} •{" "}
+                        {formatRelativeTime(new Date(activity.timestamp))}
+                      </small>
+                    </div>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </div>
+        )}
       </Card.Body>
-      <Card.Footer className="bg-white border-top text-center">
-        <a href="/activities" className="text-primary">
-          Xem tất cả hoạt động
-        </a>
-      </Card.Footer>
     </Card>
   );
 };
