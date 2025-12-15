@@ -10,6 +10,7 @@ import {
   Button,
   Badge,
   Alert,
+  Form,
 } from "react-bootstrap";
 import { useAuth } from "@context/AuthContext";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
@@ -286,6 +287,32 @@ const AVAILABLE_PERMISSIONS = [
     icon: "key",
   },
 
+  // Thông tin / Bài đăng
+  {
+    key: "posts.view",
+    name: "Xem bài đăng",
+    module: "Thông Tin",
+    icon: "newspaper",
+  },
+  {
+    key: "posts.create",
+    name: "Tạo bài đăng mới",
+    module: "Thông Tin",
+    icon: "plus-circle",
+  },
+  {
+    key: "posts.update",
+    name: "Chỉnh sửa bài đăng",
+    module: "Thông Tin",
+    icon: "edit",
+  },
+  {
+    key: "posts.delete",
+    name: "Xóa bài đăng",
+    module: "Thông Tin",
+    icon: "trash",
+  },
+
   // Cài đặt
   { key: "settings_view", name: "Xem cài đặt", module: "Cài Đặt", icon: "cog" },
   {
@@ -312,6 +339,14 @@ const PermissionsPage = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
 
+  // Get current user's permissions
+  const userPermissions = user?.permissions || [];
+
+  // Check if current user has a specific permission
+  const hasPermission = (permissionKey) => {
+    return userPermissions.includes(permissionKey);
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -334,6 +369,12 @@ const PermissionsPage = () => {
     {}
   );
 
+  // Count user's permissions per module
+  const getModulePermissionCount = (module) => {
+    const permissions = permissionsByModule[module] || [];
+    return permissions.filter((p) => hasPermission(p.key)).length;
+  };
+
   const getModuleIcon = (module) => {
     const icons = {
       "Nữ Tu": "users",
@@ -345,6 +386,7 @@ const PermissionsPage = () => {
       "Sứ Vụ": "briefcase",
       "Báo Cáo": "chart-bar",
       "Người Dùng": "users-cog",
+      "Thông Tin": "newspaper",
       "Cài Đặt": "cog",
     };
     return icons[module] || "folder";
@@ -357,6 +399,7 @@ const PermissionsPage = () => {
       "Cộng Đoàn": "success",
       "Sức Khỏe": "danger",
       "Đánh Giá": "warning",
+      "Thông Tin": "info",
       "Học Vấn": "secondary",
       "Sứ Vụ": "dark",
       "Báo Cáo": "info",
@@ -395,24 +438,22 @@ const PermissionsPage = () => {
         <div className="d-flex align-items-start">
           <i className="fas fa-info-circle me-3 mt-1 fs-4"></i>
           <div>
-            <h6 className="mb-2">Cách thức hoạt động</h6>
+            <h6 className="mb-2">Quyền hạn của bạn</h6>
             <p className="mb-2">
-              Hệ thống sử dụng <strong>Permission-Based Access Control</strong>{" "}
-              (PBAC). Mỗi người dùng được gán các quyền cụ thể.
+              Xin chào <strong>{user?.full_name || user?.username}</strong>! Bạn
+              đang có <Badge bg="primary">{userPermissions.length}</Badge> quyền
+              trong hệ thống.
             </p>
-            <ul className="mb-0">
+            <ul className="mb-0 small">
               <li>
-                <strong>Tất cả người dùng:</strong> Được gán các quyền cụ thể
-                thông qua trang quản lý người dùng
+                <i className="fas fa-check-circle text-success me-1"></i>
+                <strong>Tick xanh:</strong> Quyền bạn đang được cấp
               </li>
               <li>
-                <strong>Data Scope:</strong> Người dùng có thể được giới hạn
-                truy cập theo cộng đoàn (data_scope = 'all' hoặc 'community')
+                <i className="fas fa-times-circle text-danger me-1"></i>
+                <strong>Không tick:</strong> Quyền bạn chưa được cấp
               </li>
-              <li>
-                <strong>Linh hoạt:</strong> Mỗi người dùng có thể có bộ quyền
-                khác nhau
-              </li>
+              <li>Liên hệ quản trị viên nếu cần thêm quyền hạn</li>
             </ul>
           </div>
         </div>
@@ -431,8 +472,18 @@ const PermissionsPage = () => {
                     )} me-2 text-${getModuleBadge(module)}`}
                   ></i>
                   <h6 className="mb-0">{module}</h6>
-                  <Badge bg={getModuleBadge(module)} className="ms-auto">
-                    {permissions.length} quyền
+                  <Badge
+                    bg={
+                      getModulePermissionCount(module) === permissions.length
+                        ? "success"
+                        : getModulePermissionCount(module) > 0
+                        ? "warning"
+                        : "secondary"
+                    }
+                    className="ms-auto"
+                  >
+                    {getModulePermissionCount(module)}/{permissions.length}{" "}
+                    quyền
                   </Badge>
                 </div>
               </Card.Header>
@@ -440,15 +491,39 @@ const PermissionsPage = () => {
                 <Table size="sm" className="mb-0" hover>
                   <tbody>
                     {permissions.map((permission) => (
-                      <tr key={permission.key}>
+                      <tr
+                        key={permission.key}
+                        className={
+                          hasPermission(permission.key) ? "table-success" : ""
+                        }
+                      >
                         <td className="py-2 px-3">
                           <div className="d-flex align-items-center">
+                            <Form.Check
+                              type="checkbox"
+                              checked={hasPermission(permission.key)}
+                              disabled
+                              className="me-2"
+                              style={{ pointerEvents: "none" }}
+                            />
                             <i
-                              className={`fas fa-${permission.icon} me-2 text-muted`}
+                              className={`fas fa-${permission.icon} me-2 ${
+                                hasPermission(permission.key)
+                                  ? "text-success"
+                                  : "text-muted"
+                              }`}
                               style={{ width: 20 }}
                             ></i>
                             <div>
-                              <div className="fw-medium">{permission.name}</div>
+                              <div
+                                className={`fw-medium ${
+                                  hasPermission(permission.key)
+                                    ? "text-success"
+                                    : ""
+                                }`}
+                              >
+                                {permission.name}
+                              </div>
                               <small className="text-muted font-monospace">
                                 {permission.key}
                               </small>

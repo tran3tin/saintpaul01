@@ -16,6 +16,13 @@ import ForgotPasswordPage from "@features/auth/pages/ForgotPasswordPage";
 // Dashboard
 import DashboardPage from "@features/dashboard/pages/DashboardPage";
 
+// Thong Tin (Posts)
+import {
+  PostListPage,
+  PostDetailPage,
+  PostFormPage,
+} from "@features/thong-tin";
+
 // Nu Tu
 import SisterListPage from "@features/nu-tu/pages/SisterListPage";
 import SisterDetailPage from "@features/nu-tu/pages/SisterDetailPage";
@@ -122,6 +129,12 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           {/* Dashboard */}
           <Route path="/dashboard" element={<DashboardPage />} />
+
+          {/* Thong Tin (Posts) */}
+          <Route path="/thong-tin" element={<PostListPage />} />
+          <Route path="/thong-tin/tao-moi" element={<PostFormPage />} />
+          <Route path="/thong-tin/:id" element={<PostDetailPage />} />
+          <Route path="/thong-tin/:id/edit" element={<PostFormPage />} />
 
           {/* Nu Tu */}
           <Route path="/nu-tu" element={<SisterListPage />} />

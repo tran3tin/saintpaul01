@@ -9,6 +9,13 @@ export const menuConfig = [
     roles: [], // Empty = all roles can access
   },
   {
+    id: "thong-tin",
+    label: "Thông Tin",
+    icon: "fas fa-newspaper",
+    path: "/thong-tin",
+    roles: [], // Empty = all roles can access
+  },
+  {
     id: "nu-tu",
     label: "Quản lý Nữ Tu",
     icon: "fas fa-users",

@@ -59,11 +59,9 @@ const ensureAdmin = (req, res) => {
     !req.user.permissions ||
     !req.user.permissions.includes("users.manage_permissions")
   ) {
-    res
-      .status(403)
-      .json({
-        message: "Permission denied - requires users.manage_permissions",
-      });
+    res.status(403).json({
+      message: "Permission denied - requires users.manage_permissions",
+    });
     return false;
   }
 
@@ -647,12 +645,33 @@ const getAllPermissions = async (req, res) => {
       ORDER BY module, name
     `);
 
-    // Group by module
+    // Module name translations
+    const moduleTranslations = {
+      admin: "Quản trị",
+      audit: "Nhật ký",
+      communities: "Cộng Đoàn",
+      departures: "Nghỉ việc",
+      education: "Học Vấn",
+      evaluations: "Đánh Giá",
+      health: "Sức Khỏe",
+      missions: "Sứ Vụ",
+      posts: "Thông Tin",
+      reports: "Báo Cáo",
+      search: "Tìm kiếm",
+      sisters: "Nữ Tu",
+      system: "Hệ thống",
+      training: "Đào Tạo",
+      users: "Người Dùng",
+      vocation: "Hành Trình",
+    };
+
+    // Group by module with Vietnamese names
     const grouped = permissions.reduce((acc, perm) => {
-      if (!acc[perm.module]) {
-        acc[perm.module] = [];
+      const moduleName = moduleTranslations[perm.module] || perm.module;
+      if (!acc[moduleName]) {
+        acc[moduleName] = [];
       }
-      acc[perm.module].push({
+      acc[moduleName].push({
         id: perm.id,
         name: perm.name,
         displayName: perm.displayName,

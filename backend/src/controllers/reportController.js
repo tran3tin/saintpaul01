@@ -745,26 +745,28 @@ const getDashboard = async (req, res) => {
       stageStats,
       healthStats,
       recentActivities,
-      monthlyGrowth
+      monthlyGrowth,
     ] = await Promise.all([
-      SisterModel.executeQuery('SELECT COUNT(*) as total FROM sisters'),
-      SisterModel.executeQuery('SELECT COUNT(*) as total FROM sisters WHERE status = "active"'),
-      CommunityModel.executeQuery('SELECT COUNT(*) as total FROM communities'),
+      SisterModel.executeQuery("SELECT COUNT(*) as total FROM sisters"),
+      SisterModel.executeQuery(
+        'SELECT COUNT(*) as total FROM sisters WHERE status = "active"'
+      ),
+      CommunityModel.executeQuery("SELECT COUNT(*) as total FROM communities"),
       fetchStageStats(),
       fetchHealthStats(),
       fetchRecentActivities(),
-      fetchMonthlyGrowth()
+      fetchMonthlyGrowth(),
     ]);
 
     return res.status(200).json({
       totalSisters: totalSisters[0]?.total || 0,
       activeSisters: activeSisters[0]?.total || 0,
       totalCommunities: totalCommunities[0]?.total || 0,
-      journeyStages: stageStats.byStage.map(s => s.count),
+      journeyStages: stageStats.byStage.map((s) => s.count),
       healthStatus: healthStats.byStatus,
       sistersGrowth: monthlyGrowth,
       recentActivities,
-      evaluationTrend: [75, 78, 82, 80] // Placeholder - can implement actual evaluation tracking
+      evaluationTrend: [75, 78, 82, 80], // Placeholder - can implement actual evaluation tracking
     });
   } catch (error) {
     console.error("getDashboard error:", error.message);
@@ -783,9 +785,9 @@ const getStatistics = async (req, res) => {
       totalSisters: report.totals.overall,
       activeSisters: report.totals.active,
       sistersGrowth: monthlyGrowth,
-      journeyStages: report.stages.byStage.map(s => s.count),
+      journeyStages: report.stages.byStage.map((s) => s.count),
       healthStatus: [0, 0, 0, 0], // Will be updated when health data is available
-      evaluationTrend: [75, 78, 82, 80]
+      evaluationTrend: [75, 78, 82, 80],
     });
   } catch (error) {
     console.error("getStatistics error:", error.message);
@@ -803,13 +805,15 @@ const getSisterReport = async (req, res) => {
 
     // Total & Active Sisters
     const [totalRows, activeRows, newThisMonth] = await Promise.all([
-      SisterModel.executeQuery('SELECT COUNT(*) as total FROM sisters'),
-      SisterModel.executeQuery('SELECT COUNT(*) as total FROM sisters WHERE status = "active"'),
+      SisterModel.executeQuery("SELECT COUNT(*) as total FROM sisters"),
+      SisterModel.executeQuery(
+        'SELECT COUNT(*) as total FROM sisters WHERE status = "active"'
+      ),
       SisterModel.executeQuery(`
         SELECT COUNT(*) as total FROM sisters 
         WHERE MONTH(created_at) = MONTH(CURDATE()) 
         AND YEAR(created_at) = YEAR(CURDATE())
-      `)
+      `),
     ]);
 
     // Age Distribution
@@ -873,12 +877,15 @@ const getSisterReport = async (req, res) => {
     `);
 
     const ageData = ageRows[0] || {};
-    const statusData = statusRows.reduce((acc, row) => {
-      if (row.status === 'active') acc[0] = row.total;
-      else if (row.status === 'inactive') acc[1] = row.total;
-      else acc[2] = (acc[2] || 0) + row.total;
-      return acc;
-    }, [0, 0, 0]);
+    const statusData = statusRows.reduce(
+      (acc, row) => {
+        if (row.status === "active") acc[0] = row.total;
+        else if (row.status === "inactive") acc[1] = row.total;
+        else acc[2] = (acc[2] || 0) + row.total;
+        return acc;
+      },
+      [0, 0, 0]
+    );
 
     return res.status(200).json({
       totalSisters: totalRows[0]?.total || 0,
@@ -890,10 +897,10 @@ const getSisterReport = async (req, res) => {
         ageData.age_31_40 || 0,
         ageData.age_41_50 || 0,
         ageData.age_51_60 || 0,
-        ageData.age_60_plus || 0
+        ageData.age_60_plus || 0,
       ],
       statusDistribution: statusData,
-      communityBreakdown: communityBreakdown.map(c => ({
+      communityBreakdown: communityBreakdown.map((c) => ({
         id: c.id,
         name: c.name,
         total: c.total || 0,
@@ -901,12 +908,12 @@ const getSisterReport = async (req, res) => {
         postulant: c.postulant || 0,
         temporary: c.temporary || 0,
         perpetual: c.perpetual || 0,
-        averageAge: Math.round(c.averageAge || 0)
+        averageAge: Math.round(c.averageAge || 0),
       })),
       totalAspirant: stageTotals[0]?.aspirant || 0,
       totalPostulant: stageTotals[0]?.postulant || 0,
       totalTemporary: stageTotals[0]?.temporary || 0,
-      totalPerpetual: stageTotals[0]?.perpetual || 0
+      totalPerpetual: stageTotals[0]?.perpetual || 0,
     });
   } catch (error) {
     console.error("getSisterReport error:", error.message);
@@ -952,17 +959,24 @@ const getJourneyReport = async (req, res) => {
     const postulantProgress = [...months];
     const temporaryProgress = [...months];
 
-    transitionRows.forEach(row => {
+    transitionRows.forEach((row) => {
       const monthIndex = row.month - 1;
-      if (row.stage === 'aspirant') aspirantProgress[monthIndex] = row.total;
-      else if (row.stage === 'postulant') postulantProgress[monthIndex] = row.total;
-      else if (row.stage === 'temporary_vows') temporaryProgress[monthIndex] = row.total;
+      if (row.stage === "aspirant") aspirantProgress[monthIndex] = row.total;
+      else if (row.stage === "postulant")
+        postulantProgress[monthIndex] = row.total;
+      else if (row.stage === "temporary_vows")
+        temporaryProgress[monthIndex] = row.total;
     });
 
     // Prepare stage distribution [Dự tu, Tập sinh, Khấn tạm, Khấn trọn]
-    const stageMap = { aspirant: 0, postulant: 1, temporary_vows: 2, perpetual_vows: 3 };
+    const stageMap = {
+      aspirant: 0,
+      postulant: 1,
+      temporary_vows: 2,
+      perpetual_vows: 3,
+    };
     const stageDistribution = [0, 0, 0, 0];
-    stageRows.forEach(row => {
+    stageRows.forEach((row) => {
       if (stageMap[row.stage] !== undefined) {
         stageDistribution[stageMap[row.stage]] = row.total;
       }
@@ -995,22 +1009,22 @@ const getJourneyReport = async (req, res) => {
       aspirantProgress,
       postulantProgress,
       temporaryProgress,
-      stageBreakdown: stageRows.map(row => ({
+      stageBreakdown: stageRows.map((row) => ({
         stage: row.stage,
         count: row.total,
-        percentage: 0 // Will be calculated on frontend
+        percentage: 0, // Will be calculated on frontend
       })),
-      averageDuration: durationRows.map(row => ({
+      averageDuration: durationRows.map((row) => ({
         stage: row.stage,
-        days: Math.round(row.avg_days || 0)
+        days: Math.round(row.avg_days || 0),
       })),
-      recentTransitions: recentTransitions.map(t => ({
+      recentTransitions: recentTransitions.map((t) => ({
         id: t.id,
         sisterName: t.birth_name,
         sisterCode: t.sister_code,
         stage: t.stage,
-        date: t.start_date
-      }))
+        date: t.start_date,
+      })),
     });
   } catch (error) {
     console.error("getJourneyReport error:", error.message);
@@ -1038,7 +1052,7 @@ const fetchHealthStats = async () => {
 
     const statusMap = { good: 0, fair: 1, moderate: 2, poor: 3 };
     const byStatus = [0, 0, 0, 0];
-    rows.forEach(row => {
+    rows.forEach((row) => {
       if (statusMap[row.health_status] !== undefined) {
         byStatus[statusMap[row.health_status]] = row.total;
       }
@@ -1124,7 +1138,7 @@ const getHealthReport = async (req, res) => {
     `);
 
     const monthlyData = Array(12).fill(0);
-    monthlyCheckups.forEach(row => {
+    monthlyCheckups.forEach((row) => {
       monthlyData[row.month - 1] = row.total;
     });
 
@@ -1136,14 +1150,14 @@ const getHealthReport = async (req, res) => {
       onLeave: absenceRows[0]?.total || 0,
       commonDiseases: conditionRows,
       monthlyCheckups: monthlyData,
-      communityHealth: communityHealth.map(c => ({
+      communityHealth: communityHealth.map((c) => ({
         id: c.id,
         name: c.name,
         totalChecked: c.totalChecked || 0,
         good: c.good || 0,
         fair: c.fair || 0,
-        needAttention: c.needAttention || 0
-      }))
+        needAttention: c.needAttention || 0,
+      })),
     });
   } catch (error) {
     console.error("getHealthReport error:", error.message);
@@ -1233,7 +1247,7 @@ const getEvaluationReport = async (req, res) => {
     `);
 
     const monthlyAverage = Array(12).fill(0);
-    monthlyRows.forEach(row => {
+    monthlyRows.forEach((row) => {
       monthlyAverage[row.month - 1] = Math.round((row.avg_score || 0) * 10); // Scale to 0-100
     });
 
@@ -1249,26 +1263,30 @@ const getEvaluationReport = async (req, res) => {
         rating.excellent || 0,
         rating.good || 0,
         rating.average || 0,
-        rating.poor || 0
+        rating.poor || 0,
       ],
       categoryAverage: [
         Math.round((category.spiritual || 0) * 10),
         Math.round((category.community || 0) * 10),
         Math.round((category.mission || 0) * 10),
         Math.round((category.personality || 0) * 10),
-        Math.round((category.obedience || 0) * 10)
+        Math.round((category.obedience || 0) * 10),
       ],
-      communityBreakdown: communityEval.map(c => ({
+      communityBreakdown: communityEval.map((c) => ({
         id: c.id,
         name: c.name,
         totalEvaluations: c.totalEvaluations || 0,
         avgScore: Math.round((c.avgScore || 0) * 10),
-        goodPercentage: c.totalEvaluations ? Math.round((c.goodCount / c.totalEvaluations) * 100) : 0
-      }))
+        goodPercentage: c.totalEvaluations
+          ? Math.round((c.goodCount / c.totalEvaluations) * 100)
+          : 0,
+      })),
     });
   } catch (error) {
     console.error("getEvaluationReport error:", error.message);
-    return res.status(500).json({ message: "Failed to fetch evaluation report" });
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch evaluation report" });
   }
 };
 
@@ -1303,7 +1321,7 @@ const fetchMonthlyGrowth = async () => {
     `);
 
     const monthlyData = Array(12).fill(0);
-    rows.forEach(row => {
+    rows.forEach((row) => {
       monthlyData[row.month - 1] = row.total;
     });
 
