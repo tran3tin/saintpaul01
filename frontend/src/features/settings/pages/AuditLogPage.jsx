@@ -334,7 +334,9 @@ const AuditLogPage = () => {
                         </small>
                       </td>
                       <td>
-                        <strong>{log.username || `User #${log.user_id}`}</strong>
+                        <strong>
+                          {log.username || `User #${log.user_id}`}
+                        </strong>
                       </td>
                       <td>{getActionBadge(log.action)}</td>
                       <td>{getTableLabel(log.table_name)}</td>
@@ -356,8 +358,8 @@ const AuditLogPage = () => {
               <div className="d-flex justify-content-between align-items-center mt-3">
                 <small className="text-muted">
                   Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
-                  {Math.min(currentPage * ITEMS_PER_PAGE, totalLogs)} / {totalLogs}{" "}
-                  bản ghi
+                  {Math.min(currentPage * ITEMS_PER_PAGE, totalLogs)} /{" "}
+                  {totalLogs} bản ghi
                 </small>
                 {renderPagination()}
               </div>

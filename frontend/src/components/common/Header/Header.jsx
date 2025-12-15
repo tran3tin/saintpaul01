@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 // Context
 import { useAuth } from "@context/AuthContext";
+
+// Services
+import { notificationService } from "@services";
+
+// Utils
+import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
 
 // Styles
 import "./Header.css";
@@ -12,34 +19,35 @@ const Header = ({ toggleSidebar }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: "info",
-      title: "Thông báo mới",
-      message: "Sr. Maria đã cập nhật hồ sơ",
-      time: "5 phút trước",
-      read: false,
-    },
-    {
-      id: 2,
-      type: "warning",
-      title: "Nhắc nhở",
-      message: "Có 3 hồ sơ cần phê duyệt",
-      time: "1 giờ trước",
-      read: false,
-    },
-    {
-      id: 3,
-      type: "success",
-      title: "Thành công",
-      message: "Báo cáo tháng 1 đã được tạo",
-      time: "2 giờ trước",
-      read: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  // Fetch notifications
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      const result = await notificationService.getAll({ limit: 10 });
+      if (result.success) {
+        setNotifications(result.data || []);
+        setUnreadCount(result.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch notifications on mount and periodically
+  useEffect(() => {
+    fetchNotifications();
+    
+    // Refresh notifications every 60 seconds
+    const interval = setInterval(fetchNotifications, 60000);
+    
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
 
   const handleLogout = async () => {
     try {
@@ -51,18 +59,85 @@ const Header = ({ toggleSidebar }) => {
     }
   };
 
-  const handleMarkAsRead = (notificationId) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
-    );
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const result = await notificationService.markAsRead(notificationId);
+      if (result.success) {
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  const handleMarkAllAsRead = async () => {
+    try {
+      const result = await notificationService.markAllAsRead();
+      if (result.success) {
+        setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+        setUnreadCount(0);
+        toast.success("Đã đánh dấu tất cả đã đọc");
+      }
+    } catch (error) {
+      console.error("Error marking all as read:", error);
+      toast.error("Có lỗi xảy ra");
+    }
   };
 
-  const handleDeleteNotification = (notificationId) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+  const handleDeleteNotification = async (notificationId) => {
+    try {
+      const result = await notificationService.delete(notificationId);
+      if (result.success) {
+        setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+        toast.success("Đã xóa thông báo");
+      }
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      toast.error("Có lỗi xảy ra khi xóa");
+    }
+  };
+
+  // Format time for display
+  const formatTime = (dateString) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), {
+        addSuffix: true,
+        locale: vi,
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Get icon class based on notification type
+  const getNotificationIcon = (type) => {
+    const icons = {
+      info: "fa-info-circle",
+      warning: "fa-exclamation-triangle",
+      success: "fa-check-circle",
+      error: "fa-times-circle",
+      birthday: "fa-birthday-cake",
+      anniversary: "fa-calendar-check",
+      reminder: "fa-bell",
+    };
+    return icons[type] || "fa-bell";
+  };
+
+  // Get background class based on notification type
+  const getNotificationBg = (type) => {
+    const backgrounds = {
+      info: "bg-skyblue",
+      warning: "bg-yellow",
+      success: "bg-green",
+      error: "bg-pink",
+      birthday: "bg-purple",
+      anniversary: "bg-orange",
+      reminder: "bg-blue",
+    };
+    return backgrounds[type] || "bg-skyblue";
   };
 
   return (
@@ -143,38 +218,18 @@ const Header = ({ toggleSidebar }) => {
                   notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`media ${!notification.read ? "unread" : ""}`}
+                      className={`media ${!notification.is_read ? "unread" : ""}`}
                       onClick={() =>
-                        !notification.read && handleMarkAsRead(notification.id)
+                        !notification.is_read && handleMarkAsRead(notification.id)
                       }
                     >
-                      <div
-                        className={`item-icon ${
-                          notification.type === "info"
-                            ? "bg-skyblue"
-                            : notification.type === "warning"
-                            ? "bg-yellow"
-                            : notification.type === "success"
-                            ? "bg-skyblue"
-                            : "bg-pink"
-                        }`}
-                      >
-                        <i
-                          className={`fas ${
-                            notification.type === "info"
-                              ? "fa-info-circle"
-                              : notification.type === "warning"
-                              ? "fa-exclamation-triangle"
-                              : notification.type === "success"
-                              ? "fa-check-circle"
-                              : "fa-times-circle"
-                          }`}
-                        ></i>
+                      <div className={`item-icon ${getNotificationBg(notification.type)}`}>
+                        <i className={`fas ${getNotificationIcon(notification.type)}`}></i>
                       </div>
                       <div className="media-body space-sm">
                         <div className="post-title">{notification.title}</div>
                         <p>{notification.message}</p>
-                        <span>{notification.time}</span>
+                        <span>{formatTime(notification.created_at)}</span>
                       </div>
                     </div>
                   ))
