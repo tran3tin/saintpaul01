@@ -4,6 +4,7 @@ const { authenticateToken, checkPermission } = require("../middlewares/auth");
 const { attachDataScope } = require("../middlewares/dataScope");
 const {
   validateCommunityCreate,
+  validateCommunityUpdate,
   handleValidationErrors,
 } = require("../middlewares/validation");
 
@@ -39,7 +40,7 @@ router.post(
 router.put(
   "/:id",
   checkPermission("communities.edit"),
-  validateCommunityCreate,
+  validateCommunityUpdate,
   handleValidationErrors,
   communityController.updateCommunity
 );

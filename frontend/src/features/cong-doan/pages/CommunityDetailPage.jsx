@@ -11,8 +11,12 @@ import {
   Tab,
   Nav,
   Table,
+  Modal,
+  Form,
 } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { communityService } from "@services";
 import { formatDate } from "@utils";
 import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
@@ -45,11 +49,54 @@ const CommunityDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [community, setCommunity] = useState(null);
   const [members, setMembers] = useState([]);
+  
+  // History states
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyContent, setHistoryContent] = useState("");
+  const [editingHistory, setEditingHistory] = useState(false);
+  const [savingHistory, setSavingHistory] = useState(false);
+
+  // Quill editor configuration
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'font': [] }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'direction': 'rtl' }],
+      [{ 'align': [] }],
+      ['blockquote', 'code-block'],
+      ['link', 'image', 'video'],
+      ['clean']
+    ],
+  };
+
+  const quillFormats = [
+    'header', 'font', 'size',
+    'bold', 'italic', 'underline', 'strike',
+    'color', 'background',
+    'script',
+    'list', 'bullet', 'indent',
+    'direction', 'align',
+    'blockquote', 'code-block',
+    'link', 'image', 'video'
+  ];
 
   useEffect(() => {
     fetchCommunityDetail();
     fetchMembers();
   }, [id]);
+
+  useEffect(() => {
+    // Load history content when community data is loaded
+    if (community?.history) {
+      setHistoryContent(community.history);
+    }
+  }, [community]);
 
   const fetchCommunityDetail = async () => {
     try {
@@ -97,6 +144,49 @@ const CommunityDetailPage = () => {
 
   const handleAssignMembers = () => {
     navigate(`/cong-doan/${id}/assign`);
+  };
+
+  // History handlers
+  const handleOpenHistoryEditor = () => {
+    setEditingHistory(true);
+    setShowHistoryModal(true);
+  };
+
+  const handleCloseHistoryModal = () => {
+    setShowHistoryModal(false);
+    setEditingHistory(false);
+    // Reset to saved content
+    if (community?.history) {
+      setHistoryContent(community.history);
+    }
+  };
+
+  const handleSaveHistory = async () => {
+    try {
+      setSavingHistory(true);
+      await communityService.update(id, { history: historyContent });
+      setCommunity(prev => ({ ...prev, history: historyContent }));
+      setShowHistoryModal(false);
+      setEditingHistory(false);
+    } catch (error) {
+      console.error("Error saving history:", error);
+      alert("Không thể lưu lịch sử. Vui lòng thử lại.");
+    } finally {
+      setSavingHistory(false);
+    }
+  };
+
+  const handleDeleteHistory = async () => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa lịch sử hình thành?")) {
+      try {
+        await communityService.update(id, { history: null });
+        setCommunity(prev => ({ ...prev, history: null }));
+        setHistoryContent("");
+      } catch (error) {
+        console.error("Error deleting history:", error);
+        alert("Không thể xóa lịch sử. Vui lòng thử lại.");
+      }
+    }
   };
 
   const handleViewMember = (memberId) => {
@@ -266,6 +356,10 @@ const CommunityDetailPage = () => {
                     <i className="fas fa-users"></i>
                     Thành viên ({members.length})
                   </Nav.Link>
+                  <Nav.Link eventKey="history">
+                    <i className="fas fa-book"></i>
+                    Lịch sử hình thành
+                  </Nav.Link>
                 </Nav>
               </Card.Body>
             </Card>
@@ -403,12 +497,120 @@ const CommunityDetailPage = () => {
                       </div>
                     )}
                   </Tab.Pane>
+
+                  <Tab.Pane eventKey="history">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <h5 className="mb-0">
+                        <i className="fas fa-book me-2"></i>
+                        Lịch sử hình thành
+                      </h5>
+                      <div className="d-flex gap-2">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={handleOpenHistoryEditor}
+                        >
+                          <i className="fas fa-edit me-2"></i>
+                          {community?.history ? "Sửa" : "Soạn thảo"}
+                        </Button>
+                        {community?.history && (
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={handleDeleteHistory}
+                          >
+                            <i className="fas fa-trash me-2"></i>
+                            Xóa
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {community?.history ? (
+                      <div className="history-content">
+                        <div 
+                          className="ql-editor" 
+                          dangerouslySetInnerHTML={{ __html: community.history }}
+                          style={{ 
+                            padding: '15px', 
+                            border: '1px solid #e0e0e0', 
+                            borderRadius: '8px',
+                            minHeight: '200px',
+                            backgroundColor: '#fafafa'
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-center py-5">
+                        <i className="fas fa-book text-muted mb-3" style={{ fontSize: '3rem' }}></i>
+                        <p className="text-muted">Chưa có thông tin lịch sử hình thành</p>
+                        <Button variant="primary" onClick={handleOpenHistoryEditor}>
+                          <i className="fas fa-edit me-2"></i>Soạn thảo lịch sử
+                        </Button>
+                      </div>
+                    )}
+                  </Tab.Pane>
                 </Tab.Content>
               </Card.Body>
             </Card>
           </Col>
         </Row>
       </Tab.Container>
+
+      {/* History Editor Modal */}
+      <Modal 
+        show={showHistoryModal} 
+        onHide={handleCloseHistoryModal}
+        size="xl"
+        centered
+        className="history-editor-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <i className="fas fa-edit me-2"></i>
+            Soạn thảo lịch sử hình thành - {community?.name}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group className="mb-3">
+            <Form.Label>
+              Nội dung chi tiết <span className="text-danger">*</span>
+            </Form.Label>
+            <div className="quill-container" style={{ minHeight: '400px' }}>
+              <ReactQuill
+                theme="snow"
+                value={historyContent}
+                onChange={setHistoryContent}
+                modules={quillModules}
+                formats={quillFormats}
+                style={{ height: '350px' }}
+                placeholder="Nhập nội dung lịch sử hình thành cộng đoàn..."
+              />
+            </div>
+            <small className="text-muted mt-5 d-block">
+              <i className="fas fa-info-circle me-1"></i>
+              Sử dụng thanh công cụ để định dạng văn bản, thêm hình ảnh, liên kết...
+            </small>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseHistoryModal} disabled={savingHistory}>
+            <i className="fas fa-times me-2"></i>Hủy
+          </Button>
+          <Button variant="primary" onClick={handleSaveHistory} disabled={savingHistory}>
+            {savingHistory ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Đang lưu...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-save me-2"></i>Lưu
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

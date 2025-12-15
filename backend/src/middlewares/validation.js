@@ -103,6 +103,12 @@ const validateCommunityCreate = [
   body("name").notEmpty().withMessage("name is required"),
 ];
 
+const validateCommunityUpdate = [
+  body("code").optional({ nullable: true, checkFalsy: true }),
+  body("name").optional().notEmpty().withMessage("name cannot be empty"),
+  body("history").optional(),
+];
+
 const validateCommunityAssignmentCreate = [
   body("sister_id")
     .isInt({ min: 1 })
@@ -280,6 +286,7 @@ module.exports = {
   validateUserCreate,
   validateLogin,
   validateCommunityCreate,
+  validateCommunityUpdate,
   validateCommunityAssignmentCreate,
   validateVocationJourneyCreate,
   validateMissionCreate,

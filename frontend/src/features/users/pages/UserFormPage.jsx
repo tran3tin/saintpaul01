@@ -30,7 +30,9 @@ const UserFormPage = () => {
   const navigate = useNavigate();
   const isEditMode = !!id;
   const { user, updateUser } = useAuth();
-  const canViewCommunities = user?.permissions?.includes("communities.view_list");
+  const canViewCommunities = user?.permissions?.includes(
+    "communities.view_list"
+  );
 
   const [loading, setLoading] = useState(isEditMode);
   const [submitting, setSubmitting] = useState(false);
@@ -265,11 +267,13 @@ const UserFormPage = () => {
         if (isEditMode && user?.id === parseInt(id)) {
           // Get permission names from selected permission IDs
           const allPermList = Object.values(allPermissions).flat();
-          const newPermissionNames = selectedPermissions.map(permId => {
-            const perm = allPermList.find(p => p.id === permId);
-            return perm?.name;
-          }).filter(Boolean);
-          
+          const newPermissionNames = selectedPermissions
+            .map((permId) => {
+              const perm = allPermList.find((p) => p.id === permId);
+              return perm?.name;
+            })
+            .filter(Boolean);
+
           updateUser({ permissions: newPermissionNames });
         }
 

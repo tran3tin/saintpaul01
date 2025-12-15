@@ -81,34 +81,46 @@ const AVAILABLE_PERMISSIONS = [
 
   // Cộng đoàn
   {
-    key: "community_view",
+    key: "communities.view",
     name: "Xem danh sách cộng đoàn",
     module: "Cộng Đoàn",
     icon: "building",
   },
   {
-    key: "community_create",
+    key: "communities.create",
     name: "Thêm cộng đoàn mới",
     module: "Cộng Đoàn",
     icon: "plus",
   },
   {
-    key: "community_edit",
+    key: "communities.edit",
     name: "Chỉnh sửa cộng đoàn",
     module: "Cộng Đoàn",
     icon: "edit",
   },
   {
-    key: "community_delete",
+    key: "communities.delete",
     name: "Xóa cộng đoàn",
     module: "Cộng Đoàn",
     icon: "trash",
   },
   {
-    key: "community_assign",
+    key: "communities.assign",
     name: "Phân công nữ tu",
     module: "Cộng Đoàn",
     icon: "user-check",
+  },
+  {
+    key: "communities.history_view",
+    name: "Xem lịch sử hình thành",
+    module: "Cộng Đoàn",
+    icon: "book",
+  },
+  {
+    key: "communities.history_edit",
+    name: "Chỉnh sửa lịch sử hình thành",
+    module: "Cộng Đoàn",
+    icon: "book-open",
   },
 
   // Sức khỏe

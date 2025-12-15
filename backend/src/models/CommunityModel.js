@@ -12,6 +12,7 @@ class CommunityModel extends BaseModel {
       "established_date",
       "status",
       "description",
+      "history",
       "created_at",
       "updated_at",
     ];
