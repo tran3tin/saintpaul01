@@ -12,7 +12,7 @@ const settingService = {
       const response = await api.get("/settings/general");
       return {
         success: true,
-        data: response.data,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -31,8 +31,8 @@ const settingService = {
     try {
       const response = await api.put("/settings/general", data);
       return {
-        success: true,
-        data: response.data,
+        success: response.data?.success || true,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -52,7 +52,7 @@ const settingService = {
       const response = await api.get("/settings/system");
       return {
         success: true,
-        data: response.data,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -71,8 +71,8 @@ const settingService = {
     try {
       const response = await api.put("/settings/system", data);
       return {
-        success: true,
-        data: response.data,
+        success: response.data?.success || true,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -91,8 +91,9 @@ const settingService = {
     try {
       const response = await api.post("/settings/test-email");
       return {
-        success: true,
-        data: response.data,
+        success: response.data?.success || true,
+        message: response.data?.message,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -110,8 +111,9 @@ const settingService = {
     try {
       const response = await api.post("/settings/clear-cache");
       return {
-        success: true,
-        data: response.data,
+        success: response.data?.success || true,
+        message: response.data?.message,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -130,7 +132,7 @@ const settingService = {
       const response = await api.get("/settings/preferences");
       return {
         success: true,
-        data: response.data,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -149,8 +151,8 @@ const settingService = {
     try {
       const response = await api.put("/settings/preferences", data);
       return {
-        success: true,
-        data: response.data,
+        success: response.data?.success || true,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -168,8 +170,9 @@ const settingService = {
     try {
       const response = await api.post("/settings/preferences/reset");
       return {
-        success: true,
-        data: response.data,
+        success: response.data?.success || true,
+        message: response.data?.message,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -188,7 +191,7 @@ const settingService = {
       const response = await api.get("/settings/backups");
       return {
         success: true,
-        data: response.data,
+        data: response.data?.data || response.data || [],
       };
     } catch (error) {
       return {
@@ -206,8 +209,9 @@ const settingService = {
     try {
       const response = await api.post("/settings/backups");
       return {
-        success: true,
-        data: response.data,
+        success: response.data?.success || true,
+        message: response.data?.message,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -226,8 +230,9 @@ const settingService = {
     try {
       const response = await api.post(`/settings/backups/${backupId}/restore`);
       return {
-        success: true,
-        data: response.data,
+        success: response.data?.success || true,
+        message: response.data?.message,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {
@@ -287,7 +292,7 @@ const settingService = {
       const response = await api.get("/settings/storage-info");
       return {
         success: true,
-        data: response.data,
+        data: response.data?.data || response.data,
       };
     } catch (error) {
       return {

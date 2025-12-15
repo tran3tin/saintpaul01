@@ -24,7 +24,7 @@ const authenticateToken = async (req, res, next) => {
     // Get user details including permissions and scope info
     const db = require("../config/database");
     const [users] = await db.query(
-      `SELECT id, username, data_scope 
+      `SELECT id, username, data_scope, is_admin, is_super_admin 
        FROM users WHERE id = ?`,
       [decoded.id]
     );
@@ -38,9 +38,20 @@ const authenticateToken = async (req, res, next) => {
     // Get user permissions
     const permissions = await UserModel.getPermissions(decoded.id);
 
+    // Determine role based on is_admin and is_super_admin flags
+    let role = "user";
+    if (user.is_super_admin === 1) {
+      role = "superior_general";
+    } else if (user.is_admin === 1) {
+      role = "admin";
+    }
+
     req.user = {
       ...decoded,
       data_scope: user.data_scope,
+      is_admin: user.is_admin,
+      is_super_admin: user.is_super_admin,
+      role: role,
       permissions: permissions.map((p) => p.name),
     };
 

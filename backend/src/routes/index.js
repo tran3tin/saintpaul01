@@ -17,6 +17,7 @@ const chatbotRoutes = require("./chatbot");
 const uploadRoutes = require("./uploadRoutes");
 const postRoutes = require("./postRoutes");
 const dashboardRoutes = require("./dashboardRoutes");
+const settingRoutes = require("./settingRoutes");
 
 module.exports = (app) => {
   app.use("/api/auth", authRoutes);
@@ -38,6 +39,7 @@ module.exports = (app) => {
   app.use("/api/upload", uploadRoutes);
   app.use("/api/posts", postRoutes);
   app.use("/api/dashboard", dashboardRoutes);
+  app.use("/api/settings", settingRoutes);
 
   app.get("/api/health", (req, res) => {
     res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
