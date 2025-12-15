@@ -729,6 +729,595 @@ const exportReportPDF = async (req, res) => {
   }
 };
 
+// ============================================
+// DASHBOARD & STATISTICS
+// ============================================
+
+const getDashboard = async (req, res) => {
+  try {
+    if (!ensurePermission(req, res)) return;
+
+    // Fetch all necessary data in parallel
+    const [
+      totalSisters,
+      activeSisters,
+      totalCommunities,
+      stageStats,
+      healthStats,
+      recentActivities,
+      monthlyGrowth
+    ] = await Promise.all([
+      SisterModel.executeQuery('SELECT COUNT(*) as total FROM sisters'),
+      SisterModel.executeQuery('SELECT COUNT(*) as total FROM sisters WHERE status = "active"'),
+      CommunityModel.executeQuery('SELECT COUNT(*) as total FROM communities'),
+      fetchStageStats(),
+      fetchHealthStats(),
+      fetchRecentActivities(),
+      fetchMonthlyGrowth()
+    ]);
+
+    return res.status(200).json({
+      totalSisters: totalSisters[0]?.total || 0,
+      activeSisters: activeSisters[0]?.total || 0,
+      totalCommunities: totalCommunities[0]?.total || 0,
+      journeyStages: stageStats.byStage.map(s => s.count),
+      healthStatus: healthStats.byStatus,
+      sistersGrowth: monthlyGrowth,
+      recentActivities,
+      evaluationTrend: [75, 78, 82, 80] // Placeholder - can implement actual evaluation tracking
+    });
+  } catch (error) {
+    console.error("getDashboard error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch dashboard data" });
+  }
+};
+
+const getStatistics = async (req, res) => {
+  try {
+    if (!ensurePermission(req, res)) return;
+
+    const report = await buildComprehensiveReport();
+    const monthlyGrowth = await fetchMonthlyGrowth();
+
+    return res.status(200).json({
+      totalSisters: report.totals.overall,
+      activeSisters: report.totals.active,
+      sistersGrowth: monthlyGrowth,
+      journeyStages: report.stages.byStage.map(s => s.count),
+      healthStatus: [0, 0, 0, 0], // Will be updated when health data is available
+      evaluationTrend: [75, 78, 82, 80]
+    });
+  } catch (error) {
+    console.error("getStatistics error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch statistics" });
+  }
+};
+
+// ============================================
+// SISTER REPORT
+// ============================================
+
+const getSisterReport = async (req, res) => {
+  try {
+    if (!ensurePermission(req, res)) return;
+
+    // Total & Active Sisters
+    const [totalRows, activeRows, newThisMonth] = await Promise.all([
+      SisterModel.executeQuery('SELECT COUNT(*) as total FROM sisters'),
+      SisterModel.executeQuery('SELECT COUNT(*) as total FROM sisters WHERE status = "active"'),
+      SisterModel.executeQuery(`
+        SELECT COUNT(*) as total FROM sisters 
+        WHERE MONTH(created_at) = MONTH(CURDATE()) 
+        AND YEAR(created_at) = YEAR(CURDATE())
+      `)
+    ]);
+
+    // Age Distribution
+    const ageRows = await SisterModel.executeQuery(`
+      SELECT 
+        SUM(CASE WHEN age >= 18 AND age <= 30 THEN 1 ELSE 0 END) as age_18_30,
+        SUM(CASE WHEN age >= 31 AND age <= 40 THEN 1 ELSE 0 END) as age_31_40,
+        SUM(CASE WHEN age >= 41 AND age <= 50 THEN 1 ELSE 0 END) as age_41_50,
+        SUM(CASE WHEN age >= 51 AND age <= 60 THEN 1 ELSE 0 END) as age_51_60,
+        SUM(CASE WHEN age > 60 THEN 1 ELSE 0 END) as age_60_plus,
+        AVG(age) as avg_age
+      FROM (
+        SELECT TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) as age
+        FROM sisters WHERE date_of_birth IS NOT NULL AND status = 'active'
+      ) ages
+    `);
+
+    // Status Distribution
+    const statusRows = await SisterModel.executeQuery(`
+      SELECT status, COUNT(*) as total FROM sisters GROUP BY status
+    `);
+
+    // Community Breakdown with stage counts
+    const communityBreakdown = await CommunityModel.executeQuery(`
+      SELECT 
+        c.id, c.name,
+        COUNT(DISTINCT ca.sister_id) as total,
+        SUM(CASE WHEN vj.stage = 'aspirant' THEN 1 ELSE 0 END) as aspirant,
+        SUM(CASE WHEN vj.stage = 'postulant' THEN 1 ELSE 0 END) as postulant,
+        SUM(CASE WHEN vj.stage = 'temporary_vows' THEN 1 ELSE 0 END) as temporary,
+        SUM(CASE WHEN vj.stage = 'perpetual_vows' THEN 1 ELSE 0 END) as perpetual,
+        AVG(TIMESTAMPDIFF(YEAR, s.date_of_birth, CURDATE())) as averageAge
+      FROM communities c
+      LEFT JOIN community_assignments ca ON ca.community_id = c.id 
+        AND (ca.end_date IS NULL OR ca.end_date >= CURDATE())
+      LEFT JOIN sisters s ON s.id = ca.sister_id AND s.status = 'active'
+      LEFT JOIN (
+        SELECT vj1.sister_id, vj1.stage
+        FROM vocation_journey vj1
+        INNER JOIN (
+          SELECT sister_id, MAX(start_date) as max_date
+          FROM vocation_journey GROUP BY sister_id
+        ) vj2 ON vj1.sister_id = vj2.sister_id AND vj1.start_date = vj2.max_date
+      ) vj ON vj.sister_id = s.id
+      GROUP BY c.id, c.name
+      ORDER BY total DESC
+    `);
+
+    // Stage totals
+    const stageTotals = await VocationJourneyModel.executeQuery(`
+      SELECT 
+        SUM(CASE WHEN stage = 'aspirant' THEN 1 ELSE 0 END) as aspirant,
+        SUM(CASE WHEN stage = 'postulant' THEN 1 ELSE 0 END) as postulant,
+        SUM(CASE WHEN stage = 'temporary_vows' THEN 1 ELSE 0 END) as temporary,
+        SUM(CASE WHEN stage = 'perpetual_vows' THEN 1 ELSE 0 END) as perpetual
+      FROM vocation_journey vj
+      INNER JOIN (
+        SELECT sister_id, MAX(start_date) as max_date
+        FROM vocation_journey GROUP BY sister_id
+      ) latest ON vj.sister_id = latest.sister_id AND vj.start_date = latest.max_date
+    `);
+
+    const ageData = ageRows[0] || {};
+    const statusData = statusRows.reduce((acc, row) => {
+      if (row.status === 'active') acc[0] = row.total;
+      else if (row.status === 'inactive') acc[1] = row.total;
+      else acc[2] = (acc[2] || 0) + row.total;
+      return acc;
+    }, [0, 0, 0]);
+
+    return res.status(200).json({
+      totalSisters: totalRows[0]?.total || 0,
+      activeSisters: activeRows[0]?.total || 0,
+      averageAge: Math.round(ageData.avg_age || 0),
+      newThisMonth: newThisMonth[0]?.total || 0,
+      ageDistribution: [
+        ageData.age_18_30 || 0,
+        ageData.age_31_40 || 0,
+        ageData.age_41_50 || 0,
+        ageData.age_51_60 || 0,
+        ageData.age_60_plus || 0
+      ],
+      statusDistribution: statusData,
+      communityBreakdown: communityBreakdown.map(c => ({
+        id: c.id,
+        name: c.name,
+        total: c.total || 0,
+        aspirant: c.aspirant || 0,
+        postulant: c.postulant || 0,
+        temporary: c.temporary || 0,
+        perpetual: c.perpetual || 0,
+        averageAge: Math.round(c.averageAge || 0)
+      })),
+      totalAspirant: stageTotals[0]?.aspirant || 0,
+      totalPostulant: stageTotals[0]?.postulant || 0,
+      totalTemporary: stageTotals[0]?.temporary || 0,
+      totalPerpetual: stageTotals[0]?.perpetual || 0
+    });
+  } catch (error) {
+    console.error("getSisterReport error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch sister report" });
+  }
+};
+
+// ============================================
+// JOURNEY REPORT
+// ============================================
+
+const getJourneyReport = async (req, res) => {
+  try {
+    if (!ensurePermission(req, res)) return;
+
+    // Stage distribution
+    const stageRows = await VocationJourneyModel.executeQuery(`
+      SELECT stage, COUNT(*) as total
+      FROM vocation_journey vj
+      INNER JOIN (
+        SELECT sister_id, MAX(start_date) as max_date
+        FROM vocation_journey GROUP BY sister_id
+      ) latest ON vj.sister_id = latest.sister_id AND vj.start_date = latest.max_date
+      GROUP BY stage
+      ORDER BY FIELD(stage, 'inquiry', 'aspirant', 'postulant', 'novice', 'temporary_vows', 'perpetual_vows')
+    `);
+
+    // Monthly transitions
+    const transitionRows = await VocationJourneyModel.executeQuery(`
+      SELECT 
+        MONTH(start_date) as month,
+        stage,
+        COUNT(*) as total
+      FROM vocation_journey
+      WHERE YEAR(start_date) = YEAR(CURDATE())
+      GROUP BY MONTH(start_date), stage
+      ORDER BY month
+    `);
+
+    // Prepare monthly data
+    const months = Array(12).fill(0);
+    const aspirantProgress = [...months];
+    const postulantProgress = [...months];
+    const temporaryProgress = [...months];
+
+    transitionRows.forEach(row => {
+      const monthIndex = row.month - 1;
+      if (row.stage === 'aspirant') aspirantProgress[monthIndex] = row.total;
+      else if (row.stage === 'postulant') postulantProgress[monthIndex] = row.total;
+      else if (row.stage === 'temporary_vows') temporaryProgress[monthIndex] = row.total;
+    });
+
+    // Prepare stage distribution [Dự tu, Tập sinh, Khấn tạm, Khấn trọn]
+    const stageMap = { aspirant: 0, postulant: 1, temporary_vows: 2, perpetual_vows: 3 };
+    const stageDistribution = [0, 0, 0, 0];
+    stageRows.forEach(row => {
+      if (stageMap[row.stage] !== undefined) {
+        stageDistribution[stageMap[row.stage]] = row.total;
+      }
+    });
+
+    // Average duration per stage
+    const durationRows = await VocationJourneyModel.executeQuery(`
+      SELECT 
+        stage,
+        AVG(DATEDIFF(COALESCE(end_date, CURDATE()), start_date)) as avg_days
+      FROM vocation_journey
+      WHERE start_date IS NOT NULL
+      GROUP BY stage
+    `);
+
+    // Recent transitions
+    const recentTransitions = await VocationJourneyModel.executeQuery(`
+      SELECT 
+        vj.id, vj.stage, vj.start_date,
+        s.birth_name, s.code as sister_code
+      FROM vocation_journey vj
+      JOIN sisters s ON s.id = vj.sister_id
+      ORDER BY vj.start_date DESC
+      LIMIT 10
+    `);
+
+    return res.status(200).json({
+      totalInJourney: stageRows.reduce((sum, r) => sum + r.total, 0),
+      stageDistribution,
+      aspirantProgress,
+      postulantProgress,
+      temporaryProgress,
+      stageBreakdown: stageRows.map(row => ({
+        stage: row.stage,
+        count: row.total,
+        percentage: 0 // Will be calculated on frontend
+      })),
+      averageDuration: durationRows.map(row => ({
+        stage: row.stage,
+        days: Math.round(row.avg_days || 0)
+      })),
+      recentTransitions: recentTransitions.map(t => ({
+        id: t.id,
+        sisterName: t.birth_name,
+        sisterCode: t.sister_code,
+        stage: t.stage,
+        date: t.start_date
+      }))
+    });
+  } catch (error) {
+    console.error("getJourneyReport error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch journey report" });
+  }
+};
+
+// ============================================
+// HEALTH REPORT
+// ============================================
+
+const fetchHealthStats = async () => {
+  try {
+    const rows = await SisterModel.executeQuery(`
+      SELECT 
+        hr.health_status,
+        COUNT(*) as total
+      FROM health_records hr
+      INNER JOIN (
+        SELECT sister_id, MAX(check_date) as max_date
+        FROM health_records GROUP BY sister_id
+      ) latest ON hr.sister_id = latest.sister_id AND hr.check_date = latest.max_date
+      GROUP BY hr.health_status
+    `);
+
+    const statusMap = { good: 0, fair: 1, moderate: 2, poor: 3 };
+    const byStatus = [0, 0, 0, 0];
+    rows.forEach(row => {
+      if (statusMap[row.health_status] !== undefined) {
+        byStatus[statusMap[row.health_status]] = row.total;
+      }
+    });
+
+    return { byStatus, rows };
+  } catch (error) {
+    return { byStatus: [0, 0, 0, 0], rows: [] };
+  }
+};
+
+const getHealthReport = async (req, res) => {
+  try {
+    if (!ensurePermission(req, res)) return;
+
+    // Health status distribution
+    const healthStats = await fetchHealthStats();
+
+    // Total checkups this year
+    const checkupRows = await SisterModel.executeQuery(`
+      SELECT COUNT(*) as total FROM health_records
+      WHERE YEAR(check_date) = YEAR(CURDATE())
+    `);
+
+    // Sisters needing monitoring (poor or moderate health)
+    const monitoringRows = await SisterModel.executeQuery(`
+      SELECT COUNT(DISTINCT hr.sister_id) as total
+      FROM health_records hr
+      INNER JOIN (
+        SELECT sister_id, MAX(check_date) as max_date
+        FROM health_records GROUP BY sister_id
+      ) latest ON hr.sister_id = latest.sister_id AND hr.check_date = latest.max_date
+      WHERE hr.health_status IN ('poor', 'moderate')
+    `);
+
+    // Common conditions/diseases
+    const conditionRows = await SisterModel.executeQuery(`
+      SELECT 
+        diagnosis as name,
+        COUNT(*) as count
+      FROM health_records
+      WHERE diagnosis IS NOT NULL AND diagnosis != ''
+      GROUP BY diagnosis
+      ORDER BY count DESC
+      LIMIT 10
+    `);
+
+    // Monthly checkup trend
+    const monthlyCheckups = await SisterModel.executeQuery(`
+      SELECT 
+        MONTH(check_date) as month,
+        COUNT(*) as total
+      FROM health_records
+      WHERE YEAR(check_date) = YEAR(CURDATE())
+      GROUP BY MONTH(check_date)
+      ORDER BY month
+    `);
+
+    // Sisters on leave/absence
+    const absenceRows = await SisterModel.executeQuery(`
+      SELECT COUNT(*) as total FROM departure_records
+      WHERE return_date IS NULL OR return_date >= CURDATE()
+    `);
+
+    // Community health breakdown
+    const communityHealth = await CommunityModel.executeQuery(`
+      SELECT 
+        c.id, c.name,
+        COUNT(DISTINCT hr.sister_id) as totalChecked,
+        SUM(CASE WHEN hr.health_status = 'good' THEN 1 ELSE 0 END) as good,
+        SUM(CASE WHEN hr.health_status = 'fair' THEN 1 ELSE 0 END) as fair,
+        SUM(CASE WHEN hr.health_status IN ('moderate', 'poor') THEN 1 ELSE 0 END) as needAttention
+      FROM communities c
+      LEFT JOIN community_assignments ca ON ca.community_id = c.id 
+        AND (ca.end_date IS NULL OR ca.end_date >= CURDATE())
+      LEFT JOIN health_records hr ON hr.sister_id = ca.sister_id
+      LEFT JOIN (
+        SELECT sister_id, MAX(check_date) as max_date
+        FROM health_records GROUP BY sister_id
+      ) latest ON hr.sister_id = latest.sister_id AND hr.check_date = latest.max_date
+      GROUP BY c.id, c.name
+      ORDER BY c.name
+    `);
+
+    const monthlyData = Array(12).fill(0);
+    monthlyCheckups.forEach(row => {
+      monthlyData[row.month - 1] = row.total;
+    });
+
+    return res.status(200).json({
+      healthStatus: healthStats.byStatus,
+      excellentHealth: healthStats.byStatus[0] || 0,
+      needMonitoring: monitoringRows[0]?.total || 0,
+      totalCheckups: checkupRows[0]?.total || 0,
+      onLeave: absenceRows[0]?.total || 0,
+      commonDiseases: conditionRows,
+      monthlyCheckups: monthlyData,
+      communityHealth: communityHealth.map(c => ({
+        id: c.id,
+        name: c.name,
+        totalChecked: c.totalChecked || 0,
+        good: c.good || 0,
+        fair: c.fair || 0,
+        needAttention: c.needAttention || 0
+      }))
+    });
+  } catch (error) {
+    console.error("getHealthReport error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch health report" });
+  }
+};
+
+// ============================================
+// EVALUATION REPORT
+// ============================================
+
+const getEvaluationReport = async (req, res) => {
+  try {
+    if (!ensurePermission(req, res)) return;
+
+    // Get evaluation model
+    const EvaluationModel = require("../models/EvaluationModel");
+
+    // Total evaluations
+    const totalRows = await EvaluationModel.executeQuery(`
+      SELECT COUNT(*) as total FROM evaluations
+    `);
+
+    // Average score - using legacy fields that exist in model
+    const avgRows = await EvaluationModel.executeQuery(`
+      SELECT AVG((spiritual_life_score + community_life_score + mission_score + personality_score + obedience_score) / 5) as avg_score 
+      FROM evaluations
+      WHERE spiritual_life_score IS NOT NULL
+    `);
+
+    // Monthly average scores
+    const monthlyRows = await EvaluationModel.executeQuery(`
+      SELECT 
+        MONTH(COALESCE(evaluation_date, created_at)) as month,
+        AVG((COALESCE(spiritual_life_score,0) + COALESCE(community_life_score,0) + COALESCE(mission_score,0) + COALESCE(personality_score,0) + COALESCE(obedience_score,0)) / 5) as avg_score
+      FROM evaluations
+      WHERE YEAR(COALESCE(evaluation_date, created_at)) = YEAR(CURDATE())
+      GROUP BY MONTH(COALESCE(evaluation_date, created_at))
+      ORDER BY month
+    `);
+
+    // Rating distribution based on average of 5 scores
+    const ratingRows = await EvaluationModel.executeQuery(`
+      SELECT 
+        SUM(CASE WHEN avg_score >= 9 THEN 1 ELSE 0 END) as excellent,
+        SUM(CASE WHEN avg_score >= 7.5 AND avg_score < 9 THEN 1 ELSE 0 END) as good,
+        SUM(CASE WHEN avg_score >= 6 AND avg_score < 7.5 THEN 1 ELSE 0 END) as average,
+        SUM(CASE WHEN avg_score < 6 THEN 1 ELSE 0 END) as poor
+      FROM (
+        SELECT (COALESCE(spiritual_life_score,0) + COALESCE(community_life_score,0) + COALESCE(mission_score,0) + COALESCE(personality_score,0) + COALESCE(obedience_score,0)) / 5 as avg_score
+        FROM evaluations
+        WHERE spiritual_life_score IS NOT NULL OR community_life_score IS NOT NULL
+      ) scores
+    `);
+
+    // Category averages - using legacy fields
+    const categoryRows = await EvaluationModel.executeQuery(`
+      SELECT 
+        AVG(spiritual_life_score) as spiritual,
+        AVG(community_life_score) as community,
+        AVG(mission_score) as mission,
+        AVG(personality_score) as personality,
+        AVG(obedience_score) as obedience
+      FROM evaluations
+    `);
+
+    // Count all evaluations (no status column in legacy schema)
+    const pendingRows = await EvaluationModel.executeQuery(`
+      SELECT COUNT(*) as total FROM evaluations
+      WHERE YEAR(COALESCE(evaluation_date, created_at)) = YEAR(CURDATE())
+      AND MONTH(COALESCE(evaluation_date, created_at)) >= MONTH(CURDATE())
+    `);
+
+    // Community breakdown
+    const communityEval = await CommunityModel.executeQuery(`
+      SELECT 
+        c.id, c.name,
+        COUNT(e.id) as totalEvaluations,
+        AVG((COALESCE(e.spiritual_life_score,0) + COALESCE(e.community_life_score,0) + COALESCE(e.mission_score,0) + COALESCE(e.personality_score,0) + COALESCE(e.obedience_score,0)) / 5) as avgScore,
+        SUM(CASE WHEN (COALESCE(e.spiritual_life_score,0) + COALESCE(e.community_life_score,0) + COALESCE(e.mission_score,0) + COALESCE(e.personality_score,0) + COALESCE(e.obedience_score,0)) / 5 >= 7.5 THEN 1 ELSE 0 END) as goodCount
+      FROM communities c
+      LEFT JOIN community_assignments ca ON ca.community_id = c.id 
+        AND (ca.end_date IS NULL OR ca.end_date >= CURDATE())
+      LEFT JOIN evaluations e ON e.sister_id = ca.sister_id
+      GROUP BY c.id, c.name
+      ORDER BY avgScore DESC
+    `);
+
+    const monthlyAverage = Array(12).fill(0);
+    monthlyRows.forEach(row => {
+      monthlyAverage[row.month - 1] = Math.round((row.avg_score || 0) * 10); // Scale to 0-100
+    });
+
+    const rating = ratingRows[0] || {};
+    const category = categoryRows[0] || {};
+
+    return res.status(200).json({
+      totalEvaluations: totalRows[0]?.total || 0,
+      averageScore: Math.round((avgRows[0]?.avg_score || 0) * 10), // Scale to 0-100
+      pendingEvaluations: pendingRows[0]?.total || 0,
+      monthlyAverage,
+      ratingDistribution: [
+        rating.excellent || 0,
+        rating.good || 0,
+        rating.average || 0,
+        rating.poor || 0
+      ],
+      categoryAverage: [
+        Math.round((category.spiritual || 0) * 10),
+        Math.round((category.community || 0) * 10),
+        Math.round((category.mission || 0) * 10),
+        Math.round((category.personality || 0) * 10),
+        Math.round((category.obedience || 0) * 10)
+      ],
+      communityBreakdown: communityEval.map(c => ({
+        id: c.id,
+        name: c.name,
+        totalEvaluations: c.totalEvaluations || 0,
+        avgScore: Math.round((c.avgScore || 0) * 10),
+        goodPercentage: c.totalEvaluations ? Math.round((c.goodCount / c.totalEvaluations) * 100) : 0
+      }))
+    });
+  } catch (error) {
+    console.error("getEvaluationReport error:", error.message);
+    return res.status(500).json({ message: "Failed to fetch evaluation report" });
+  }
+};
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+const fetchRecentActivities = async () => {
+  try {
+    const rows = await AuditLogModel.executeQuery(`
+      SELECT action, table_name, created_at
+      FROM audit_logs
+      ORDER BY created_at DESC
+      LIMIT 10
+    `);
+    return rows;
+  } catch (error) {
+    return [];
+  }
+};
+
+const fetchMonthlyGrowth = async () => {
+  try {
+    const rows = await SisterModel.executeQuery(`
+      SELECT 
+        MONTH(created_at) as month,
+        COUNT(*) as total
+      FROM sisters
+      WHERE YEAR(created_at) = YEAR(CURDATE())
+      GROUP BY MONTH(created_at)
+      ORDER BY month
+    `);
+
+    const monthlyData = Array(12).fill(0);
+    rows.forEach(row => {
+      monthlyData[row.month - 1] = row.total;
+    });
+
+    // Make cumulative
+    for (let i = 1; i < 12; i++) {
+      monthlyData[i] += monthlyData[i - 1];
+    }
+
+    return monthlyData;
+  } catch (error) {
+    return Array(12).fill(0);
+  }
+};
+
 module.exports = {
   getStatisticsByAge,
   getStatisticsByStage,
@@ -738,4 +1327,11 @@ module.exports = {
   getComprehensiveReport,
   exportReportExcel,
   exportReportPDF,
+  // New exports
+  getDashboard,
+  getStatistics,
+  getSisterReport,
+  getJourneyReport,
+  getHealthReport,
+  getEvaluationReport,
 };

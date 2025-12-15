@@ -49,7 +49,7 @@ const CommunityDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [community, setCommunity] = useState(null);
   const [members, setMembers] = useState([]);
-  
+
   // History states
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [historyContent, setHistoryContent] = useState("");
@@ -59,31 +59,43 @@ const CommunityDetailPage = () => {
   // Quill editor configuration
   const quillModules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      [{ 'font': [] }],
-      [{ 'size': ['small', false, 'large', 'huge'] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'script': 'sub' }, { 'script': 'super' }],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ 'indent': '-1' }, { 'indent': '+1' }],
-      [{ 'direction': 'rtl' }],
-      [{ 'align': [] }],
-      ['blockquote', 'code-block'],
-      ['link', 'image', 'video'],
-      ['clean']
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ font: [] }],
+      [{ size: ["small", false, "large", "huge"] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ color: [] }, { background: [] }],
+      [{ script: "sub" }, { script: "super" }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ direction: "rtl" }],
+      [{ align: [] }],
+      ["blockquote", "code-block"],
+      ["link", "image", "video"],
+      ["clean"],
     ],
   };
 
   const quillFormats = [
-    'header', 'font', 'size',
-    'bold', 'italic', 'underline', 'strike',
-    'color', 'background',
-    'script',
-    'list', 'bullet', 'indent',
-    'direction', 'align',
-    'blockquote', 'code-block',
-    'link', 'image', 'video'
+    "header",
+    "font",
+    "size",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "color",
+    "background",
+    "script",
+    "list",
+    "bullet",
+    "indent",
+    "direction",
+    "align",
+    "blockquote",
+    "code-block",
+    "link",
+    "image",
+    "video",
   ];
 
   useEffect(() => {
@@ -165,7 +177,7 @@ const CommunityDetailPage = () => {
     try {
       setSavingHistory(true);
       await communityService.update(id, { history: historyContent });
-      setCommunity(prev => ({ ...prev, history: historyContent }));
+      setCommunity((prev) => ({ ...prev, history: historyContent }));
       setShowHistoryModal(false);
       setEditingHistory(false);
     } catch (error) {
@@ -180,7 +192,7 @@ const CommunityDetailPage = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa lịch sử hình thành?")) {
       try {
         await communityService.update(id, { history: null });
-        setCommunity(prev => ({ ...prev, history: null }));
+        setCommunity((prev) => ({ ...prev, history: null }));
         setHistoryContent("");
       } catch (error) {
         console.error("Error deleting history:", error);
@@ -528,23 +540,33 @@ const CommunityDetailPage = () => {
 
                     {community?.history ? (
                       <div className="history-content">
-                        <div 
-                          className="ql-editor" 
-                          dangerouslySetInnerHTML={{ __html: community.history }}
-                          style={{ 
-                            padding: '15px', 
-                            border: '1px solid #e0e0e0', 
-                            borderRadius: '8px',
-                            minHeight: '200px',
-                            backgroundColor: '#fafafa'
+                        <div
+                          className="ql-editor"
+                          dangerouslySetInnerHTML={{
+                            __html: community.history,
+                          }}
+                          style={{
+                            padding: "15px",
+                            border: "1px solid #e0e0e0",
+                            borderRadius: "8px",
+                            minHeight: "200px",
+                            backgroundColor: "#fafafa",
                           }}
                         />
                       </div>
                     ) : (
                       <div className="text-center py-5">
-                        <i className="fas fa-book text-muted mb-3" style={{ fontSize: '3rem' }}></i>
-                        <p className="text-muted">Chưa có thông tin lịch sử hình thành</p>
-                        <Button variant="primary" onClick={handleOpenHistoryEditor}>
+                        <i
+                          className="fas fa-book text-muted mb-3"
+                          style={{ fontSize: "3rem" }}
+                        ></i>
+                        <p className="text-muted">
+                          Chưa có thông tin lịch sử hình thành
+                        </p>
+                        <Button
+                          variant="primary"
+                          onClick={handleOpenHistoryEditor}
+                        >
                           <i className="fas fa-edit me-2"></i>Soạn thảo lịch sử
                         </Button>
                       </div>
@@ -558,8 +580,8 @@ const CommunityDetailPage = () => {
       </Tab.Container>
 
       {/* History Editor Modal */}
-      <Modal 
-        show={showHistoryModal} 
+      <Modal
+        show={showHistoryModal}
         onHide={handleCloseHistoryModal}
         size="xl"
         centered
@@ -576,31 +598,44 @@ const CommunityDetailPage = () => {
             <Form.Label>
               Nội dung chi tiết <span className="text-danger">*</span>
             </Form.Label>
-            <div className="quill-container" style={{ minHeight: '400px' }}>
+            <div className="quill-container" style={{ minHeight: "400px" }}>
               <ReactQuill
                 theme="snow"
                 value={historyContent}
                 onChange={setHistoryContent}
                 modules={quillModules}
                 formats={quillFormats}
-                style={{ height: '350px' }}
+                style={{ height: "350px" }}
                 placeholder="Nhập nội dung lịch sử hình thành cộng đoàn..."
               />
             </div>
             <small className="text-muted mt-5 d-block">
               <i className="fas fa-info-circle me-1"></i>
-              Sử dụng thanh công cụ để định dạng văn bản, thêm hình ảnh, liên kết...
+              Sử dụng thanh công cụ để định dạng văn bản, thêm hình ảnh, liên
+              kết...
             </small>
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseHistoryModal} disabled={savingHistory}>
+          <Button
+            variant="secondary"
+            onClick={handleCloseHistoryModal}
+            disabled={savingHistory}
+          >
             <i className="fas fa-times me-2"></i>Hủy
           </Button>
-          <Button variant="primary" onClick={handleSaveHistory} disabled={savingHistory}>
+          <Button
+            variant="primary"
+            onClick={handleSaveHistory}
+            disabled={savingHistory}
+          >
             {savingHistory ? (
               <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
                 Đang lưu...
               </>
             ) : (

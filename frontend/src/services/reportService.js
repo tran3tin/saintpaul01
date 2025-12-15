@@ -17,7 +17,7 @@ const reportService = {
       const response = await api.get("/reports/dashboard");
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       return {
@@ -58,7 +58,7 @@ const reportService = {
       });
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       return {
@@ -195,9 +195,10 @@ const reportService = {
   getSisterReport: async (filters = {}) => {
     try {
       const response = await api.get("/reports/sisters", { params: filters });
+      // response is already response.data due to interceptor
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       return {
@@ -217,7 +218,7 @@ const reportService = {
       const response = await api.get("/reports/journey", { params: filters });
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       return {
@@ -238,7 +239,7 @@ const reportService = {
       const response = await api.get("/reports/health", { params: filters });
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       return {
@@ -260,7 +261,7 @@ const reportService = {
       });
       return {
         success: true,
-        data: response.data,
+        data: response,
       };
     } catch (error) {
       return {
