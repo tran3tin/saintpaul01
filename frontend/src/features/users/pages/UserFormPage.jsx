@@ -681,7 +681,7 @@ const UserFormPage = () => {
               <Card.Header className="bg-white border-bottom d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">
                   <i className="fas fa-shield-alt me-2"></i>
-                  Phân quyền
+                  Phân quyền chức năng
                 </h5>
                 <small className="text-muted">
                   <i className="fas fa-info-circle me-1"></i>
@@ -723,13 +723,63 @@ const UserFormPage = () => {
                                 selectedPermissions.includes(id)
                               );
 
+                            // Get module icon based on module name
+                            const getModuleIcon = (moduleName) => {
+                              const iconMap = {
+                                "Thông Tin": "fa-newspaper",
+                                "Quản lý Nữ Tu": "fa-users",
+                                "Hành trình Ơn Gọi": "fa-route",
+                                "Quản lý Cộng Đoàn": "fa-building",
+                                "Học Vấn": "fa-graduation-cap",
+                                "Sứ Vụ": "fa-briefcase",
+                                "Sức Khỏe": "fa-heartbeat",
+                                "Quản lý Đi vắng": "fa-plane-departure",
+                                "Đánh Giá": "fa-star",
+                                "Báo Cáo & Thống Kê": "fa-chart-bar",
+                                "Quản lý Người Dùng": "fa-user-shield",
+                                "Cài đặt Hệ thống": "fa-cog",
+                                "Nhật ký Hệ thống": "fa-history",
+                                "Tìm kiếm": "fa-search",
+                                "Đào Tạo": "fa-chalkboard-teacher",
+                                "Quản trị Chung": "fa-shield-alt",
+                              };
+                              return iconMap[moduleName] || "fa-folder-open";
+                            };
+
+                            // Get module color based on module name
+                            const getModuleColor = (moduleName) => {
+                              const colorMap = {
+                                "Thông Tin": "text-info",
+                                "Quản lý Nữ Tu": "text-primary",
+                                "Hành trình Ơn Gọi": "text-success",
+                                "Quản lý Cộng Đoàn": "text-warning",
+                                "Học Vấn": "text-info",
+                                "Sứ Vụ": "text-secondary",
+                                "Sức Khỏe": "text-danger",
+                                "Quản lý Đi vắng": "text-primary",
+                                "Đánh Giá": "text-warning",
+                                "Báo Cáo & Thống Kê": "text-success",
+                                "Quản lý Người Dùng": "text-danger",
+                                "Cài đặt Hệ thống": "text-secondary",
+                                "Nhật ký Hệ thống": "text-info",
+                                "Tìm kiếm": "text-primary",
+                                "Đào Tạo": "text-success",
+                                "Quản trị Chung": "text-danger",
+                              };
+                              return colorMap[moduleName] || "text-warning";
+                            };
+
                             return (
                               <React.Fragment key={module}>
                                 {/* Module Header Row */}
                                 <tr className="module-row">
                                   <td>
                                     <strong>
-                                      <i className="fas fa-folder-open me-2 text-warning"></i>
+                                      <i
+                                        className={`fas ${getModuleIcon(
+                                          module
+                                        )} me-2 ${getModuleColor(module)}`}
+                                      ></i>
                                       {module}
                                     </strong>
                                     <span className="text-muted small ms-2">

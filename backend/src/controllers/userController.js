@@ -645,33 +645,90 @@ const getAllPermissions = async (req, res) => {
       ORDER BY module, name
     `);
 
-    // Module name translations
-    const moduleTranslations = {
-      admin: "Quản trị",
-      audit: "Nhật ký",
-      communities: "Cộng Đoàn",
-      departures: "Nghỉ việc",
-      education: "Học Vấn",
-      evaluations: "Đánh Giá",
-      health: "Sức Khỏe",
-      missions: "Sứ Vụ",
-      posts: "Thông Tin",
-      reports: "Báo Cáo",
-      search: "Tìm kiếm",
-      sisters: "Nữ Tu",
-      system: "Hệ thống",
-      training: "Đào Tạo",
-      users: "Người Dùng",
-      vocation: "Hành Trình",
+    // Module name mapping - gộp các module có cùng chức năng
+    // Key: tên module trong DB (có thể tiếng Anh hoặc tiếng Việt)
+    // Value: { name: tên hiển thị, order: thứ tự theo sidebar }
+    const moduleConfig = {
+      // === Thông tin / Bài đăng ===
+      posts: { name: "Thông Tin", order: 1 },
+
+      // === Quản lý Nữ Tu ===
+      sisters: { name: "Quản lý Nữ Tu", order: 2 },
+      "Nữ tu": { name: "Quản lý Nữ Tu", order: 2 },
+
+      // === Hành trình Ơn Gọi ===
+      vocation: { name: "Hành trình Ơn Gọi", order: 3 },
+      "Hành trình ơn gọi": { name: "Hành trình Ơn Gọi", order: 3 },
+
+      // === Quản lý Cộng Đoàn ===
+      communities: { name: "Quản lý Cộng Đoàn", order: 4 },
+      "Cộng đoàn": { name: "Quản lý Cộng Đoàn", order: 4 },
+      "Phân công cộng đoàn": { name: "Quản lý Cộng Đoàn", order: 4 },
+
+      // === Học Vấn ===
+      education: { name: "Học Vấn", order: 5 },
+      "Học vấn": { name: "Học Vấn", order: 5 },
+
+      // === Sứ Vụ ===
+      missions: { name: "Sứ Vụ", order: 6 },
+      "Sứ vụ": { name: "Sứ Vụ", order: 6 },
+
+      // === Sức Khỏe ===
+      health: { name: "Sức Khỏe", order: 7 },
+      "Sức khỏe": { name: "Sức Khỏe", order: 7 },
+
+      // === Quản lý Đi vắng / Nghỉ việc ===
+      departures: { name: "Quản lý Đi vắng", order: 8 },
+      "Nghỉ việc": { name: "Quản lý Đi vắng", order: 8 },
+
+      // === Đánh Giá ===
+      evaluations: { name: "Đánh Giá", order: 9 },
+      "Đánh giá": { name: "Đánh Giá", order: 9 },
+
+      // === Báo Cáo ===
+      reports: { name: "Báo Cáo & Thống Kê", order: 10 },
+      "Báo cáo": { name: "Báo Cáo & Thống Kê", order: 10 },
+
+      // === Quản lý Người Dùng ===
+      users: { name: "Quản lý Người Dùng", order: 11 },
+      "Người dùng": { name: "Quản lý Người Dùng", order: 11 },
+
+      // === Cài đặt Hệ thống ===
+      system: { name: "Cài đặt Hệ thống", order: 12 },
+      "Cài đặt": { name: "Cài đặt Hệ thống", order: 12 },
+
+      // === Nhật ký Hệ thống ===
+      audit: { name: "Nhật ký Hệ thống", order: 13 },
+
+      // === Dashboard ===
+      dashboard: { name: "Dashboard", order: 0 },
+
+      // === Tìm kiếm ===
+      search: { name: "Tìm kiếm", order: 14 },
+
+      // === Đào Tạo ===
+      training: { name: "Đào Tạo", order: 15 },
+      "Đào tạo": { name: "Đào Tạo", order: 15 },
+
+      // === Quản trị Chung ===
+      admin: { name: "Quản trị Chung", order: 99 },
     };
 
     // Group by module with Vietnamese names
     const grouped = permissions.reduce((acc, perm) => {
-      const moduleName = moduleTranslations[perm.module] || perm.module;
+      const config = moduleConfig[perm.module] || {
+        name: perm.module,
+        order: 100,
+      };
+      const moduleName = config.name;
       if (!acc[moduleName]) {
-        acc[moduleName] = [];
+        acc[moduleName] = {
+          permissions: [],
+          order: config.order,
+          moduleKey: perm.module,
+        };
       }
-      acc[moduleName].push({
+      acc[moduleName].permissions.push({
         id: perm.id,
         name: perm.name,
         displayName: perm.displayName,
@@ -680,9 +737,17 @@ const getAllPermissions = async (req, res) => {
       return acc;
     }, {});
 
+    // Sort modules by order and convert to array format
+    const sortedModules = Object.entries(grouped)
+      .sort(([, a], [, b]) => a.order - b.order)
+      .reduce((acc, [moduleName, moduleData]) => {
+        acc[moduleName] = moduleData.permissions;
+        return acc;
+      }, {});
+
     return res.status(200).json({
       success: true,
-      data: grouped,
+      data: sortedModules,
     });
   } catch (error) {
     console.error("getAllPermissions error:", error.message);

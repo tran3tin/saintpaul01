@@ -20,274 +20,9 @@ import "./PermissionsPage.css";
 // Note: System uses pure permission-based access control
 // All users (including admins) must be granted specific permissions
 
-// Available permissions grouped by module
+// Available permissions grouped by module - ordered by sidebar menu
 const AVAILABLE_PERMISSIONS = [
-  // Nữ tu
-  {
-    key: "sisters_view",
-    name: "Xem danh sách nữ tu",
-    module: "Nữ Tu",
-    icon: "users",
-  },
-  {
-    key: "sisters_create",
-    name: "Thêm nữ tu mới",
-    module: "Nữ Tu",
-    icon: "user-plus",
-  },
-  {
-    key: "sisters_edit",
-    name: "Chỉnh sửa thông tin nữ tu",
-    module: "Nữ Tu",
-    icon: "user-edit",
-  },
-  {
-    key: "sisters_delete",
-    name: "Xóa nữ tu",
-    module: "Nữ Tu",
-    icon: "user-minus",
-  },
-  {
-    key: "sisters_export",
-    name: "Xuất dữ liệu nữ tu",
-    module: "Nữ Tu",
-    icon: "file-export",
-  },
-
-  // Hành trình
-  {
-    key: "journey_view",
-    name: "Xem hành trình ơn gọi",
-    module: "Hành Trình",
-    icon: "route",
-  },
-  {
-    key: "journey_create",
-    name: "Thêm giai đoạn mới",
-    module: "Hành Trình",
-    icon: "plus-circle",
-  },
-  {
-    key: "journey_edit",
-    name: "Chỉnh sửa hành trình",
-    module: "Hành Trình",
-    icon: "edit",
-  },
-  {
-    key: "journey_delete",
-    name: "Xóa giai đoạn",
-    module: "Hành Trình",
-    icon: "trash",
-  },
-
-  // Cộng đoàn
-  {
-    key: "communities.view",
-    name: "Xem danh sách cộng đoàn",
-    module: "Cộng Đoàn",
-    icon: "building",
-  },
-  {
-    key: "communities.create",
-    name: "Thêm cộng đoàn mới",
-    module: "Cộng Đoàn",
-    icon: "plus",
-  },
-  {
-    key: "communities.edit",
-    name: "Chỉnh sửa cộng đoàn",
-    module: "Cộng Đoàn",
-    icon: "edit",
-  },
-  {
-    key: "communities.delete",
-    name: "Xóa cộng đoàn",
-    module: "Cộng Đoàn",
-    icon: "trash",
-  },
-  {
-    key: "communities.assign",
-    name: "Phân công nữ tu",
-    module: "Cộng Đoàn",
-    icon: "user-check",
-  },
-  {
-    key: "communities.history_view",
-    name: "Xem lịch sử hình thành",
-    module: "Cộng Đoàn",
-    icon: "book",
-  },
-  {
-    key: "communities.history_edit",
-    name: "Chỉnh sửa lịch sử hình thành",
-    module: "Cộng Đoàn",
-    icon: "book-open",
-  },
-
-  // Sức khỏe
-  {
-    key: "health_view",
-    name: "Xem hồ sơ sức khỏe",
-    module: "Sức Khỏe",
-    icon: "heartbeat",
-  },
-  {
-    key: "health_create",
-    name: "Thêm hồ sơ sức khỏe",
-    module: "Sức Khỏe",
-    icon: "notes-medical",
-  },
-  {
-    key: "health_edit",
-    name: "Chỉnh sửa hồ sơ sức khỏe",
-    module: "Sức Khỏe",
-    icon: "edit",
-  },
-  {
-    key: "health_delete",
-    name: "Xóa hồ sơ sức khỏe",
-    module: "Sức Khỏe",
-    icon: "trash",
-  },
-
-  // Đánh giá
-  {
-    key: "evaluation_view",
-    name: "Xem đánh giá",
-    module: "Đánh Giá",
-    icon: "star",
-  },
-  {
-    key: "evaluation_create",
-    name: "Tạo đánh giá mới",
-    module: "Đánh Giá",
-    icon: "star-half-alt",
-  },
-  {
-    key: "evaluation_edit",
-    name: "Chỉnh sửa đánh giá",
-    module: "Đánh Giá",
-    icon: "edit",
-  },
-  {
-    key: "evaluation_approve",
-    name: "Phê duyệt đánh giá",
-    module: "Đánh Giá",
-    icon: "check-circle",
-  },
-
-  // Học vấn
-  {
-    key: "education_view",
-    name: "Xem thông tin học vấn",
-    module: "Học Vấn",
-    icon: "graduation-cap",
-  },
-  {
-    key: "education_create",
-    name: "Thêm bằng cấp",
-    module: "Học Vấn",
-    icon: "plus",
-  },
-  {
-    key: "education_edit",
-    name: "Chỉnh sửa học vấn",
-    module: "Học Vấn",
-    icon: "edit",
-  },
-  {
-    key: "education_delete",
-    name: "Xóa bằng cấp",
-    module: "Học Vấn",
-    icon: "trash",
-  },
-
-  // Sứ vụ
-  {
-    key: "mission_view",
-    name: "Xem sứ vụ",
-    module: "Sứ Vụ",
-    icon: "briefcase",
-  },
-  {
-    key: "mission_create",
-    name: "Tạo sứ vụ mới",
-    module: "Sứ Vụ",
-    icon: "plus",
-  },
-  {
-    key: "mission_edit",
-    name: "Chỉnh sửa sứ vụ",
-    module: "Sứ Vụ",
-    icon: "edit",
-  },
-  {
-    key: "mission_assign",
-    name: "Phân công sứ vụ",
-    module: "Sứ Vụ",
-    icon: "user-tag",
-  },
-
-  // Báo cáo
-  {
-    key: "report_view",
-    name: "Xem báo cáo",
-    module: "Báo Cáo",
-    icon: "chart-bar",
-  },
-  {
-    key: "report_create",
-    name: "Tạo báo cáo mới",
-    module: "Báo Cáo",
-    icon: "file-alt",
-  },
-  {
-    key: "report_export",
-    name: "Xuất báo cáo",
-    module: "Báo Cáo",
-    icon: "file-export",
-  },
-  { key: "report_print", name: "In báo cáo", module: "Báo Cáo", icon: "print" },
-
-  // Người dùng
-  {
-    key: "users_view",
-    name: "Xem danh sách người dùng",
-    module: "Người Dùng",
-    icon: "users-cog",
-  },
-  {
-    key: "users_create",
-    name: "Tạo tài khoản mới",
-    module: "Người Dùng",
-    icon: "user-plus",
-  },
-  {
-    key: "users_edit",
-    name: "Chỉnh sửa người dùng",
-    module: "Người Dùng",
-    icon: "user-edit",
-  },
-  {
-    key: "users_delete",
-    name: "Xóa người dùng",
-    module: "Người Dùng",
-    icon: "user-times",
-  },
-  {
-    key: "users_manage",
-    name: "Quản lý người dùng",
-    module: "Người Dùng",
-    icon: "shield-alt",
-  },
-  {
-    key: "permissions_manage",
-    name: "Quản lý phân quyền",
-    module: "Người Dùng",
-    icon: "key",
-  },
-
-  // Thông tin / Bài đăng
+  // ===== THÔNG TIN (Bài đăng) =====
   {
     key: "posts.view",
     name: "Xem bài đăng",
@@ -313,24 +48,299 @@ const AVAILABLE_PERMISSIONS = [
     icon: "trash",
   },
 
-  // Cài đặt
-  { key: "settings_view", name: "Xem cài đặt", module: "Cài Đặt", icon: "cog" },
+  // ===== QUẢN LÝ NỮ TU =====
+  {
+    key: "sisters_view",
+    name: "Xem danh sách nữ tu",
+    module: "Quản lý Nữ Tu",
+    icon: "users",
+  },
+  {
+    key: "sisters_create",
+    name: "Thêm nữ tu mới",
+    module: "Quản lý Nữ Tu",
+    icon: "user-plus",
+  },
+  {
+    key: "sisters_edit",
+    name: "Chỉnh sửa thông tin nữ tu",
+    module: "Quản lý Nữ Tu",
+    icon: "user-edit",
+  },
+  {
+    key: "sisters_delete",
+    name: "Xóa nữ tu",
+    module: "Quản lý Nữ Tu",
+    icon: "user-minus",
+  },
+  {
+    key: "sisters_export",
+    name: "Xuất dữ liệu nữ tu",
+    module: "Quản lý Nữ Tu",
+    icon: "file-export",
+  },
+
+  // ===== HÀNH TRÌNH ƠN GỌI =====
+  {
+    key: "journey_view",
+    name: "Xem hành trình ơn gọi",
+    module: "Hành trình Ơn Gọi",
+    icon: "route",
+  },
+  {
+    key: "journey_create",
+    name: "Thêm giai đoạn mới",
+    module: "Hành trình Ơn Gọi",
+    icon: "plus-circle",
+  },
+  {
+    key: "journey_edit",
+    name: "Chỉnh sửa hành trình",
+    module: "Hành trình Ơn Gọi",
+    icon: "edit",
+  },
+  {
+    key: "journey_delete",
+    name: "Xóa giai đoạn",
+    module: "Hành trình Ơn Gọi",
+    icon: "trash",
+  },
+
+  // ===== QUẢN LÝ CỘNG ĐOÀN =====
+  {
+    key: "communities.view",
+    name: "Xem danh sách cộng đoàn",
+    module: "Quản lý Cộng Đoàn",
+    icon: "building",
+  },
+  {
+    key: "communities.create",
+    name: "Thêm cộng đoàn mới",
+    module: "Quản lý Cộng Đoàn",
+    icon: "plus",
+  },
+  {
+    key: "communities.edit",
+    name: "Chỉnh sửa cộng đoàn",
+    module: "Quản lý Cộng Đoàn",
+    icon: "edit",
+  },
+  {
+    key: "communities.delete",
+    name: "Xóa cộng đoàn",
+    module: "Quản lý Cộng Đoàn",
+    icon: "trash",
+  },
+  {
+    key: "communities.assign",
+    name: "Phân công nữ tu",
+    module: "Quản lý Cộng Đoàn",
+    icon: "user-check",
+  },
+  {
+    key: "communities.history_view",
+    name: "Xem lịch sử hình thành",
+    module: "Quản lý Cộng Đoàn",
+    icon: "book",
+  },
+  {
+    key: "communities.history_edit",
+    name: "Chỉnh sửa lịch sử hình thành",
+    module: "Quản lý Cộng Đoàn",
+    icon: "book-open",
+  },
+
+  // ===== HỌC VẤN =====
+  {
+    key: "education_view",
+    name: "Xem thông tin học vấn",
+    module: "Học Vấn",
+    icon: "graduation-cap",
+  },
+  {
+    key: "education_create",
+    name: "Thêm bằng cấp",
+    module: "Học Vấn",
+    icon: "plus",
+  },
+  {
+    key: "education_edit",
+    name: "Chỉnh sửa học vấn",
+    module: "Học Vấn",
+    icon: "edit",
+  },
+  {
+    key: "education_delete",
+    name: "Xóa bằng cấp",
+    module: "Học Vấn",
+    icon: "trash",
+  },
+
+  // ===== SỨ VỤ =====
+  {
+    key: "mission_view",
+    name: "Xem sứ vụ",
+    module: "Sứ Vụ",
+    icon: "briefcase",
+  },
+  {
+    key: "mission_create",
+    name: "Tạo sứ vụ mới",
+    module: "Sứ Vụ",
+    icon: "plus",
+  },
+  {
+    key: "mission_edit",
+    name: "Chỉnh sửa sứ vụ",
+    module: "Sứ Vụ",
+    icon: "edit",
+  },
+  {
+    key: "mission_assign",
+    name: "Phân công sứ vụ",
+    module: "Sứ Vụ",
+    icon: "user-tag",
+  },
+
+  // ===== SỨC KHỎE =====
+  {
+    key: "health_view",
+    name: "Xem hồ sơ sức khỏe",
+    module: "Sức Khỏe",
+    icon: "heartbeat",
+  },
+  {
+    key: "health_create",
+    name: "Thêm hồ sơ sức khỏe",
+    module: "Sức Khỏe",
+    icon: "notes-medical",
+  },
+  {
+    key: "health_edit",
+    name: "Chỉnh sửa hồ sơ sức khỏe",
+    module: "Sức Khỏe",
+    icon: "edit",
+  },
+  {
+    key: "health_delete",
+    name: "Xóa hồ sơ sức khỏe",
+    module: "Sức Khỏe",
+    icon: "trash",
+  },
+
+  // ===== ĐÁNH GIÁ =====
+  {
+    key: "evaluation_view",
+    name: "Xem đánh giá",
+    module: "Đánh Giá",
+    icon: "star",
+  },
+  {
+    key: "evaluation_create",
+    name: "Tạo đánh giá mới",
+    module: "Đánh Giá",
+    icon: "star-half-alt",
+  },
+  {
+    key: "evaluation_edit",
+    name: "Chỉnh sửa đánh giá",
+    module: "Đánh Giá",
+    icon: "edit",
+  },
+  {
+    key: "evaluation_approve",
+    name: "Phê duyệt đánh giá",
+    module: "Đánh Giá",
+    icon: "check-circle",
+  },
+
+  // ===== BÁO CÁO & THỐNG KÊ =====
+  {
+    key: "report_view",
+    name: "Xem báo cáo",
+    module: "Báo Cáo & Thống Kê",
+    icon: "chart-bar",
+  },
+  {
+    key: "report_create",
+    name: "Tạo báo cáo mới",
+    module: "Báo Cáo & Thống Kê",
+    icon: "file-alt",
+  },
+  {
+    key: "report_export",
+    name: "Xuất báo cáo",
+    module: "Báo Cáo & Thống Kê",
+    icon: "file-export",
+  },
+  {
+    key: "report_print",
+    name: "In báo cáo",
+    module: "Báo Cáo & Thống Kê",
+    icon: "print",
+  },
+
+  // ===== QUẢN LÝ NGƯỜI DÙNG =====
+  {
+    key: "users_view",
+    name: "Xem danh sách người dùng",
+    module: "Quản lý Người Dùng",
+    icon: "users-cog",
+  },
+  {
+    key: "users_create",
+    name: "Tạo tài khoản mới",
+    module: "Quản lý Người Dùng",
+    icon: "user-plus",
+  },
+  {
+    key: "users_edit",
+    name: "Chỉnh sửa người dùng",
+    module: "Quản lý Người Dùng",
+    icon: "user-edit",
+  },
+  {
+    key: "users_delete",
+    name: "Xóa người dùng",
+    module: "Quản lý Người Dùng",
+    icon: "user-times",
+  },
+  {
+    key: "users_manage",
+    name: "Quản lý người dùng",
+    module: "Quản lý Người Dùng",
+    icon: "shield-alt",
+  },
+  {
+    key: "permissions_manage",
+    name: "Quản lý phân quyền",
+    module: "Quản lý Người Dùng",
+    icon: "key",
+  },
+
+  // ===== CÀI ĐẶT HỆ THỐNG =====
+  {
+    key: "settings_view",
+    name: "Xem cài đặt",
+    module: "Cài đặt Hệ thống",
+    icon: "cog",
+  },
   {
     key: "settings_edit",
     name: "Thay đổi cài đặt",
-    module: "Cài Đặt",
+    module: "Cài đặt Hệ thống",
     icon: "cogs",
   },
   {
     key: "settings_backup",
     name: "Sao lưu & khôi phục",
-    module: "Cài Đặt",
+    module: "Cài đặt Hệ thống",
     icon: "database",
   },
   {
     key: "settings_audit",
     name: "Xem nhật ký hoạt động",
-    module: "Cài Đặt",
+    module: "Cài đặt Hệ thống",
     icon: "history",
   },
 ];
@@ -377,34 +387,34 @@ const PermissionsPage = () => {
 
   const getModuleIcon = (module) => {
     const icons = {
-      "Nữ Tu": "users",
-      "Hành Trình": "route",
-      "Cộng Đoàn": "building",
-      "Sức Khỏe": "heartbeat",
-      "Đánh Giá": "star",
+      "Thông Tin": "newspaper",
+      "Quản lý Nữ Tu": "users",
+      "Hành trình Ơn Gọi": "route",
+      "Quản lý Cộng Đoàn": "building",
       "Học Vấn": "graduation-cap",
       "Sứ Vụ": "briefcase",
-      "Báo Cáo": "chart-bar",
-      "Người Dùng": "users-cog",
-      "Thông Tin": "newspaper",
-      "Cài Đặt": "cog",
+      "Sức Khỏe": "heartbeat",
+      "Đánh Giá": "star",
+      "Báo Cáo & Thống Kê": "chart-bar",
+      "Quản lý Người Dùng": "user-shield",
+      "Cài đặt Hệ thống": "cog",
     };
     return icons[module] || "folder";
   };
 
   const getModuleBadge = (module) => {
     const colors = {
-      "Nữ Tu": "primary",
-      "Hành Trình": "info",
-      "Cộng Đoàn": "success",
-      "Sức Khỏe": "danger",
-      "Đánh Giá": "warning",
       "Thông Tin": "info",
+      "Quản lý Nữ Tu": "primary",
+      "Hành trình Ơn Gọi": "success",
+      "Quản lý Cộng Đoàn": "warning",
       "Học Vấn": "secondary",
       "Sứ Vụ": "dark",
-      "Báo Cáo": "info",
-      "Người Dùng": "primary",
-      "Cài Đặt": "secondary",
+      "Sức Khỏe": "danger",
+      "Đánh Giá": "warning",
+      "Báo Cáo & Thống Kê": "info",
+      "Quản lý Người Dùng": "danger",
+      "Cài đặt Hệ thống": "secondary",
     };
     return colors[module] || "light";
   };

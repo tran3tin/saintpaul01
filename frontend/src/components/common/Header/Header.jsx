@@ -42,10 +42,10 @@ const Header = ({ toggleSidebar }) => {
   // Fetch notifications on mount and periodically
   useEffect(() => {
     fetchNotifications();
-    
+
     // Refresh notifications every 60 seconds
     const interval = setInterval(fetchNotifications, 60000);
-    
+
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
@@ -64,7 +64,9 @@ const Header = ({ toggleSidebar }) => {
       const result = await notificationService.markAsRead(notificationId);
       if (result.success) {
         setNotifications((prev) =>
-          prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
+          prev.map((n) =>
+            n.id === notificationId ? { ...n, is_read: true } : n
+          )
         );
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }
@@ -218,13 +220,24 @@ const Header = ({ toggleSidebar }) => {
                   notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`media ${!notification.is_read ? "unread" : ""}`}
+                      className={`media ${
+                        !notification.is_read ? "unread" : ""
+                      }`}
                       onClick={() =>
-                        !notification.is_read && handleMarkAsRead(notification.id)
+                        !notification.is_read &&
+                        handleMarkAsRead(notification.id)
                       }
                     >
-                      <div className={`item-icon ${getNotificationBg(notification.type)}`}>
-                        <i className={`fas ${getNotificationIcon(notification.type)}`}></i>
+                      <div
+                        className={`item-icon ${getNotificationBg(
+                          notification.type
+                        )}`}
+                      >
+                        <i
+                          className={`fas ${getNotificationIcon(
+                            notification.type
+                          )}`}
+                        ></i>
                       </div>
                       <div className="media-body space-sm">
                         <div className="post-title">{notification.title}</div>
