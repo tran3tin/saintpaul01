@@ -20,7 +20,7 @@ const ChatbotWidget = () => {
           role: "assistant",
           content: `Xin chào ${
             user?.full_name || "bạn"
-          }! 👋\n\nTôi là trợ lý AI của hệ thống. Tôi có thể giúp bạn:\n\n• 📋 Tra cứu thông tin nữ tu\n• 🛤️ Xem hành trình ơn gọi\n• 🏠 Thông tin cộng đoàn\n• 📊 Thống kê và báo cáo\n\nBạn cần tôi giúp gì?`,
+          }! 👋\n\nBạn cần tôi giúp gì?`,
           timestamp: new Date(),
         },
       ]);
@@ -256,19 +256,25 @@ const ChatbotWidget = () => {
                 className="quick-action-btn"
                 onClick={() => setInputMessage("Có bao nhiêu nữ tu?")}
               >
-                Số lượng nữ tu
+                📊 Số lượng
               </button>
               <button
                 className="quick-action-btn"
-                onClick={() => setInputMessage("Danh sách cộng đoàn")}
+                onClick={() => setInputMessage("Danh sách các cộng đoàn")}
               >
-                Cộng đoàn
+                🏠 Cộng đoàn
               </button>
               <button
                 className="quick-action-btn"
-                onClick={() => setInputMessage("Thống kê theo giai đoạn")}
+                onClick={() => setInputMessage("Thống kê theo giai đoạn ơn gọi")}
               >
-                Thống kê
+                📍 Giai đoạn
+              </button>
+              <button
+                className="quick-action-btn"
+                onClick={() => setInputMessage("Hướng dẫn sử dụng")}
+              >
+                ❓ Trợ giúp
               </button>
             </div>
           </Card.Footer>

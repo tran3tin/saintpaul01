@@ -7,7 +7,7 @@ const geminiService = require("../services/geminiService");
 
 class ChatbotController {
   /**
-   * Handle chat message
+   * Handle chat message with enhanced understanding
    */
   async chat(req, res) {
     try {
@@ -22,57 +22,62 @@ class ChatbotController {
         });
       }
 
-      // 1. Analyze message
+      // Normalize and clean message
+      const cleanedMessage = message.trim();
+
+      // 1. Analyze message with enhanced intent detection
       console.log("Step 1: Analyzing message...");
-      const analysis = chatbotService.analyzeMessage(message);
-      console.log("Analysis:", analysis);
+      const analysis = chatbotService.analyzeMessage(cleanedMessage);
+      console.log("Analysis:", JSON.stringify(analysis, null, 2));
 
-      // 2. Extract entities
+      // 2. Extract entities with fuzzy matching
       console.log("Step 2: Extracting entities...");
-      const entities = await chatbotService.extractEntities(message);
+      const entities = await chatbotService.extractEntities(cleanedMessage);
       analysis.entities = entities;
-      console.log("Entities:", entities);
+      console.log("Entities:", JSON.stringify(entities, null, 2));
 
-      // Auto-adjust intent based on entities found
-      if (entities.sister_id && analysis.intent === "general") {
-        analysis.intent = "sister_info";
-        console.log("Intent auto-adjusted to sister_info");
-      }
-      if (entities.community_id && analysis.intent === "general") {
-        analysis.intent = "community_info";
-        console.log("Intent auto-adjusted to community_info");
-      }
+      // 3. Smart intent adjustment based on entities and question type
+      this.adjustIntentBasedOnContext(analysis, entities);
+      console.log("Adjusted intent:", analysis.intent);
 
-      // 3. Retrieve context from database
+      // 4. Retrieve context from database with enhanced queries
       console.log("Step 3: Retrieving context...");
       const context = await chatbotService.retrieveContext(analysis, entities);
-      console.log("Context retrieved");
+      console.log("Context retrieved, length:", context.text?.length || 0);
 
-      // 4. Get conversation history
+      // 5. Get conversation history for continuity
       console.log("Step 4: Getting conversation history...");
       let conversationHistory = [];
       if (conversation_id) {
-        const history = await ChatConversationModel.getByConversationId(
-          conversation_id,
-          5 // Last 5 messages
-        );
-        conversationHistory = history
-          .map((h) => ({
-            role: "user",
-            content: h.user_message,
-          }))
-          .concat(
-            history.map((h) => ({
-              role: "assistant",
-              content: h.ai_response,
-            }))
+        try {
+          const history = await ChatConversationModel.getByConversationId(
+            conversation_id,
+            5 // Last 5 exchanges
           );
+          conversationHistory = history.flatMap((h) => [
+            { role: "user", content: h.user_message },
+            { role: "assistant", content: h.ai_response },
+          ]);
+        } catch (historyError) {
+          console.warn("Could not load history:", historyError.message);
+        }
       }
 
-      // 5. Call Gemini AI
+      // 6. Check for special intents that don't need AI
+      if (analysis.intent === "greeting") {
+        const greetingResponse = this.handleGreeting(req.user);
+        return res.json({
+          success: true,
+          response: greetingResponse,
+          conversation_id: conversation_id || uuidv4(),
+          sources: [],
+        });
+      }
+
+      // 7. Call Gemini AI with enhanced context
       console.log("Step 5: Calling Gemini...");
       const aiResponse = await geminiService.chat(
-        message,
+        cleanedMessage,
         context,
         conversationHistory
       );
@@ -86,36 +91,133 @@ class ChatbotController {
         });
       }
 
-      // 6. Save conversation
+      // 8. Post-process response
+      const processedResponse = this.postProcessResponse(
+        aiResponse.message,
+        analysis
+      );
+
+      // 9. Save conversation for future context
       console.log("Step 6: Saving conversation...");
       const newConversationId = conversation_id || uuidv4();
-      await ChatConversationModel.create({
-        conversation_id: newConversationId,
-        user_id: req.user?.id,
-        user_message: message,
-        ai_response: aiResponse.message,
-        context_used: context,
-        entities_extracted: entities,
-        intent: analysis.intent,
-        tokens_used: aiResponse.tokens,
-        cost: aiResponse.cost,
-      });
+      try {
+        await ChatConversationModel.create({
+          conversation_id: newConversationId,
+          user_id: req.user?.id,
+          user_message: cleanedMessage,
+          ai_response: processedResponse,
+          context_used: context,
+          entities_extracted: entities,
+          intent: analysis.intent,
+          sub_intent: analysis.subIntent,
+          confidence: analysis.confidence,
+          tokens_used: aiResponse.tokens,
+          cost: aiResponse.cost,
+        });
+      } catch (saveError) {
+        console.warn("Could not save conversation:", saveError.message);
+      }
 
-      // 7. Return response
+      // 10. Return response
       console.log("Step 7: Sending response...");
       return res.json({
         success: true,
-        response: aiResponse.message,
+        response: processedResponse,
         conversation_id: newConversationId,
         sources: context.sources || [],
+        metadata: {
+          intent: analysis.intent,
+          confidence: analysis.confidence,
+          questionType: analysis.questionType,
+        },
       });
     } catch (error) {
       console.error("Chat error:", error);
       return res.status(500).json({
         success: false,
-        error: "Internal server error",
+        error: "Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.",
       });
     }
+  }
+
+  /**
+   * Adjust intent based on context clues
+   */
+  adjustIntentBasedOnContext(analysis, entities) {
+    // If found specific sister, prioritize sister_info
+    if (entities.sister_id && analysis.intent === "general") {
+      analysis.intent = "sister_info";
+      console.log("Intent auto-adjusted to sister_info (found sister)");
+    }
+
+    // If found specific community, prioritize community_info
+    if (
+      entities.community_id &&
+      analysis.intent === "general" &&
+      !entities.sister_id
+    ) {
+      analysis.intent = "community_info";
+      console.log("Intent auto-adjusted to community_info (found community)");
+    }
+
+    // If found stage, might be journey_info
+    if (entities.stage && analysis.intent === "general") {
+      analysis.intent = "journey_info";
+      console.log("Intent auto-adjusted to journey_info (found stage)");
+    }
+
+    // Count questions should be statistics
+    if (analysis.questionType === "count" && analysis.intent === "general") {
+      analysis.intent = "statistics";
+      console.log("Intent auto-adjusted to statistics (count question)");
+    }
+
+    // List questions might need specific handling
+    if (analysis.questionType === "list" && analysis.intent === "general") {
+      if (analysis.keywords.some((k) => /nữ tu|chị|sơ/i.test(k))) {
+        analysis.intent = "sister_info";
+      } else if (analysis.keywords.some((k) => /cộng đoàn/i.test(k))) {
+        analysis.intent = "community_info";
+      }
+    }
+  }
+
+  /**
+   * Handle greeting messages
+   */
+  handleGreeting(user) {
+    const greetings = [
+      `Xin chào ${user?.full_name || "bạn"}! 👋\n\nTôi là trợ lý AI của hệ thống quản lý Hội Dòng. Tôi có thể giúp bạn:\n\n📋 Tìm thông tin về nữ tu\n📍 Xem hành trình ơn gọi\n🏠 Tra cứu cộng đoàn\n📊 Xem thống kê\n\nBạn cần tôi giúp gì?`,
+      `Chào ${user?.full_name || "bạn"}! 🙏\n\nTôi sẵn sàng hỗ trợ bạn tra cứu thông tin về Hội Dòng. Hãy hỏi tôi bất cứ điều gì nhé!`,
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
+  }
+
+  /**
+   * Post-process AI response for better formatting
+   */
+  postProcessResponse(response, analysis) {
+    let processed = response;
+
+    // Clean up excessive whitespace
+    processed = processed.replace(/\n{3,}/g, "\n\n");
+
+    // Ensure proper Vietnamese formatting
+    processed = processed.replace(/(\d+)\/(\d+)\/(\d+)/g, (match, d, m, y) => {
+      if (y.length === 4) return match;
+      return `${d}/${m}/${y}`;
+    });
+
+    // Add helpful follow-up suggestions for certain intents
+    if (
+      analysis.intent === "statistics" &&
+      !processed.includes("Bạn có thể hỏi")
+    ) {
+      processed +=
+        "\n\n💡 *Bạn có thể hỏi thêm về chi tiết của từng cộng đoàn hoặc giai đoạn cụ thể.*";
+    }
+
+    return processed.trim();
   }
 
   /**

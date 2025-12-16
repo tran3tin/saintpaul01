@@ -6,179 +6,573 @@ const NodeCache = require("node-cache");
 // Cache for 30 minutes
 const cache = new NodeCache({ stdTTL: 1800 });
 
+// Vietnamese text normalization helpers
+const vietnameseNormalize = {
+  // Remove Vietnamese diacritics for fuzzy matching
+  removeDiacritics: (str) => {
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
+  },
+
+  // Normalize text for comparison
+  normalize: (str) => {
+    return str.toLowerCase().trim().replace(/\s+/g, " ");
+  },
+
+  // Calculate similarity between two strings (0-1)
+  similarity: (str1, str2) => {
+    const s1 = vietnameseNormalize.normalize(str1);
+    const s2 = vietnameseNormalize.normalize(str2);
+    if (s1 === s2) return 1;
+    if (s1.includes(s2) || s2.includes(s1)) return 0.8;
+
+    // Levenshtein-based similarity for typo tolerance
+    const longer = s1.length > s2.length ? s1 : s2;
+    const shorter = s1.length > s2.length ? s2 : s1;
+    if (longer.length === 0) return 1;
+
+    const editDistance = vietnameseNormalize.levenshtein(s1, s2);
+    return (longer.length - editDistance) / longer.length;
+  },
+
+  // Levenshtein distance
+  levenshtein: (a, b) => {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        matrix[i][j] =
+          b.charAt(i - 1) === a.charAt(j - 1)
+            ? matrix[i - 1][j - 1]
+            : Math.min(
+                matrix[i - 1][j - 1] + 1,
+                matrix[i][j - 1] + 1,
+                matrix[i - 1][j] + 1
+              );
+      }
+    }
+    return matrix[b.length][a.length];
+  },
+};
+
 class ChatbotService {
   /**
    * Analyze message to detect intent and extract entities
+   * Enhanced with better Vietnamese NLP patterns
    */
   analyzeMessage(message) {
     const lowerMessage = message.toLowerCase();
+    const normalizedMessage = vietnameseNormalize.normalize(message);
 
     const analysis = {
       intent: "general",
+      subIntent: null,
       entities: {},
       keywords: [],
+      confidence: 0,
+      questionType: this.detectQuestionType(message),
     };
 
-    // Detect intent based on keywords
+    // Enhanced intent patterns with priority and confidence scoring
     const intentPatterns = [
       {
         intent: "journey_info",
+        priority: 10,
         patterns: [
-          /hành trình/i,
-          /ơn gọi/i,
-          /giai đoạn/i,
-          /khấn/i,
-          /nhà tập/i,
-          /tập viện/i,
-          /tiền tập/i,
-          /tìm hiểu/i,
+          { regex: /hành trình\s*(ơn gọi)?/i, weight: 1.0 },
+          { regex: /ơn gọi/i, weight: 0.9 },
+          { regex: /giai đoạn\s*(nào|gì|hiện tại)?/i, weight: 0.9 },
+          { regex: /đang\s*(ở\s*)?(giai đoạn|bước)/i, weight: 0.85 },
+          { regex: /khấn\s*(tạm|trọn|lần đầu|vĩnh viễn)?/i, weight: 0.95 },
+          { regex: /nhà tập/i, weight: 0.9 },
+          { regex: /tập viện/i, weight: 0.9 },
+          { regex: /tiền tập/i, weight: 0.9 },
+          { regex: /tìm hiểu\s*(ơn gọi)?/i, weight: 0.85 },
+          { regex: /novitiate|postulancy|vows/i, weight: 0.9 },
+          { regex: /ai\s+(đang|đã)\s+(khấn|ở)/i, weight: 0.8 },
         ],
       },
       {
         intent: "sister_info",
+        priority: 9,
         patterns: [
-          /nữ tu/i,
-          /chị\s+\w+/i,
-          /sơ\s+\w+/i,
-          /thông tin\s+(về\s+)?/i,
-          /hồ sơ/i,
-          /cho .* biết về/i,
-          /tìm .* về/i,
+          { regex: /thông tin\s+(về\s+)?(chị|sơ|nữ tu)/i, weight: 1.0 },
+          { regex: /(chị|sơ)\s+[A-Za-zÀ-ỹ]+/i, weight: 0.95 },
+          { regex: /nữ tu\s+[A-Za-zÀ-ỹ]+/i, weight: 0.95 },
+          { regex: /hồ sơ\s+(của\s+)?/i, weight: 0.9 },
+          { regex: /cho\s+(tôi\s+)?biết\s+về/i, weight: 0.85 },
+          { regex: /tìm\s+(thông tin\s+)?về/i, weight: 0.85 },
+          { regex: /ai\s+là/i, weight: 0.7 },
+          { regex: /profile|info/i, weight: 0.8 },
+          { regex: /tên\s+(thánh|thật|họ)/i, weight: 0.85 },
+          { regex: /sinh\s+(ngày|năm|nơi|quê)/i, weight: 0.8 },
+          { regex: /liên\s*(hệ|lạc)/i, weight: 0.75 },
         ],
       },
       {
         intent: "community_info",
-        patterns: [/cộng đoàn/i, /community/i, /nhà dòng/i, /địa chỉ/i],
+        priority: 8,
+        patterns: [
+          { regex: /cộng\s*đoàn\s+[A-Za-zÀ-ỹ]+/i, weight: 1.0 },
+          { regex: /danh\s*sách\s*(các\s+)?cộng\s*đoàn/i, weight: 0.95 },
+          { regex: /cộng\s*đoàn\s*(nào|gì)/i, weight: 0.9 },
+          { regex: /nhà dòng/i, weight: 0.85 },
+          { regex: /địa chỉ\s+(cộng đoàn|nhà dòng)?/i, weight: 0.85 },
+          { regex: /ở\s+(cộng đoàn|đâu)/i, weight: 0.8 },
+          { regex: /thuộc\s+cộng\s*đoàn/i, weight: 0.9 },
+          { regex: /thành viên\s+(của\s+)?cộng đoàn/i, weight: 0.9 },
+          { regex: /ai\s+(đang\s+)?ở\s+(cộng đoàn)?/i, weight: 0.75 },
+          { regex: /community/i, weight: 0.8 },
+        ],
       },
       {
         intent: "statistics",
+        priority: 7,
         patterns: [
-          /thống kê/i,
-          /báo cáo/i,
-          /tổng số/i,
-          /bao nhiêu/i,
-          /số lượng/i,
-          /report/i,
+          { regex: /thống kê\s*(tổng\s*quan|chung)?/i, weight: 1.0 },
+          { regex: /báo cáo\s*(tổng\s*quan)?/i, weight: 0.95 },
+          { regex: /tổng\s*(số|cộng)/i, weight: 0.9 },
+          { regex: /bao nhiêu\s*(nữ tu|chị|người|cộng đoàn)?/i, weight: 0.95 },
+          { regex: /số\s*lượng/i, weight: 0.9 },
+          { regex: /có\s+mấy/i, weight: 0.85 },
+          { regex: /đếm\s*(số)?/i, weight: 0.85 },
+          { regex: /report|stats|count/i, weight: 0.8 },
+          { regex: /phân\s*bổ/i, weight: 0.85 },
+          { regex: /tỷ\s*lệ/i, weight: 0.85 },
+          { regex: /trung\s*bình/i, weight: 0.8 },
         ],
       },
       {
         intent: "education_info",
-        patterns: [/học vấn/i, /bằng cấp/i, /trình độ/i, /tốt nghiệp/i],
+        priority: 6,
+        patterns: [
+          { regex: /học\s*vấn/i, weight: 1.0 },
+          { regex: /bằng\s*cấp/i, weight: 0.95 },
+          { regex: /trình\s*độ\s*(học vấn)?/i, weight: 0.9 },
+          { regex: /tốt nghiệp/i, weight: 0.9 },
+          { regex: /học\s+(ở\s+)?trường/i, weight: 0.85 },
+          { regex: /chuyên\s*ngành/i, weight: 0.9 },
+          { regex: /cử\s*nhân|thạc\s*sĩ|tiến\s*sĩ/i, weight: 0.95 },
+          { regex: /đại học|cao đẳng/i, weight: 0.85 },
+          { regex: /education|degree/i, weight: 0.8 },
+        ],
       },
       {
         intent: "health_info",
-        patterns: [/sức khỏe/i, /bệnh/i, /khám/i, /điều trị/i],
+        priority: 5,
+        patterns: [
+          { regex: /sức\s*khỏe/i, weight: 1.0 },
+          { regex: /bệnh\s*(tình|án|sử)?/i, weight: 0.9 },
+          { regex: /khám\s*(bệnh|sức khỏe)?/i, weight: 0.9 },
+          { regex: /điều\s*trị/i, weight: 0.9 },
+          { regex: /thuốc/i, weight: 0.85 },
+          { regex: /health/i, weight: 0.8 },
+        ],
+      },
+      {
+        intent: "mission_info",
+        priority: 5,
+        patterns: [
+          { regex: /sứ\s*vụ/i, weight: 1.0 },
+          { regex: /công\s*tác\s*(tông đồ)?/i, weight: 0.9 },
+          { regex: /mission/i, weight: 0.8 },
+          { regex: /hoạt\s*động\s*(tông đồ)?/i, weight: 0.85 },
+          { regex: /bổ\s*nhiệm/i, weight: 0.85 },
+        ],
       },
       {
         intent: "help",
-        patterns: [/giúp đỡ/i, /hướng dẫn/i, /sử dụng/i, /làm sao/i, /cách/i],
+        priority: 1,
+        patterns: [
+          { regex: /giúp\s*(đỡ|tôi)?/i, weight: 1.0 },
+          { regex: /hướng\s*dẫn\s*(sử dụng)?/i, weight: 0.95 },
+          { regex: /làm\s*sao\s*(để)?/i, weight: 0.9 },
+          { regex: /cách\s*(nào|để)?/i, weight: 0.85 },
+          { regex: /có thể\s*(hỏi|làm)\s*gì/i, weight: 0.9 },
+          { regex: /bạn\s+là\s+ai/i, weight: 0.95 },
+          { regex: /help|how to/i, weight: 0.8 },
+        ],
+      },
+      {
+        intent: "greeting",
+        priority: 0,
+        patterns: [
+          { regex: /^(xin\s*)?chào/i, weight: 1.0 },
+          { regex: /^hello|hi|hey/i, weight: 1.0 },
+          { regex: /khỏe không/i, weight: 0.9 },
+        ],
       },
     ];
 
-    for (const { intent, patterns } of intentPatterns) {
-      if (patterns.some((pattern) => pattern.test(message))) {
-        analysis.intent = intent;
-        break;
+    // Score each intent
+    let bestMatch = { intent: "general", score: 0, priority: -1 };
+
+    for (const { intent, priority, patterns } of intentPatterns) {
+      let maxScore = 0;
+      for (const { regex, weight } of patterns) {
+        if (regex.test(message)) {
+          const score = weight;
+          if (score > maxScore) maxScore = score;
+        }
+      }
+
+      // Use priority as tiebreaker
+      if (
+        maxScore > bestMatch.score ||
+        (maxScore === bestMatch.score && priority > bestMatch.priority)
+      ) {
+        bestMatch = { intent, score: maxScore, priority };
       }
     }
 
-    // Extract keywords
-    const keywords = message.match(/\b\w{3,}\b/g) || [];
-    analysis.keywords = keywords.filter(
-      (word) =>
-        !["này", "của", "các", "những", "được", "trong", "không"].includes(
-          word.toLowerCase()
-        )
-    );
+    analysis.intent = bestMatch.intent;
+    analysis.confidence = bestMatch.score;
+
+    // Detect sub-intent for more specific handling
+    analysis.subIntent = this.detectSubIntent(message, analysis.intent);
+
+    // Extract keywords (excluding common Vietnamese stop words)
+    const stopWords = [
+      "này",
+      "của",
+      "các",
+      "những",
+      "được",
+      "trong",
+      "không",
+      "cho",
+      "tôi",
+      "biết",
+      "về",
+      "với",
+      "là",
+      "và",
+      "hay",
+      "hoặc",
+      "như",
+      "thế",
+      "nào",
+      "gì",
+      "đó",
+      "đây",
+      "kia",
+      "một",
+      "hai",
+      "ba",
+      "có",
+      "xin",
+      "vui",
+      "lòng",
+      "hãy",
+      "bạn",
+      "ơi",
+    ];
+    const keywords =
+      message.match(/[A-Za-zÀ-ỹ]{2,}/g)?.filter(
+        (word) => !stopWords.includes(word.toLowerCase())
+      ) || [];
+    analysis.keywords = [...new Set(keywords)];
 
     return analysis;
   }
 
   /**
-   * Extract entities from message
+   * Detect question type for better response formatting
+   */
+  detectQuestionType(message) {
+    const lowerMessage = message.toLowerCase();
+
+    if (/bao nhiêu|mấy|số lượng|tổng số|đếm/.test(lowerMessage)) {
+      return "count";
+    }
+    if (/danh sách|liệt kê|những ai|có ai/.test(lowerMessage)) {
+      return "list";
+    }
+    if (/là gì|nghĩa là|định nghĩa/.test(lowerMessage)) {
+      return "definition";
+    }
+    if (/như thế nào|làm sao|cách nào/.test(lowerMessage)) {
+      return "howto";
+    }
+    if (/tại sao|vì sao|lý do/.test(lowerMessage)) {
+      return "why";
+    }
+    if (/ở đâu|địa chỉ|nơi nào/.test(lowerMessage)) {
+      return "location";
+    }
+    if (/khi nào|lúc nào|ngày nào|năm nào/.test(lowerMessage)) {
+      return "time";
+    }
+    if (/ai là|người nào|chị nào/.test(lowerMessage)) {
+      return "who";
+    }
+    if (/so sánh|khác nhau|giống nhau/.test(lowerMessage)) {
+      return "comparison";
+    }
+
+    return "general";
+  }
+
+  /**
+   * Detect sub-intent for more specific handling
+   */
+  detectSubIntent(message, mainIntent) {
+    const lowerMessage = message.toLowerCase();
+
+    const subIntentMap = {
+      journey_info: {
+        current_stage: /đang ở|hiện tại|bây giờ/i,
+        stage_list: /danh sách|các giai đoạn/i,
+        stage_count: /bao nhiêu|mấy người|số lượng/i,
+        specific_stage: /khấn tạm|khấn trọn|nhà tập|tập viện|tiền tập|tìm hiểu/i,
+      },
+      sister_info: {
+        basic_info: /thông tin|hồ sơ|profile/i,
+        contact: /liên hệ|điện thoại|email|số điện thoại/i,
+        search: /tìm|tìm kiếm|search/i,
+        list: /danh sách|liệt kê/i,
+      },
+      community_info: {
+        list: /danh sách|tất cả|các cộng đoàn/i,
+        members: /thành viên|ai ở|có ai/i,
+        details: /thông tin|chi tiết|địa chỉ/i,
+      },
+      statistics: {
+        overview: /tổng quan|chung|overview/i,
+        by_stage: /theo giai đoạn|phân bổ/i,
+        by_community: /theo cộng đoàn/i,
+        trends: /xu hướng|biến động|thay đổi/i,
+      },
+    };
+
+    const intentSubMap = subIntentMap[mainIntent];
+    if (!intentSubMap) return null;
+
+    for (const [subIntent, pattern] of Object.entries(intentSubMap)) {
+      if (pattern.test(message)) {
+        return subIntent;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Extract entities from message with improved accuracy
    */
   async extractEntities(message) {
     const entities = {};
+    const lowerMessage = message.toLowerCase();
+    const normalizedMessage = vietnameseNormalize.normalize(message);
 
     try {
-      // Extract sister names from database (status = 'active' or no filter for flexibility)
+      // Extract sister names from database with fuzzy matching
       const [sisters] = await db.execute(
         "SELECT id, birth_name, saint_name, code FROM sisters"
       );
 
-      const lowerMessage = message.toLowerCase();
-
-      // Sort sisters by name length (longest first) to match more specific names first
-      // e.g., "trần tín 1" should match before "trần tín"
+      // Sort sisters by name length (longest first) for better matching
       const sortedSisters = sisters.sort((a, b) => {
-        const aLen = (a.birth_name || "").length;
-        const bLen = (b.birth_name || "").length;
+        const aLen = Math.max(
+          (a.birth_name || "").length,
+          (a.saint_name || "").length
+        );
+        const bLen = Math.max(
+          (b.birth_name || "").length,
+          (b.saint_name || "").length
+        );
         return bLen - aLen;
       });
+
+      let bestSisterMatch = { id: null, score: 0, name: null };
 
       for (const sister of sortedSisters) {
         const birthName = (sister.birth_name || "").toLowerCase().trim();
         const saintName = (sister.saint_name || "").toLowerCase().trim();
         const code = (sister.code || "").toLowerCase().trim();
 
+        // Direct match
         if (
           (birthName && lowerMessage.includes(birthName)) ||
           (saintName && lowerMessage.includes(saintName)) ||
           (code && lowerMessage.includes(code))
         ) {
-          entities.sister_id = sister.id;
-          entities.sister_name = sister.birth_name;
-          entities.saint_name = sister.saint_name;
+          bestSisterMatch = {
+            id: sister.id,
+            score: 1,
+            name: sister.birth_name,
+            saint_name: sister.saint_name,
+          };
           break;
+        }
+
+        // Fuzzy matching for typos
+        if (birthName) {
+          const similarity = vietnameseNormalize.similarity(
+            lowerMessage,
+            birthName
+          );
+          if (similarity > 0.7 && similarity > bestSisterMatch.score) {
+            bestSisterMatch = {
+              id: sister.id,
+              score: similarity,
+              name: sister.birth_name,
+              saint_name: sister.saint_name,
+            };
+          }
+        }
+
+        // Check for partial name mentions (e.g., "chị Maria" or "sơ Tín")
+        const sisterPatterns = [
+          new RegExp(`(chị|sơ|nữ tu)\\s+${saintName}`, "i"),
+          new RegExp(`(chị|sơ|nữ tu)\\s+${birthName.split(" ").pop()}`, "i"),
+        ];
+
+        for (const pattern of sisterPatterns) {
+          if (pattern.test(message) && bestSisterMatch.score < 0.9) {
+            bestSisterMatch = {
+              id: sister.id,
+              score: 0.9,
+              name: sister.birth_name,
+              saint_name: sister.saint_name,
+            };
+            break;
+          }
         }
       }
 
-      // Extract community names
+      if (bestSisterMatch.id) {
+        entities.sister_id = bestSisterMatch.id;
+        entities.sister_name = bestSisterMatch.name;
+        entities.saint_name = bestSisterMatch.saint_name;
+        entities.match_confidence = bestSisterMatch.score;
+      }
+
+      // Extract community names with fuzzy matching
       const [communities] = await db.execute(
         "SELECT id, name, code FROM communities"
       );
 
+      let bestCommunityMatch = { id: null, score: 0, name: null };
+
       for (const community of communities) {
         const name = (community.name || "").toLowerCase();
         const code = (community.code || "").toLowerCase();
-        const lowerMessage = message.toLowerCase();
 
+        // Direct match
         if (
           (name && lowerMessage.includes(name)) ||
           (code && lowerMessage.includes(code))
         ) {
-          entities.community_id = community.id;
-          entities.community_name = community.name;
+          bestCommunityMatch = {
+            id: community.id,
+            score: 1,
+            name: community.name,
+          };
+          break;
+        }
+
+        // Check for partial community name
+        const communityPattern = new RegExp(
+          `cộng\\s*đoàn\\s+${name.replace(/cộng đoàn\\s*/i, "")}`,
+          "i"
+        );
+        if (communityPattern.test(message) && bestCommunityMatch.score < 0.9) {
+          bestCommunityMatch = {
+            id: community.id,
+            score: 0.9,
+            name: community.name,
+          };
+        }
+
+        // Fuzzy matching
+        const similarity = vietnameseNormalize.similarity(lowerMessage, name);
+        if (similarity > 0.7 && similarity > bestCommunityMatch.score) {
+          bestCommunityMatch = {
+            id: community.id,
+            score: similarity,
+            name: community.name,
+          };
+        }
+      }
+
+      if (bestCommunityMatch.id) {
+        entities.community_id = bestCommunityMatch.id;
+        entities.community_name = bestCommunityMatch.name;
+      }
+
+      // Extract dates (multiple formats)
+      const datePatterns = [
+        /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/, // DD/MM/YYYY
+        /(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/, // YYYY/MM/DD
+        /ngày\s+(\d{1,2})\s+(tháng\s+)?(\d{1,2})(\s+năm\s+(\d{4}))?/i, // Vietnamese format
+      ];
+
+      for (const pattern of datePatterns) {
+        const dateMatch = message.match(pattern);
+        if (dateMatch) {
+          entities.date = dateMatch[0];
           break;
         }
       }
 
-      // Extract dates
-      const dateMatch = message.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-      if (dateMatch) {
-        entities.date = dateMatch[0];
-      }
-
       // Extract year
-      const yearMatch = message.match(/năm\s+(\d{4})/i);
-      if (yearMatch) {
-        entities.year = parseInt(yearMatch[1]);
+      const yearPatterns = [
+        /năm\s+(\d{4})/i,
+        /(\d{4})\s*(-|đến|tới)\s*(\d{4}|nay)/i,
+        /từ\s+(\d{4})/i,
+      ];
+
+      for (const pattern of yearPatterns) {
+        const yearMatch = message.match(pattern);
+        if (yearMatch) {
+          entities.year = parseInt(yearMatch[1]);
+          if (yearMatch[3]) {
+            entities.endYear =
+              yearMatch[3] === "nay"
+                ? new Date().getFullYear()
+                : parseInt(yearMatch[3]);
+          }
+          break;
+        }
       }
 
-      // Extract stage keywords
+      // Extract stage keywords with Vietnamese variations
       const stagePatterns = {
-        inquiry: /tìm hiểu/i,
-        pre_postulancy: /tiền tập/i,
-        postulancy: /tập viện/i,
-        novitiate: /nhà tập/i,
-        temporary_vows: /khấn tạm/i,
-        perpetual_vows: /khấn trọn|khấn vĩnh viễn/i,
+        inquiry: /tìm hiểu|giai đoạn đầu|inquiry/i,
+        pre_postulancy: /tiền\s*tập|pre.?postulancy/i,
+        postulancy: /tập viện|postulancy/i,
+        novitiate: /nhà tập|novitiate|tập sinh/i,
+        temporary_vows: /khấn tạm|khấn lần đầu|temporary/i,
+        perpetual_vows: /khấn trọn|khấn vĩnh viễn|perpetual|vĩnh khấn/i,
       };
 
       for (const [stage, pattern] of Object.entries(stagePatterns)) {
         if (pattern.test(message)) {
           entities.stage = stage;
+          entities.stage_vietnamese = this.getStageVietnameseName(stage);
           break;
+        }
+      }
+
+      // Extract numbers for quantity queries
+      const numberMatch = message.match(/(\d+)\s*(người|nữ tu|chị|thành viên)/i);
+      if (numberMatch) {
+        entities.quantity = parseInt(numberMatch[1]);
+      }
+
+      // Extract age/age range
+      const ageMatch = message.match(
+        /(\d+)\s*tuổi|tuổi\s*(\d+)|từ\s*(\d+)\s*đến\s*(\d+)\s*tuổi/i
+      );
+      if (ageMatch) {
+        entities.age = parseInt(ageMatch[1] || ageMatch[2] || ageMatch[3]);
+        if (ageMatch[4]) {
+          entities.maxAge = parseInt(ageMatch[4]);
         }
       }
     } catch (error) {
@@ -186,6 +580,21 @@ class ChatbotService {
     }
 
     return entities;
+  }
+
+  /**
+   * Get Vietnamese name for journey stage
+   */
+  getStageVietnameseName(stageCode) {
+    const stageNames = {
+      inquiry: "Tìm hiểu",
+      pre_postulancy: "Tiền tập viện",
+      postulancy: "Tập viện",
+      novitiate: "Nhà tập",
+      temporary_vows: "Khấn tạm",
+      perpetual_vows: "Khấn trọn",
+    };
+    return stageNames[stageCode] || stageCode;
   }
 
   /**
